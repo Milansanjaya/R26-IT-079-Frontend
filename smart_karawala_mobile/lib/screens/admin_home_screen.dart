@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/admin_bottom_nav.dart';
+import 'add_new_batch_screen.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -9,20 +10,16 @@ class AdminHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffEAF7FF),
-
       bottomNavigationBar: const AdminBottomNav(),
-
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(18),
           child: Column(
             children: [
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Icon(Icons.menu, size: 28),
-
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: const [
@@ -56,7 +53,6 @@ class AdminHomeScreen extends StatelessWidget {
 
               Row(
                 children: [
-
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
@@ -71,9 +67,7 @@ class AdminHomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 10),
-
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -92,69 +86,67 @@ class AdminHomeScreen extends StatelessWidget {
                   crossAxisCount: 3,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
-                  children: const [
-
-                    DashboardCard(
-                      icon: Icons.add_circle_outline,
-                      title: "Add New Batch",
+                  // Removed 'const' from here because GestureDetector cannot be a constant
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddNewBatchScreen(),
+                          ),
+                        );
+                      },
+                      child: const DashboardCard(
+                        icon: Icons.add_circle_outline,
+                        title: "Add New Batch",
+                      ),
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.bar_chart,
                       title: "Waste Prediction",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.grain,
                       title: "Salt Prediction",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.assignment,
                       title: "Waste & Traceability",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.water_drop,
                       title: "Salting Monitor",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.wb_sunny,
                       title: "Drying Dashboard",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.tune,
                       title: "Drying Control",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.memory,
                       title: "IoT Status",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.notifications,
                       title: "Alerts",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.camera_alt,
                       title: "Live Camera",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.search,
                       title: "Defects",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.history,
                       title: "Inspection History",
                     ),
-
-                    DashboardCard(
+                    const DashboardCard(
                       icon: Icons.admin_panel_settings,
                       title: "Admin Dashboard",
                     ),
