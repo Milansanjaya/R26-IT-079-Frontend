@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../widgets/colors.dart';
+import 'batch_created_success_screen.dart';
+import 'package:http/http.dart' as http;
 
 class AddNewBatchScreen extends StatefulWidget {
   const AddNewBatchScreen({super.key});
@@ -20,6 +23,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
   
   String? fish;
   String? location;
+  bool isLoading = false; // Added to handle progress status
 
   @override
   void dispose() {
@@ -28,6 +32,73 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     dateController.dispose();
     timeController.dispose();
     super.dispose();
+  }
+
+  // Moved inside the State class so it can access fields dynamically
+  Future<void> saveBatch() async {
+    if (fish == null || location == null || weightController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in all required fields")),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    // Auto-generate a batchId since there is no input field for it in the UI
+    final generatedBatchId = "B${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+    final url = Uri.parse("http://localhost:8000/api/batches");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "batchId": generatedBatchId,
+          "fishType": fish,
+          "rawWeight": double.tryParse(weightController.text) ?? 0.0,
+          "date": dateController.text,
+          "time": timeController.text,
+          "location": location,
+          "notes": notesController.text,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+  if (!mounted) return;
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => BatchCreatedSuccessScreen(
+        batchId: generatedBatchId,
+        fishType: fish!,
+        rawWeight: weightController.text,
+        date: dateController.text,
+        time: timeController.text,
+        location: location!,
+        notes: notesController.text,
+      ),
+    ),
+  );
+}
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${e.toString()}")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> pickTime() async {
@@ -176,16 +247,12 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
               ]),
 
               const SizedBox(height: 15),
-              
-              // Correctly structured widget placements
               buildDate(),
               
               const SizedBox(height: 15),
-              
               buildTime(),
               
               const SizedBox(height: 15),
-
               buildNotes(),
 
               const SizedBox(height: 20),
@@ -194,7 +261,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red),
@@ -207,11 +274,18 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
                   Expanded(
                     flex: 2,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.add),
-                      label: const Text(
-                        "Create Batch",
-                        style: TextStyle(
+                      // Attached the saveBatch execution block here
+                      onPressed: isLoading ? null : saveBatch,
+                      icon: isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Icon(Icons.add),
+                      label: Text(
+                        isLoading ? "Saving..." : "Create Batch",
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
