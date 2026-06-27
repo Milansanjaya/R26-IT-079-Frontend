@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/admin_bottom_nav.dart';
 import 'add_new_batch_screen.dart';
+import 'waste_prediction_screen.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -25,13 +26,11 @@ class AdminHomeScreen extends StatelessWidget {
                     children: const [
                       Text(
                         "Smart",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text("කරවල"),
                     ],
-                  )
+                  ),
                 ],
               ),
 
@@ -75,7 +74,7 @@ class AdminHomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.tune),
-                  )
+                  ),
                 ],
               ),
 
@@ -102,9 +101,19 @@ class AdminHomeScreen extends StatelessWidget {
                         title: "Add New Batch",
                       ),
                     ),
-                    const DashboardCard(
-                      icon: Icons.bar_chart,
-                      title: "Waste Prediction",
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WastePredictionScreen(),
+                          ),
+                        );
+                      },
+                      child: const DashboardCard(
+                        icon: Icons.bar_chart,
+                        title: "Waste Prediction",
+                      ),
                     ),
                     const DashboardCard(
                       icon: Icons.grain,
@@ -138,10 +147,7 @@ class AdminHomeScreen extends StatelessWidget {
                       icon: Icons.camera_alt,
                       title: "Live Camera",
                     ),
-                    const DashboardCard(
-                      icon: Icons.search,
-                      title: "Defects",
-                    ),
+                    const DashboardCard(icon: Icons.search, title: "Defects"),
                     const DashboardCard(
                       icon: Icons.history,
                       title: "Inspection History",
