@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'add_company_screen.dart';
 
 class WasteNotificationScreen extends StatefulWidget {
-  const WasteNotificationScreen({super.key});
+  final double predictedWaste;
+  const WasteNotificationScreen({super.key, required this.predictedWaste});
 
   @override
   State<WasteNotificationScreen> createState() =>
@@ -10,6 +11,9 @@ class WasteNotificationScreen extends StatefulWidget {
 }
 
 class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
+  final TextEditingController collectionDateController =
+      TextEditingController();
+
   final List<Map<String, dynamic>> companies = [
     {
       "name": "Ocean Recyclers (Pvt) Ltd",
@@ -32,6 +36,14 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
       "icon": Icons.water,
     },
   ];
+  @override
+  void initState() {
+    super.initState();
+
+    final now = DateTime.now();
+
+    collectionDateController.text = "${now.day}/${now.month}/${now.year}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +311,8 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                               const SizedBox(height: 8),
 
                               TextFormField(
-                                initialValue: "113.5",
+                                initialValue:
+                                    "${widget.predictedWaste.toStringAsFixed(1)}",
 
                                 decoration: InputDecoration(
                                   suffixText: "kg",
@@ -331,18 +344,30 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                               const SizedBox(height: 8),
 
                               TextFormField(
-                                initialValue: "26 May 2026",
+                                controller: collectionDateController,
                                 readOnly: true,
-
                                 decoration: InputDecoration(
                                   prefixIcon: const Icon(Icons.calendar_month),
-
                                   suffixIcon: const Icon(Icons.arrow_drop_down),
-
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
+                                onTap: () async {
+                                  final DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2035),
+                                  );
+
+                                  if (picked != null) {
+                                    setState(() {
+                                      collectionDateController.text =
+                                          "${picked.day}/${picked.month}/${picked.year}";
+                                    });
+                                  }
+                                },
                               ),
                             ],
                           ),

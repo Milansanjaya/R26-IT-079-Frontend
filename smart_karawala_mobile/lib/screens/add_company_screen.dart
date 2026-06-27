@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-
+import 'company_added_success_screen.dart';
 class AddCompanyScreen extends StatefulWidget {
   const AddCompanyScreen({super.key});
 
   @override
-  State<AddCompanyScreen> createState() =>
-      _AddCompanyScreenState();
+  State<AddCompanyScreen> createState() => _AddCompanyScreenState();
 }
 
-class _AddCompanyScreenState
-    extends State<AddCompanyScreen> {
-
+class _AddCompanyScreenState extends State<AddCompanyScreen> {
   final companyName = TextEditingController();
   final contactPerson = TextEditingController();
   final phone = TextEditingController();
@@ -33,22 +30,17 @@ class _AddCompanyScreenState
 
           child: Column(
             children: [
-
               //--------------------------------
               // Header
               //--------------------------------
-
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                 children: [
-
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius:
-                          BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12),
                     ),
 
                     child: IconButton(
@@ -61,22 +53,14 @@ class _AddCompanyScreenState
 
                   Column(
                     children: const [
-
-                      Icon(
-                        Icons.set_meal,
-                        color: Colors.blue,
-                        size: 45,
-                      ),
+                      Icon(Icons.set_meal, color: Colors.blue, size: 45),
 
                       Text(
                         "Smart",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
 
                       Text("කරවල"),
-
                     ],
                   ),
                 ],
@@ -100,13 +84,11 @@ class _AddCompanyScreenState
 
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                      BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(18),
                 ),
 
                 child: Column(
                   children: [
-
                     buildTextField(
                       controller: companyName,
                       label: "Company Name",
@@ -158,11 +140,7 @@ class _AddCompanyScreenState
                       label: "Services Accepted",
                       icon: Icons.sell_outlined,
                       value: serviceType,
-                      items: const [
-                        "Fish Waste",
-                        "Fish Meal",
-                        "Compost",
-                      ],
+                      items: const ["Fish Waste", "Fish Meal", "Compost"],
                       onChanged: (v) {
                         setState(() {
                           serviceType = v;
@@ -200,23 +178,27 @@ class _AddCompanyScreenState
 
                       child: ElevatedButton.icon(
                         onPressed: () {
-
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Company Saved",
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CompanyAddedSuccessScreen(
+                                companyName: companyName.text,
+                                companyType: companyType ?? "",
+                                contactPerson: contactPerson.text,
+                                phone: phone.text,
+                                email: email.text,
+                                address: address.text,
+                                services: serviceType ?? "",
+                                notes: notes.text,
+                                active: active,
                               ),
                             ),
                           );
-
                         },
 
                         icon: const Icon(Icons.add),
 
-                        label: const Text(
-                          "Save Company",
-                        ),
+                        label: const Text("Save Company"),
                       ),
                     ),
 
@@ -231,7 +213,6 @@ class _AddCompanyScreenState
                         child: const Text("Cancel"),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -263,10 +244,7 @@ class _AddCompanyScreenState
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon),
-          border: OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(10),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),
     );
@@ -286,18 +264,10 @@ class _AddCompanyScreenState
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon),
-          border: OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(10),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         items: items
-            .map(
-              (e) => DropdownMenuItem(
-                value: e,
-                child: Text(e),
-              ),
-            )
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
             .toList(),
         onChanged: onChanged,
       ),

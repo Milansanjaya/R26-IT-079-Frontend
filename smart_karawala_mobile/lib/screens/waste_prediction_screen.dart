@@ -413,7 +413,6 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                     ),
 
                     const SizedBox(height: 25),
-
                   ],
                 ),
               ),
@@ -501,7 +500,9 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const WasteNotificationScreen(),
+                          builder: (context) => WasteNotificationScreen(
+                            predictedWaste: batch!.predictedWaste,
+                          ),
                         ),
                       );
                     } else {
@@ -512,7 +513,6 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                         ),
                       );
                     }
-
 
                     if (!mounted) return;
 
