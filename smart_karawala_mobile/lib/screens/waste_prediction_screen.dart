@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/batch_model.dart';
 import '../services/batch_service.dart';
+import 'waste_notification_screen.dart';
 
 class WastePredictionScreen extends StatefulWidget {
   const WastePredictionScreen({super.key});
@@ -582,11 +583,29 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-
                   onPressed: () async {
                     final success = await BatchService.sendNotification(
                       batch!.batchId,
                     );
+
+                    if (!mounted) return;
+
+                    if (success) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WasteNotificationScreen(),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text("Failed to send notification."),
+                        ),
+                      );
+                    }
+
 
                     if (!mounted) return;
 
