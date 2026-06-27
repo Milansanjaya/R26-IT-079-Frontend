@@ -406,61 +406,6 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                               ),
 
                               const SizedBox(height: 15),
-
-                              //------------------------------------------------
-                              // Cleaned Weight Card
-                              //------------------------------------------------
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(15),
-
-                                decoration: BoxDecoration(
-                                  color: const Color(0xffEEF5FF),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-
-                                child: Column(
-                                  children: [
-                                    const Icon(
-                                      Icons.set_meal,
-                                      color: Colors.blue,
-                                      size: 30,
-                                    ),
-
-                                    const SizedBox(height: 8),
-
-                                    const Text(
-                                      "Estimated\nCleaned Weight",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 8),
-
-                                    Text(
-                                      "${batch!.cleanedWeight} kg",
-                                      style: const TextStyle(
-                                        fontSize: 22,
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 5),
-
-                                    Text(
-                                      "${((batch!.cleanedWeight / batch!.rawWeight) * 100).toStringAsFixed(1)}% of raw weight",
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: Colors.green,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -469,44 +414,6 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
 
                     const SizedBox(height: 25),
 
-                    //------------------------------------------------
-                    // Confidence Card
-                    //------------------------------------------------
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-
-                      decoration: BoxDecoration(
-                        color: const Color(0xffEAFBEA),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-
-                      child: const Row(
-                        children: [
-                          Icon(Icons.verified, color: Colors.green),
-
-                          SizedBox(width: 10),
-
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "High confidence prediction",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-
-                                SizedBox(height: 3),
-
-                                Text("Model confidence: 92%"),
-                              ],
-                            ),
-                          ),
-
-                          Icon(Icons.info_outline),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),

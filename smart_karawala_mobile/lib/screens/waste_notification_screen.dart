@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'add_company_screen.dart';
 
 class WasteNotificationScreen extends StatefulWidget {
   const WasteNotificationScreen({super.key});
@@ -479,8 +480,12 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
               //------------------------------------------------
               InkWell(
                 onTap: () {
-                  // TODO:
-                  // Navigate to Create Company Screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddCompanyScreen(),
+                    ),
+                  );
                 },
 
                 child: Container(
