@@ -90,14 +90,19 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                   Container(
                     width: 45,
                     height: 45,
-
                     decoration: BoxDecoration(
                       color: Colors.white,
-
                       borderRadius: BorderRadius.circular(12),
                     ),
-
-                    child: const Icon(Icons.menu),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xff174C7B),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
 
                   Column(
