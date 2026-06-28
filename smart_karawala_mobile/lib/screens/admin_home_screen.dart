@@ -3,6 +3,7 @@ import '../widgets/dashboard_card.dart';
 import '../widgets/admin_bottom_nav.dart';
 import 'add_new_batch_screen.dart';
 import 'waste_prediction_screen.dart';
+import 'salt_prediction_screen.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -94,6 +95,7 @@ class AdminHomeScreen extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => const AddNewBatchScreen(),
                           ),
+                          
                         );
                       },
                       child: const DashboardCard(
@@ -115,10 +117,21 @@ class AdminHomeScreen extends StatelessWidget {
                         title: "Waste Prediction",
                       ),
                     ),
-                    const DashboardCard(
-                      icon: Icons.grain,
-                      title: "Salt Prediction",
+                     GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SaltPredictionScreen(),
+                          ),
+                        );
+                      },
+                      child: const DashboardCard(
+                        icon: Icons.grain,
+                        title: "Salt Prediction",
+                      ),
                     ),
+
                     const DashboardCard(
                       icon: Icons.assignment,
                       title: "Waste & Traceability",
