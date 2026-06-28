@@ -1,16 +1,13 @@
 class SaltingMonitorModel {
   final String batchId;
   final String fishType;
-
   final String status;
   final String startTime;
 
   final double progress;
-
   final double currentWeight;
   final double weightLoss;
   final double weightLossPercentage;
-
   final double remainingHours;
 
   SaltingMonitorModel({
@@ -27,12 +24,11 @@ class SaltingMonitorModel {
 
   factory SaltingMonitorModel.fromJson(
       Map<String, dynamic> json) {
+
     return SaltingMonitorModel(
       batchId: json["batchId"],
       fishType: json["fishType"],
-
       status: json["status"],
-
       startTime: json["startTime"],
 
       progress:

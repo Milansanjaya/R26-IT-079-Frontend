@@ -14,13 +14,10 @@ class SaltPredictionScreen extends StatefulWidget {
   const SaltPredictionScreen({super.key});
 
   @override
-  State<SaltPredictionScreen> createState() =>
-      _SaltPredictionScreenState();
+  State<SaltPredictionScreen> createState() => _SaltPredictionScreenState();
 }
 
-class _SaltPredictionScreenState
-    extends State<SaltPredictionScreen> {
-
+class _SaltPredictionScreenState extends State<SaltPredictionScreen> {
   BatchModel? batch;
   SaltPredictionModel? prediction;
 
@@ -39,8 +36,7 @@ class _SaltPredictionScreenState
 
   Future<void> loadLatestBatch() async {
     try {
-      final latest =
-          await SaltService.getLatestBatch();
+      final latest = await SaltService.getLatestBatch();
 
       setState(() {
         batch = latest;
@@ -51,11 +47,9 @@ class _SaltPredictionScreenState
         loading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -64,7 +58,6 @@ class _SaltPredictionScreenState
   //------------------------------------------------
 
   Future<void> predictSalt() async {
-
     if (batch == null) return;
 
     setState(() {
@@ -72,41 +65,30 @@ class _SaltPredictionScreenState
     });
 
     try {
-
-      final result =
-          await SaltService.predictSalt(batch!);
+      final result = await SaltService.predictSalt(batch!);
 
       setState(() {
         prediction = result;
         predicting = false;
       });
-
     } catch (e) {
-
       setState(() {
         predicting = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
-    //------------------------------------------------
+  //------------------------------------------------
   // UI
   //------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
-
     if (loading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -123,9 +105,7 @@ class _SaltPredictionScreenState
             fontWeight: FontWeight.bold,
           ),
         ),
-        iconTheme: const IconThemeData(
-          color: Color(0xff214E77),
-        ),
+        iconTheme: const IconThemeData(color: Color(0xff214E77)),
       ),
 
       body: SingleChildScrollView(
@@ -134,11 +114,9 @@ class _SaltPredictionScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             //------------------------------------------------
             // Cleaned Weight Card
             //------------------------------------------------
-
             CleanedWeightCard(
               batchId: batch!.batchId,
               fishType: batch!.fishType,
@@ -150,15 +128,12 @@ class _SaltPredictionScreenState
             //------------------------------------------------
             // Predict Button
             //------------------------------------------------
-
             SizedBox(
               width: double.infinity,
               height: 55,
 
               child: ElevatedButton.icon(
-
-                onPressed:
-                    predicting ? null : predictSalt,
+                onPressed: predicting ? null : predictSalt,
 
                 icon: predicting
                     ? const SizedBox(
@@ -171,15 +146,10 @@ class _SaltPredictionScreenState
                       )
                     : const Icon(Icons.analytics),
 
-                label: Text(
-                  predicting
-                      ? "Predicting..."
-                      : "Predict Salt",
-                ),
+                label: Text(predicting ? "Predicting..." : "Predict Salt"),
 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xff214E77),
+                  backgroundColor: const Color(0xff214E77),
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -190,24 +160,20 @@ class _SaltPredictionScreenState
             //------------------------------------------------
             // Prediction Result
             //------------------------------------------------
-
             if (prediction != null)
               PredictionResultCard(
                 saltAmount: prediction!.saltAmount,
-                saltingDurationHours:
-                    prediction!.saltingDurationHours,
+                saltingDurationHours: prediction!.saltingDurationHours,
               ),
 
             const SizedBox(height: 30),
 
-                        //------------------------------------------------
+            //------------------------------------------------
             // Action Buttons
             //------------------------------------------------
-
             if (prediction != null)
               Row(
                 children: [
-
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
@@ -227,25 +193,36 @@ class _SaltPredictionScreenState
 
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO:
-                        // Navigate to Salting Monitor Screen
+                      onPressed: () async {
+                        if (batch == null) return;
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Proceed to Salting",
-                            ),
-                          ),
+                        final success = await SaltingService.startSalting(
+                          batch!.batchId,
                         );
 
+                        if (!mounted) return;
+
+                        if (success) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => SaltingMonitoringScreen(
+                                batchId: batch!.batchId,
+                              ),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Failed to start salting"),
+                            ),
+                          );
+                        }
                       },
 
                       icon: const Icon(Icons.arrow_forward),
 
-                      label: const Text(
-                        "Proceed",
-                      ),
+                      label: const Text("Proceed"),
 
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
@@ -254,7 +231,6 @@ class _SaltPredictionScreenState
                       ),
                     ),
                   ),
-
                 ],
               ),
 
@@ -263,7 +239,6 @@ class _SaltPredictionScreenState
             //------------------------------------------------
             // Recommendation
             //------------------------------------------------
-
             if (prediction != null)
               Container(
                 width: double.infinity,
@@ -271,18 +246,12 @@ class _SaltPredictionScreenState
                 decoration: BoxDecoration(
                   color: const Color(0xffF3FFF3),
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: Colors.green.shade300,
-                  ),
+                  border: Border.all(color: Colors.green.shade300),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-                    const Icon(
-                      Icons.lightbulb,
-                      color: Colors.green,
-                    ),
+                    const Icon(Icons.lightbulb, color: Colors.green),
 
                     const SizedBox(width: 10),
 
@@ -292,12 +261,9 @@ class _SaltPredictionScreenState
                         "${prediction!.saltAmount.toStringAsFixed(2)} kg.\n\n"
                         "Recommended salting duration is "
                         "${prediction!.saltingDurationHours} hours.",
-                        style: const TextStyle(
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(fontSize: 14),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -307,14 +273,11 @@ class _SaltPredictionScreenState
             const Center(
               child: Text(
                 "Powered by Smart Karawala",
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
+                style: TextStyle(color: Colors.grey),
               ),
             ),
 
             const SizedBox(height: 20),
-
           ],
         ),
       ),

@@ -5,6 +5,7 @@ import 'add_new_batch_screen.dart';
 import 'waste_prediction_screen.dart';
 import 'salt_prediction_screen.dart';
 import 'salting_monitoring_screen.dart';
+import '../services/salt_service.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -139,14 +140,15 @@ class AdminHomeScreen extends StatelessWidget {
                       title: "Waste & Traceability",
                     ),
 
-                   
-
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        final batch = await SaltService.getLatestBatch();
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SaltingMonitoringScreen(batchId: "example_batch_id"),
+                            builder: (_) =>
+                                SaltingMonitoringScreen(batchId: batch.batchId),
                           ),
                         );
                       },
@@ -156,7 +158,6 @@ class AdminHomeScreen extends StatelessWidget {
                       ),
                     ),
 
-                    
                     const DashboardCard(
                       icon: Icons.wb_sunny,
                       title: "Drying Dashboard",
