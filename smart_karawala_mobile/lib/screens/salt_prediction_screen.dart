@@ -7,6 +7,9 @@ import '../services/salt_service.dart';
 import '../widgets/cleaned_weight_card.dart';
 import '../widgets/prediction_result_card.dart';
 
+import '../services/salting_service.dart';
+import 'salting_monitoring_screen.dart';
+
 class SaltPredictionScreen extends StatefulWidget {
   const SaltPredictionScreen({super.key});
 
@@ -225,7 +228,6 @@ class _SaltPredictionScreenState
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-
                         // TODO:
                         // Navigate to Salting Monitor Screen
 

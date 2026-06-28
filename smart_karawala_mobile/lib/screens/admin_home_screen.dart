@@ -4,6 +4,7 @@ import '../widgets/admin_bottom_nav.dart';
 import 'add_new_batch_screen.dart';
 import 'waste_prediction_screen.dart';
 import 'salt_prediction_screen.dart';
+import 'salting_monitoring_screen.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -95,7 +96,6 @@ class AdminHomeScreen extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => const AddNewBatchScreen(),
                           ),
-                          
                         );
                       },
                       child: const DashboardCard(
@@ -103,6 +103,7 @@ class AdminHomeScreen extends StatelessWidget {
                         title: "Add New Batch",
                       ),
                     ),
+
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -117,7 +118,8 @@ class AdminHomeScreen extends StatelessWidget {
                         title: "Waste Prediction",
                       ),
                     ),
-                     GestureDetector(
+
+                    GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
@@ -136,10 +138,25 @@ class AdminHomeScreen extends StatelessWidget {
                       icon: Icons.assignment,
                       title: "Waste & Traceability",
                     ),
-                    const DashboardCard(
-                      icon: Icons.water_drop,
-                      title: "Salting Monitor",
+
+                   
+
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SaltingMonitoringScreen(batchId: "example_batch_id"),
+                          ),
+                        );
+                      },
+                      child: const DashboardCard(
+                        icon: Icons.water_drop,
+                        title: "Salt Monitoring",
+                      ),
                     ),
+
+                    
                     const DashboardCard(
                       icon: Icons.wb_sunny,
                       title: "Drying Dashboard",
