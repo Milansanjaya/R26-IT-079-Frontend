@@ -192,6 +192,8 @@ void initState() {
             ),
 
             const SizedBox(height: 25),
+            const SizedBox(height: 25),
+            const SizedBox(height: 25),
 
             //------------------------------------------------
             // Powered By

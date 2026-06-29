@@ -6,6 +6,7 @@ import 'waste_prediction_screen.dart';
 import 'salt_prediction_screen.dart';
 import 'salting_monitoring_screen.dart';
 import '../services/salt_service.dart';
+import 'waste_traceability_screen.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -135,9 +136,19 @@ class AdminHomeScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const DashboardCard(
-                      icon: Icons.assignment,
-                      title: "Waste & Traceability",
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WasteTraceabilityScreen(),
+                          ),
+                        );
+                      },
+                      child: const DashboardCard(
+                        icon: Icons.assignment,
+                        title: "Waste & Traceability",
+                      ),
                     ),
 
                     GestureDetector(
