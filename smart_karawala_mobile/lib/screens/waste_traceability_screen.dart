@@ -4,9 +4,9 @@ import '../widgets/traceability_stat_card.dart';
 import '../widgets/processing_record_card.dart';
 import '../widgets/quick_action_card.dart';
 
-
 import '../services/traceability_service.dart';
 import '../models/traceability_dashboard_model.dart';
+import 'processing_reports_screen.dart';
 
 class WasteTraceabilityScreen extends StatefulWidget {
   const WasteTraceabilityScreen({super.key});
@@ -76,7 +76,7 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
             SizedBox(height: 20),
 
             Row(
-              children:  [
+              children: [
                 TraceabilityStatCard(
                   icon: Icons.inventory,
                   iconColor: Colors.green,
@@ -105,7 +105,7 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                   icon: Icons.assignment,
                   iconColor: Colors.blue,
                   title: "completed\nBatches",
-                 value: d.completedBatches.toString(),
+                  value: d.completedBatches.toString(),
                   subtitle: "Total",
                 ),
               ],
@@ -122,7 +122,7 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children:  [
                       Text(
                         "Recent Processing Records",
                         style: TextStyle(
@@ -132,11 +132,21 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                         ),
                       ),
 
-                      Text(
-                        "View All",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w600,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ProcessingReportsScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "View All",
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
