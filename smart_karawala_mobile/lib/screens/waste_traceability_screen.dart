@@ -7,6 +7,7 @@ import '../widgets/quick_action_card.dart';
 import '../services/traceability_service.dart';
 import '../models/traceability_dashboard_model.dart';
 import 'processing_reports_screen.dart';
+import 'add_new_batch_screen.dart';
 
 class WasteTraceabilityScreen extends StatefulWidget {
   const WasteTraceabilityScreen({super.key});
@@ -174,7 +175,6 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                     date: "24 May 2025",
                     time: "03:15 PM",
                     status: "In Progress",
-                    
                   ),
 
                   Divider(),
@@ -185,7 +185,6 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                     date: "23 May 2025",
                     time: "09:45 AM",
                     status: "Completed",
-                    
                   ),
                 ],
               ),
@@ -217,21 +216,30 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                       QuickActionCard(
                         icon: Icons.add_circle_outline,
                         title: "Add New Batch",
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AddNewBatchScreen(),
+                            ),
+                          );
+                        },
                       ),
 
                       QuickActionCard(
                         icon: Icons.bar_chart,
                         title: "View Reports",
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ProcessingReportsScreen(),
+                            ),
+                          );
+                        },
                       ),
 
-                      QuickActionCard(
-                        icon: Icons.download,
-                        title: "Export Data",
-                        onTap: () {},
-                      ),
-
+                      
                       QuickActionCard(
                         icon: Icons.settings,
                         title: "Settings",

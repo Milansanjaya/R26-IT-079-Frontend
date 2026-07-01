@@ -7,6 +7,7 @@ import 'salt_prediction_screen.dart';
 import 'salting_monitoring_screen.dart';
 import '../services/salt_service.dart';
 import 'waste_traceability_screen.dart';
+import 'admin_dashboard_screen.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -194,9 +195,19 @@ class AdminHomeScreen extends StatelessWidget {
                       icon: Icons.history,
                       title: "Inspection History",
                     ),
-                    const DashboardCard(
-                      icon: Icons.admin_panel_settings,
-                      title: "Admin Dashboard",
+                     GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AdminDashboardScreen(),
+                          ),
+                        );
+                      },
+                      child: const DashboardCard(
+                        icon: Icons.admin_panel_settings,
+                        title: "Admin Dashboard",
+                      ),
                     ),
                   ],
                 ),
