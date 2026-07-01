@@ -52,6 +52,10 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
 
     final d = dashboard!;
 
+    print("Total Batches: ${d.totalBatches}");
+    print("Completed Batches: ${d.completedBatches}");
+    print("In Progress Batches: ${d.inProgressBatches}");
+
     return Scaffold(
       backgroundColor: const Color(0xffEAF7FF),
 
@@ -122,7 +126,7 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children:  [
+                    children: [
                       Text(
                         "Recent Processing Records",
                         style: TextStyle(

@@ -8,8 +8,10 @@ class TraceabilityService {
 
   static Future<TraceabilityDashboardModel> getDashboard() async {
     final response = await http.get(
-      Uri.parse("http://localhost:8000/api/dashboard/stats"),
-    );
+      Uri.parse("$baseUrl/dashboard"));
+
+    print("Status Code: ${response.statusCode}");
+    print(response.body);
 
     if (response.statusCode != 200) {
       throw Exception("Failed to load dashboard");
