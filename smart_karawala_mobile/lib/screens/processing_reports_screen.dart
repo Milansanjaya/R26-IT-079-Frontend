@@ -14,10 +14,14 @@ class ProcessingReportsScreen extends StatefulWidget {
       _ProcessingReportsScreenState();
 }
 
-class _ProcessingReportsScreenState
-    extends State<ProcessingReportsScreen> {
-
+class _ProcessingReportsScreenState extends State<ProcessingReportsScreen> {
   List<ProcessingReportModel> reports = [];
+  List<ProcessingReportModel> filteredReports = [];
+
+  String searchText = "";
+  String selectedFish = "All Fish Types";
+  String selectedStatus = "All Status";
+  String selectedDate = "All Dates";
 
   bool loading = true;
 
@@ -29,11 +33,11 @@ class _ProcessingReportsScreenState
 
   Future<void> loadReports() async {
     try {
-      final data =
-          await ProcessingReportService.getReports();
+      final data = await ProcessingReportService.getReports();
 
       setState(() {
         reports = data;
+        filteredReports = data;
         loading = false;
       });
     } catch (e) {
@@ -41,23 +45,36 @@ class _ProcessingReportsScreenState
         loading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
+  }
+
+  void filterReports() {
+    setState(() {
+      filteredReports = reports.where((report) {
+        final matchesSearch =
+            searchText.isEmpty ||
+            report.batchId.toLowerCase().contains(searchText.toLowerCase()) ||
+            report.fishType.toLowerCase().contains(searchText.toLowerCase());
+
+        final matchesFish =
+            selectedFish == "All Fish Types" || report.fishType == selectedFish;
+
+        final matchesStatus =
+            selectedStatus == "All Status" ||
+            report.status.toLowerCase() == selectedStatus.toLowerCase();
+
+        return matchesSearch && matchesFish && matchesStatus;
+      }).toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-
     if (loading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -80,7 +97,6 @@ class _ProcessingReportsScreenState
 
         child: Column(
           children: [
-
             const SizedBox(height: 10),
 
             const Text(
@@ -105,30 +121,39 @@ class _ProcessingReportsScreenState
 
                 child: Column(
                   children: [
+                    ReportFilterSection(
+                      onSearch: (value) {
+                        searchText = value;
+                        filterReports();
+                      },
 
-                    const ReportFilterSection(),
+                      onFishChanged: (value) {
+                        selectedFish = value!;
+                        filterReports();
+                      },
 
+                      onStatusChanged: (value) {
+                        selectedStatus = value!;
+                        filterReports();
+                      },
+                    ),
                     const SizedBox(height: 20),
 
                     Expanded(
                       child: ListView.separated(
-                        itemCount: reports.length,
+                        itemCount: filteredReports.length,
 
-                        separatorBuilder: (_, __) =>
-                            const Divider(),
+                        separatorBuilder: (_, __) => const Divider(),
 
                         itemBuilder: (context, index) {
-
-                          final report = reports[index];
+                          final report = filteredReports[index];
 
                           return ProcessingRecordCard(
                             batchId: report.batchId,
                             fishType: report.fishType,
                             date: report.date,
                             time: "",
-                            wasteKg: report.predictedWaste,
-                            wastePercentage:
-                                report.wastePercentage,
+                            status: report.status,
                           );
                         },
                       ),
@@ -142,9 +167,7 @@ class _ProcessingReportsScreenState
 
             const Text(
               "Powered by Smart Karawala",
-              style: TextStyle(
-                color: Colors.grey,
-              ),
+              style: TextStyle(color: Colors.grey),
             ),
           ],
         ),

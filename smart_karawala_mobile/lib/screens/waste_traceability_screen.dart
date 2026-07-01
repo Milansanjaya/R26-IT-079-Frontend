@@ -163,8 +163,7 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                     fishType: "Sprats",
                     date: "25 May 2025",
                     time: "10:30 AM",
-                    wasteKg: 113.5,
-                    wastePercentage: 35,
+                    status: "Completed",
                   ),
 
                   Divider(),
@@ -174,8 +173,8 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                     fishType: "Mackerel",
                     date: "24 May 2025",
                     time: "03:15 PM",
-                    wasteKg: 86.2,
-                    wastePercentage: 16,
+                    status: "In Progress",
+                    
                   ),
 
                   Divider(),
@@ -185,8 +184,8 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                     fishType: "Tuna",
                     date: "23 May 2025",
                     time: "09:45 AM",
-                    wasteKg: 72.8,
-                    wastePercentage: 14,
+                    status: "Completed",
+                    
                   ),
                 ],
               ),

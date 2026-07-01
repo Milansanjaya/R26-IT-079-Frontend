@@ -5,8 +5,7 @@ class ProcessingRecordCard extends StatelessWidget {
   final String fishType;
   final String date;
   final String time;
-  final double wasteKg;
-  final double wastePercentage;
+  final String status;
 
   const ProcessingRecordCard({
     super.key,
@@ -14,12 +13,10 @@ class ProcessingRecordCard extends StatelessWidget {
     required this.fishType,
     required this.date,
     required this.time,
-    required this.wasteKg,
-    required this.wastePercentage,
+    required this.status,
   });
 
   @override
-
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -40,10 +37,7 @@ class ProcessingRecordCard extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   fishType,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.black54),
                 ),
               ],
             ),
@@ -58,10 +52,7 @@ class ProcessingRecordCard extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   time,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.black54),
                 ),
               ],
             ),
@@ -70,21 +61,26 @@ class ProcessingRecordCard extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
+                color: status.toLowerCase() == "completed"
+                    ? Colors.green.shade50
+                    : status.toLowerCase().contains("progress")
+                    ? Colors.orange.shade50
+                    : Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                "Waste: ${wasteKg.toStringAsFixed(1)} kg\n(${wastePercentage.toStringAsFixed(0)}%)",
+                status,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.green,
-                  fontWeight: FontWeight.w600,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: status.toLowerCase() == "completed"
+                      ? Colors.green
+                      : status.toLowerCase().contains("progress")
+                      ? Colors.orange
+                      : Colors.grey,
                 ),
               ),
             ),
@@ -92,11 +88,7 @@ class ProcessingRecordCard extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          const Icon(
-            Icons.arrow_forward_ios,
-            size: 16,
-            color: Colors.grey,
-          ),
+          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
         ],
       ),
     );
