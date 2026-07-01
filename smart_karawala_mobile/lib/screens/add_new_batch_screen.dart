@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../widgets/colors.dart';
 import 'batch_created_success_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'admin_home_screen.dart';
 
 class AddNewBatchScreen extends StatefulWidget {
   const AddNewBatchScreen({super.key});
@@ -20,7 +22,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  
+
   String? fish;
   String? location;
   bool isLoading = false; // Added to handle progress status
@@ -48,15 +50,14 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     });
 
     // Auto-generate a batchId since there is no input field for it in the UI
-    final generatedBatchId = "B${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+    final generatedBatchId =
+        "B${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
     final url = Uri.parse("http://localhost:8000/api/batches");
 
     try {
       final response = await http.post(
         url,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "batchId": generatedBatchId,
           "fishType": fish,
@@ -69,28 +70,28 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-  if (!mounted) return;
+        if (!mounted) return;
 
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (_) => BatchCreatedSuccessScreen(
-        batchId: generatedBatchId,
-        fishType: fish!,
-        rawWeight: weightController.text,
-        date: dateController.text,
-        time: timeController.text,
-        location: location!,
-        notes: notesController.text,
-      ),
-    ),
-  );
-}
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BatchCreatedSuccessScreen(
+              batchId: generatedBatchId,
+              fishType: fish!,
+              rawWeight: weightController.text,
+              date: dateController.text,
+              time: timeController.text,
+              location: location!,
+              notes: notesController.text,
+            ),
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${e.toString()}")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
       }
     } finally {
       if (mounted) {
@@ -130,7 +131,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,18 +144,27 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.arrow_back),
                     ),
-                    child: const Icon(Icons.menu),
                   ),
-                  const Column(
-                    children: [Icon(Icons.set_meal, size: 40)],
-                  ),
+
+                  const Column(children: [Icon(Icons.set_meal, size: 40)]),
                 ],
               ),
 
@@ -231,7 +241,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
                 "Paraw",
                 "Mora",
               ]),
-              
+
               const SizedBox(height: 15),
               buildWeight(),
 
@@ -248,10 +258,10 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
 
               const SizedBox(height: 15),
               buildDate(),
-              
+
               const SizedBox(height: 15),
               buildTime(),
-              
+
               const SizedBox(height: 15),
               buildNotes(),
 
@@ -280,7 +290,10 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                color: Color.fromARGB(255, 255, 1, 1),
+                                strokeWidth: 2,
+                              ),
                             )
                           : const Icon(Icons.add),
                       label: Text(
@@ -347,7 +360,10 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
   Widget buildWeight() {
     return TextField(
       controller: weightController,
-      keyboardType: TextInputType.number,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
+      ],
       decoration: const InputDecoration(
         labelText: "Raw Fish Weight",
         suffixText: "kg",

@@ -520,22 +520,6 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                     }
 
                     if (!mounted) return;
-
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: Colors.green,
-                          content: Text("Notification sent successfully."),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: Colors.red,
-                          content: Text("Failed to send notification."),
-                        ),
-                      );
-                    }
                   },
 
                   icon: const Icon(Icons.send),
@@ -548,27 +532,6 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
               ),
 
               const SizedBox(height: 30),
-
-              //--------------------------------------------------
-              // Refresh Button
-              //--------------------------------------------------
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-
-                child: OutlinedButton.icon(
-                  onPressed: loadLatestBatch,
-
-                  icon: const Icon(Icons.refresh),
-
-                  label: const Text(
-                    "Refresh Prediction",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 40),
 
               const Divider(),
 

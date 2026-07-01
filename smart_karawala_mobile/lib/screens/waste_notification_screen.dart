@@ -498,7 +498,7 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              
 
               //------------------------------------------------
               // Create New Company
