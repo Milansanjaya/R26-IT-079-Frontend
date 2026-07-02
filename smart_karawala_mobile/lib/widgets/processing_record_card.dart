@@ -6,6 +6,7 @@ class ProcessingRecordCard extends StatelessWidget {
   final String date;
   final String time;
   final String status;
+  final VoidCallback? onTap;
 
   const ProcessingRecordCard({
     super.key,
@@ -14,6 +15,7 @@ class ProcessingRecordCard extends StatelessWidget {
     required this.date,
     required this.time,
     required this.status,
+    this.onTap,
   });
 
   @override
@@ -88,7 +90,10 @@ class ProcessingRecordCard extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          GestureDetector(
+            onTap: onTap,
+            child: const Icon(Icons.chevron_right, color: Colors.grey),
+          ),
         ],
       ),
     );

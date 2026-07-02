@@ -19,12 +19,12 @@ class ProcessingReportModel {
 
   factory ProcessingReportModel.fromJson(Map<String, dynamic> json) {
     return ProcessingReportModel(
-      batchId: json["batchId"],
-      fishType: json["fishType"],
-      date: json["date"],
-      rawWeight: (json["rawWeight"] as num).toDouble(),
-      predictedWaste: (json["predictedWaste"] as num).toDouble(),
-      wastePercentage: (json["wastePercentage"] as num).toDouble(),
+      batchId: json["batchId"] ?? "",
+      fishType: json["fishType"] ?? "",
+      date: json["date"] ?? "",
+      rawWeight: (json["rawWeight"] ?? 0).toDouble(),
+      predictedWaste: (json["predictedWaste"] ?? 0).toDouble(),
+      wastePercentage: (json["wastePercentage"] ?? 0).toDouble(),
       status: json["status"] ?? "",
     );
   }

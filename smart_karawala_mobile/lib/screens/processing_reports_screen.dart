@@ -5,6 +5,7 @@ import '../services/processing_report_service.dart';
 
 import '../widgets/report_filter_section.dart';
 import '../widgets/processing_record_card.dart';
+import '../screens/batch_details_screen.dart';
 
 class ProcessingReportsScreen extends StatefulWidget {
   const ProcessingReportsScreen({super.key});
@@ -154,6 +155,15 @@ class _ProcessingReportsScreenState extends State<ProcessingReportsScreen> {
                             date: report.date,
                             time: "",
                             status: report.status,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      BatchDetailsScreen(batch: report),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
