@@ -24,4 +24,39 @@ class ProcessingReportService {
         .map((e) => ProcessingReportModel.fromJson(e))
         .toList();
   }
+  static Future<void> deleteBatch(String batchId) async {
+  final response = await http.delete(
+    Uri.parse("$baseUrl/$batchId"),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception("Failed to delete batch");
+  }
+}
+static Future<void> updateBatch({
+  required String batchId,
+  required String fishType,
+  required double rawWeight,
+  required String status,
+}) async {
+
+  final response = await http.put(
+    Uri.parse("$baseUrl/$batchId"),
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: jsonEncode({
+      "fishType": fishType,
+      "rawWeight": rawWeight,
+      "status": status,
+    }),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception("Failed to update batch");
+  }
+}
+
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../widgets/dashboard_menu_card.dart';
 
 import 'waste_traceability_screen.dart';
+import 'admin_home_screen.dart';
+import 'batch_records_dashboard_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -24,8 +26,25 @@ class AdminDashboardScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                 children: [
-                  const Icon(Icons.menu),
-
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.arrow_back),
+                    ),
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: const [
@@ -107,9 +126,13 @@ class AdminDashboardScreen extends StatelessWidget {
                 backgroundColor: const Color(0xffEFFAF1),
                 title: "Batch Records Dashboard",
                 subtitle: "View and manage all dry fish batches and records.",
+
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Batch Records coming soon")),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BatchRecordsDashboardScreen(),
+                    ),
                   );
                 },
               ),
@@ -129,7 +152,6 @@ class AdminDashboardScreen extends StatelessWidget {
                   );
                 },
               ),
-
 
               const SizedBox(height: 30),
             ],
