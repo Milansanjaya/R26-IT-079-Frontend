@@ -454,7 +454,7 @@ class _BatchRecordsDashboardScreenState
                           ),
 
                           Expanded(
-                            flex: 2,
+                            flex: 3,
                             child: Text(
                               "Status",
                               style: TextStyle(fontWeight: FontWeight.bold),
@@ -530,7 +530,8 @@ class _BatchRecordsDashboardScreenState
                                 child: Container(
                                   alignment: Alignment.center,
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 5,
+                                    horizontal: 12,
+                                    vertical: 6,
                                   ),
 
                                   decoration: BoxDecoration(
@@ -542,12 +543,15 @@ class _BatchRecordsDashboardScreenState
 
                                   child: Text(
                                     report.status,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: report.status == "Completed"
                                           ? Colors.green
                                           : Colors.orange,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 12,
+                                      fontSize: 11,
                                     ),
                                   ),
                                 ),
