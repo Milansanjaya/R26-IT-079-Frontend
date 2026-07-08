@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../models/processing_report_model.dart';
-import '../services/processing_report_service.dart';
+import '../../models/processing_report_model.dart';
+import '../../services/Batch/processing_report_service.dart';
 
-import '../widgets/report_filter_section.dart';
-import '../widgets/processing_record_card.dart';
-import '../screens/batch_details_screen.dart';
+import '../../widgets/Traceability/report_filter_section.dart';
+import '../../widgets/Traceability/processing_record_card.dart';
+import 'batch_details_screen.dart';
 
 class ProcessingReportsScreen extends StatefulWidget {
   const ProcessingReportsScreen({super.key});

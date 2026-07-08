@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/batch_model.dart';
-import '../services/batch_service.dart';
+import '../../models/batch_model.dart';
+import '../../services/Batch/batch_service.dart';
 import 'waste_notification_screen.dart';
 
 class WastePredictionScreen extends StatefulWidget {

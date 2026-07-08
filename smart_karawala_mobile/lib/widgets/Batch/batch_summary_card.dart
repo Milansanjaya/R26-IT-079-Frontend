@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/batch_model.dart';
+import '../../models/batch_model.dart';
 
 class BatchSummaryCard extends StatelessWidget {
   final BatchModel batch;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/processing_report_model.dart';
-import '../services/processing_report_service.dart';
+import '../../models/processing_report_model.dart';
+import '../../services/Batch/processing_report_service.dart';
 
 class EditBatchScreen extends StatefulWidget {
   final ProcessingReportModel batch;

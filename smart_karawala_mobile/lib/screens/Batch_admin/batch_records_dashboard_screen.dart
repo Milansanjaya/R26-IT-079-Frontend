@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../models/processing_report_model.dart';
-import '../models/traceability_dashboard_model.dart';
+import '../../models/processing_report_model.dart';
+import '../../models/traceability_dashboard_model.dart';
 
-import '../services/processing_report_service.dart';
-import '../services/traceability_service.dart';
+import '../../services/Batch/processing_report_service.dart';
+import '../../services/Batch/traceability_service.dart';
 import 'batch_details_screen.dart';
 import 'edit_batch_screen.dart';
 

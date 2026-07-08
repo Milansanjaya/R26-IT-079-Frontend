@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../models/traceability_dashboard_model.dart';
+import '../../models/traceability_dashboard_model.dart';
 
 class TraceabilityService {
   static const String baseUrl = "http://localhost:8000/api/batches";

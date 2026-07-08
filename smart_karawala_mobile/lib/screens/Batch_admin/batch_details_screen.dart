@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/processing_report_model.dart';
-import '../services/pdf_service.dart';
+import '../../models/processing_report_model.dart';
+import '../../services/Batch/pdf_service.dart';
 
 class BatchDetailsScreen extends StatelessWidget {
   final ProcessingReportModel batch;

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../models/batch_model.dart';
-import '../models/salt_prediction_model.dart';
-import '../services/salt_service.dart';
+import '../../models/batch_model.dart';
+import '../../models/salt_prediction_model.dart';
+import '../../services/Salt/salt_service.dart';
 
-import '../widgets/cleaned_weight_card.dart';
-import '../widgets/prediction_result_card.dart';
+import '../../widgets/Batch/cleaned_weight_card.dart';
+import '../../widgets/Prediction/prediction_result_card.dart';
 
-import '../services/salting_service.dart';
+import '../../services/Salt/salting_service.dart';
 import 'salting_monitoring_screen.dart';
 
 class SaltPredictionScreen extends StatefulWidget {

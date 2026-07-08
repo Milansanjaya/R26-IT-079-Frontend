@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../models/salting_monitor_model.dart';
-import '../services/salting_monitor_service.dart';
+import '../../models/salting_monitor_model.dart';
+import '../../services/Salt/salting_monitor_service.dart';
 
-import '../widgets/monitoring_header_card.dart';
-import '../widgets/monitoring_progress_card.dart';
-import '../widgets/monitoring_recommendation_card.dart';
-import '../widgets/monitoring_status_card.dart';
-import '../widgets/monitoring_time_card.dart';
-import '../widgets/monitoring_update_button.dart';
-import '../widgets/monitoring_weight_card.dart';
+import '../../widgets/Salt_monitoring/monitoring_header_card.dart';
+import '../../widgets/Salt_monitoring/monitoring_progress_card.dart';
+import '../../widgets/Salt_monitoring/monitoring_recommendation_card.dart';
+import '../../widgets/Salt_monitoring/monitoring_status_card.dart';
+import '../../widgets/Salt_monitoring/monitoring_time_card.dart';
+import '../../widgets/Salt_monitoring/monitoring_update_button.dart';
+import '../../widgets/Salt_monitoring/monitoring_weight_card.dart';
 
 class SaltingMonitoringScreen extends StatefulWidget {
   final String batchId;

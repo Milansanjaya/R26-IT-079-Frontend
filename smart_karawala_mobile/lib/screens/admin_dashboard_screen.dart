@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/dashboard_menu_card.dart';
+import '../widgets/Batch/dashboard_menu_card.dart';
 
-import 'waste_traceability_screen.dart';
+import 'Waste/waste_traceability_screen.dart';
 import 'admin_home_screen.dart';
-import 'batch_records_dashboard_screen.dart';
+import 'Batch_admin/batch_records_dashboard_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});

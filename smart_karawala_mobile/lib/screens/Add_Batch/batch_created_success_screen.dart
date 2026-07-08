@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'admin_home_screen.dart';
+import '../admin_home_screen.dart';
 import 'add_new_batch_screen.dart';
 
 class BatchCreatedSuccessScreen extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../models/processing_report_model.dart';
+import '../../models/processing_report_model.dart';
 
 class ProcessingReportService {
   static const String baseUrl =

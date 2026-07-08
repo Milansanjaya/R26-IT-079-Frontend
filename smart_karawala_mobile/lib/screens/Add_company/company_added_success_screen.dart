@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'admin_home_screen.dart';
+import '../admin_home_screen.dart';
 import 'add_company_screen.dart';
 
 class CompanyAddedSuccessScreen extends StatelessWidget {

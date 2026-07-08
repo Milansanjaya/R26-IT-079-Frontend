@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/traceability_stat_card.dart';
-import '../widgets/processing_record_card.dart';
-import '../widgets/quick_action_card.dart';
+import '../../widgets/Traceability/traceability_stat_card.dart';
+import '../../widgets/Traceability/processing_record_card.dart';
+import '../../widgets/Traceability/quick_action_card.dart';
 
-import '../services/traceability_service.dart';
-import '../models/traceability_dashboard_model.dart';
-import 'processing_reports_screen.dart';
-import 'add_new_batch_screen.dart';
+import '../../services/Batch/traceability_service.dart';
+import '../../models/traceability_dashboard_model.dart';
+import '../Batch_admin/processing_reports_screen.dart';
+import '../Add_Batch/add_new_batch_screen.dart';
 
 class WasteTraceabilityScreen extends StatefulWidget {
   const WasteTraceabilityScreen({super.key});

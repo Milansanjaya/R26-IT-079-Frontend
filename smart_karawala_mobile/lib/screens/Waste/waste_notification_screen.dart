@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'add_company_screen.dart';
+import '../Add_company/add_company_screen.dart';
 
 class WasteNotificationScreen extends StatefulWidget {
   final double predictedWaste;

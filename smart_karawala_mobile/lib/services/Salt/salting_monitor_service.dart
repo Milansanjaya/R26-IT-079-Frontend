@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../models/salting_monitor_model.dart';
+import '../../models/salting_monitor_model.dart';
 
 class SaltingMonitorService {
   static const String baseUrl =
