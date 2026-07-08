@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import '../widgets/Batch/dashboard_card.dart';
-import '../widgets/admin_bottom_nav.dart';
-import 'Add_Batch/add_new_batch_screen.dart';
-import 'Waste/waste_prediction_screen.dart';
-import 'Salt/salt_prediction_screen.dart';
-import 'Salt/salting_monitoring_screen.dart';
-import '../services/Salt/salt_service.dart';
-import 'Waste/waste_traceability_screen.dart';
-import 'admin_dashboard_screen.dart';
+import '../../widgets/Batch/dashboard_card.dart';
+import '../../widgets/admin_bottom_nav.dart';
+import '../Add_Batch/add_new_batch_screen.dart';
+import '../Waste/waste_prediction_screen.dart';
+import '../Salt/salt_prediction_screen.dart';
+import '../Salt/salting_monitoring_screen.dart';
+import '../../services/Salt/salt_service.dart';
+import '../Waste/waste_traceability_screen.dart';
+import '../admin_dashboard_screen.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});

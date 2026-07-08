@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/admin_home_screen.dart';
-
-
+import 'screens/auth/login_screen.dart';
 
 void main() {
   runApp(const SmartKarawalaApp());
@@ -14,7 +12,7 @@ class SmartKarawalaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AdminHomeScreen(),
+      home: LoginScreen(),
     );
   }
 }

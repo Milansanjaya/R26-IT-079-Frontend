@@ -5,7 +5,7 @@ import '../../widgets/Batch/colors.dart';
 import 'batch_created_success_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import '../admin_home_screen.dart';
+import '../admin/admin_home_screen.dart';
 
 class AddNewBatchScreen extends StatefulWidget {
   const AddNewBatchScreen({super.key});

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../widgets/Batch/dashboard_menu_card.dart';
 
 import 'Waste/waste_traceability_screen.dart';
-import 'admin_home_screen.dart';
+import 'admin/admin_home_screen.dart';
 import 'Batch_admin/batch_records_dashboard_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
