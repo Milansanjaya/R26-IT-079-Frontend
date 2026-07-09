@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
+import "../services/storage_service.dart";
 import '../widgets/Batch/dashboard_menu_card.dart';
-
+import './auth/login_screen.dart';
 import 'Waste/waste_traceability_screen.dart';
 import 'admin/admin_home_screen.dart';
 import 'Batch_admin/batch_records_dashboard_screen.dart';
@@ -59,16 +59,34 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 10),
+Column(
+  children: [
+    IconButton(
+      icon: const Icon(Icons.logout),
+      onPressed: () async {
+        await StorageService.clearToken();
 
-              const Text(
-                "Hi, Sanjaya",
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xff103F73),
-                ),
-              ),
+        if (!context.mounted) return;
 
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+          ),
+          (route) => false,
+        );
+      },
+    ),
+    const Text(
+      "Hi, Sanjaya",
+      style: TextStyle(
+        fontSize: 34,
+        fontWeight: FontWeight.bold,
+        color: Color(0xff103F73),
+      ),
+    ),
+  ],
+),
               const SizedBox(height: 20),
 
               //------------------------------------------------

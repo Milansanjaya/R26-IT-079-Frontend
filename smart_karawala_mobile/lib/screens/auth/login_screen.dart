@@ -1,28 +1,17 @@
-import 'dart:ui';
-import '../../services/auth_service.dart';
-import '../../services/storage_service.dart';
+import 'package:flutter/material.dart';
+
+import '../../core/constants/app_images.dart';
+import '../../widgets/auth/auth_background.dart';
+import '../../widgets/auth/auth_card.dart';
+import '../../widgets/auth/auth_logo.dart';
+import '../../widgets/auth/auth_textfield.dart';
+import 'signup_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/auth_provider.dart';
 import '../admin/admin_home_screen.dart';
 import '../customer/customer_home.dart';
 
-import 'package:flutter/material.dart';
-
-import '../../utils/app_colors.dart';
-import '../../widgets/custom_button.dart';
-import '../../widgets/custom_textfield.dart';
-import 'package:flutter/material.dart';
-
-class CustomerHome extends StatelessWidget {
-  const CustomerHome({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("Customer Home"),
-      ),
-    );
-  }
-}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,324 +21,202 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
-  final emailController = TextEditingController();
+  final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  bool hidePassword = true;
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-
-      body: Stack(
-
-        children: [
-
-          /// Background
-
-          Positioned.fill(
-
-            child: Image.asset(
-              "assets/images/background.jpg",
-              fit: BoxFit.cover,
+    return AuthBackground(
+      child: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 30,
             ),
-
-          ),
-
-          /// Dark overlay
-
-          Positioned.fill(
-
-            child: Container(
-              color: Colors.black.withOpacity(.20),
-            ),
-
-          ),
-
-          /// Content
-
-          SafeArea(
-
-            child: Center(
-
-              child: SingleChildScrollView(
-
-                padding: const EdgeInsets.all(24),
-
-                child: ClipRRect(
-
-                  borderRadius: BorderRadius.circular(18),
-
-                  child: BackdropFilter(
-
-                    filter: ImageFilter.blur(
-                      sigmaX: 10,
-                      sigmaY: 10,
-                    ),
-
-                    child: Container(
-
-                      width: 360,
-
-                      padding: const EdgeInsets.all(24),
-
-                      decoration: BoxDecoration(
-
-                        color: Colors.white.withOpacity(.25),
-
-                        borderRadius: BorderRadius.circular(18),
-
-                        border: Border.all(
-                          color: AppColors.border,
-                          width: 2,
-                        ),
-
+            child: AuthCard(
+              child: Stack(
+                children: [
+                  /// Fish Watermark
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0.12,
+                      child: Image.asset(
+                        AppImages.fish,
+                        fit: BoxFit.contain,
                       ),
-
-                      child: Column(
-
-                        children: [
-
-                          Image.asset(
-                            "assets/images/logo.png",
-                            width: 110,
-                          ),
-
-                          const SizedBox(height:20),
-
-                          const Text(
-
-                            "SIGN IN",
-
-                            style: TextStyle(
-
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.text,
-
-                            ),
-
-                          ),
-
-                          const SizedBox(height:35),
-
-                          CustomTextField(
-
-                            controller: emailController,
-
-                            hint: "Email",
-
-                            icon: Icons.email,
-
-                          ),
-
-                          const SizedBox(height:18),
-
-                          CustomTextField(
-
-                            controller: passwordController,
-
-                            hint: "Password",
-
-                            icon: Icons.lock,
-
-                            obscure: hidePassword,
-
-                            suffix: IconButton(
-
-                              onPressed: (){
-
-                                setState(() {
-
-                                  hidePassword = !hidePassword;
-
-                                });
-
-                              },
-
-                              icon: Icon(
-
-                                hidePassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-
-                              ),
-
-                            ),
-
-                          ),
-
-                          const SizedBox(height:25),
-
-                          CustomButton(
-
-                            text: "Sign In",
-
-                           onPressed: () async {
-
-  final response = await AuthService.login(
-    email: emailController.text.trim(),
-    password: passwordController.text.trim(),
-  );
-
-  if (response["success"] == true) {
-
-    final token = response["access_token"];
-
-    await StorageService().saveToken(token);
-
-    final role = response["user"]["role"];
-
-    if (!context.mounted) return;
-
-    if (role == "admin") {
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const AdminHomeScreen(),
-        ),
-      );
-
-    } else {
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const CustomerHome(),
-        ),
-      );
-
-    }
-
-  } else {
-
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(response["message"]),
-      ),
-    );
-
-  }
-
-},
-
-                          ),
-
-                          const SizedBox(height:20),
-
-                          TextButton(
-
-                            onPressed: () {
-
-                            },
-
-                            child: const Text(
-
-                              "Forgot Password ?",
-
-                              style: TextStyle(
-
-                                color: AppColors.text,
-
-                              ),
-
-                            ),
-
-                          ),
-
-                          Row(
-
-                            mainAxisAlignment: MainAxisAlignment.center,
-
-                            children: [
-
-                              const Text(
-                                "Don't have an account ?",
-                              ),
-
-                              TextButton(
-
-                                onPressed: () {
-
-                                },
-
-                                child: const Text(
-
-                                  "Sign Up",
-
-                                  style: TextStyle(
-
-                                    color: AppColors.primary,
-
-                                    fontWeight: FontWeight.bold,
-
-                                  ),
-
-                                ),
-
-                              )
-
-                            ],
-
-                          )
-
-                        ],
-
-                      ),
-
                     ),
-
                   ),
 
+                  /// Content
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 10),
+
+                      const AuthLogo(),
+
+                      const SizedBox(height: 15),
+
+                      const Text(
+                        "SIGN IN",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff1E4E7B),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      AuthTextField(
+                        controller: usernameController,
+                        hint: "Username",
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      AuthTextField(
+                        controller: passwordController,
+                        hint: "Password",
+                        isPassword: true,
+                      ),
+
+                      const SizedBox(height: 30),
+
+                     Consumer<AuthProvider>(
+  builder: (context, auth, child) {
+    return SizedBox(
+      width: 130,
+      height: 45,
+      child: ElevatedButton(
+        onPressed: auth.loading
+            ? null
+            : () async {
+                try {
+                  final success = await auth.login(
+                    email: usernameController.text.trim(),
+                    password: passwordController.text.trim(),
+                  );
+
+                  if (!mounted) return;
+
+                  if (success) {
+                    if (auth.isAdmin) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CustomerHome(),
+                        ),
+                      );
+                    }
+                  }
+                } catch (e) {
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.toString()),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+        style: ElevatedButton.styleFrom(
+          elevation: 5,
+          backgroundColor: const Color(0xff0A5B8E),
+          shape: const StadiumBorder(),
+        ),
+        child: auth.loading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
                 ),
-
-              ),
-
-            ),
-
-          ),
-
-          /// Bottom
-
-          Positioned(
-
-            bottom:15,
-
-            left:0,
-
-            right:0,
-
-            child: Center(
-
-              child: Text(
-
-                "Powered by Smart Karawala",
-
+              )
+            : const Text(
+                "Sign In",
                 style: TextStyle(
-
-                  color: Colors.white.withOpacity(.9),
-
-                  fontWeight: FontWeight.bold,
-
+                  color: Colors.white,
+                  fontSize: 15,
                 ),
-
               ),
-
-            ),
-
-          )
-
-        ],
-
       ),
-
     );
+  },
+),
 
+                      const SizedBox(height: 18),
+
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/forgot-password',
+                          );
+                        },
+                        child: const Text(
+                          "Forgot Password ?",
+                          style: TextStyle(
+                            color: Color(0xff315B7E),
+                          ),
+                        ),
+                      ),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Don't have an account ? ",
+                            style: TextStyle(
+                              color: Color(0xff315B7E),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const SignupScreen(),
+                             ),
+                           ); 
+                            },
+                            child: const Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                color: Color(0xff0A5B8E),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
-
 }

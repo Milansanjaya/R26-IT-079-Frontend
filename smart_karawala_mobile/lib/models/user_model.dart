@@ -1,26 +1,25 @@
-class User {
-
+class UserModel {
   final String id;
-  final String name;
+  final String fullName;
   final String email;
   final String role;
+  final bool isVerified;
 
-  User({
+  UserModel({
     required this.id,
-    required this.name,
+    required this.fullName,
     required this.email,
     required this.role,
+    required this.isVerified,
   });
 
-  factory User.fromJson(Map<String,dynamic> json){
-
-    return User(
-      id: json["id"],
-      name: json["name"],
-      email: json["email"],
-      role: json["role"],
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json["id"] ?? json["_id"] ?? "",
+      fullName: json["full_name"] ?? "",
+      email: json["email"] ?? "",
+      role: json["role"] ?? "customer",
+      isVerified: json["is_verified"] ?? false,
     );
-
   }
-
 }

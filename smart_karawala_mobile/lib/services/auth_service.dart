@@ -84,4 +84,19 @@ class AuthService {
 
     return Map<String, dynamic>.from(response);
   }
+
+
+  /// Resend Verification OTP
+static Future<Map<String, dynamic>> resendVerificationOtp({
+  required String email,
+}) async {
+  final response = await ApiService.post(
+    "/auth/resend-verification-otp",
+    {
+      "email": email,
+    },
+  );
+
+  return Map<String, dynamic>.from(response);
+}
 }
