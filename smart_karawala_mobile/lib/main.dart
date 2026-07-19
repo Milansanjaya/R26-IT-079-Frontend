@@ -11,7 +11,7 @@ import 'screens/auth/forgot_password_screen.dart';
 import 'screens/auth/reset_password_screen.dart';
 import 'screens/auth/otp_verification_screen.dart';
 import 'screens/auth/account_verified_screen.dart';
-
+import 'screens/drying/drying_dashboard_screen.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         title: "Smart Karawala",
         theme: AppTheme.lightTheme,
 
-        home: const SplashScreen(),
+        home: const DryingDashboardScreen(),
 
         routes: {
           '/login': (context) => const LoginScreen(),
