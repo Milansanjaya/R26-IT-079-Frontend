@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_karawala_mobile/screens/customer/more_screen.dart';
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({super.key});
@@ -40,6 +41,8 @@ class _CustomerHomeState extends State<CustomerHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      
+       endDrawer: const MoreScreen(),
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -61,9 +64,9 @@ class _CustomerHomeState extends State<CustomerHome> {
                       Stack(
                         children: [
                           IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.notifications_none),
-                          ),
+                        onPressed: () {},
+                        icon: const Icon(Icons.notifications_none),
+                      ),
 
                           Positioned(
                             right: 8,
@@ -98,10 +101,15 @@ class _CustomerHomeState extends State<CustomerHome> {
                         onPressed: () {},
                         icon: const Icon(Icons.shopping_cart_outlined),
                       ),
-
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.menu),
+                      Builder(
+                        builder: (context) {
+                          return IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: () {
+                            Scaffold.of(context).openEndDrawer();
+                          },
+                         );
+                        },
                       ),
                     ],
                   ),
@@ -192,15 +200,15 @@ class _CustomerHomeState extends State<CustomerHome> {
                   scrollDirection: Axis.horizontal,
 
                   children: [
-                    category("All", "assets/images/all.png"),
+                    category("All", "assets/images/all.jpg"),
 
                     category("Karawala", "assets/images/karawala.jpg"),
 
-                    category("Hurulla", "assets/images/hurulla.webdp"),
+                    category("Hurulla", "assets/images/hurulla.webp"),
 
                     category("Thalapath", "assets/images/thalapath.jpg"),
 
-                    category("Kelawalla", "assets/images/kelawalla.jpg"),
+                    category("Kelawalla", "assets/images/kelawalla.webp"),
                   ],
                 ),
               ),
