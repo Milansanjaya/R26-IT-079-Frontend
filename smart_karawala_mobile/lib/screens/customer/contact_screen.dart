@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import 'customer_home.dart';
 
-class HeritageScreen extends StatelessWidget {
-  const HeritageScreen({super.key});
+class ContactScreen extends StatelessWidget {
+  const ContactScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +129,7 @@ class HeritageScreen extends StatelessWidget {
 
                           /// Heading
                           const Text(
-                            "Our Heritage",
+                            "Contact with Us",
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
@@ -137,28 +137,50 @@ class HeritageScreen extends StatelessWidget {
                               letterSpacing: 0.5,
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 25),
 
-                          /// Paragraph 1
-                          const Text(
-                            "Smart Karawala was created to support Sri Lanka's traditional dry fish industry using modern digital technology. Dry fish processing has been part of coastal communities for many years, but many producers still depend on manual drying, visual checking, and experience-based decisions.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              height: 1.5,
-                              color: Colors.black87,
-                            ),
+                          /// Info Rows
+                          _contactInfoRow(
+                            icon: Icons.location_on_outlined,
+                            text: "No 213, Beach road, mathara",
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 14),
+                          _contactInfoRow(
+                            icon: Icons.phone_outlined,
+                            text: "+94  76 123 1138",
+                          ),
+                          const SizedBox(height: 14),
+                          _contactInfoRow(
+                            icon: Icons.email_outlined,
+                            text: "samrtkarawala.gmail.com",
+                          ),
+                          const SizedBox(height: 30),
 
-                          /// Paragraph 2
-                          const Text(
-                            "Our system helps improve this traditional process by introducing IoT monitoring, real-time alerts, AI-based quality checking, and batch traceability. It supports better drying conditions, reduces spoilage risk, and helps protect the value of Sri Lankan dry fish products.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              height: 1.5,
-                              color: Colors.black87,
+                          /// Call Support Button
+                          ElevatedButton(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Calling support: +94 76 123 1138..."),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              minimumSize: const Size(180, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: const Text(
+                              "Call Support",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
@@ -184,6 +206,42 @@ class HeritageScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Custom widget helper for info items
+  Widget _contactInfoRow({required IconData icon, required String text}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFCBE6F6).withOpacity(0.85), // Soft light-blue background
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: AppColors.text,
+            size: 20,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.text,
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'heritage_screen.dart';
+import 'contact_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -43,10 +44,21 @@ class MoreScreen extends StatelessWidget {
               trailing: Icon(Icons.chevron_right),
             ),
 
-            const ListTile(
-              leading: Icon(Icons.headset_mic),
-              title: Text("Contact Us"),
-              trailing: Icon(Icons.chevron_right),
+            ListTile(
+              leading: const Icon(Icons.headset_mic),
+              title: const Text("Contact Us"),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                // Close the drawer first
+                Navigator.pop(context);
+                // Push the Contact Screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ContactScreen(),
+                  ),
+                );
+              },
             ),
 
             const ListTile(

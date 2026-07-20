@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../../providers/auth_provider.dart';
+import '../auth/login_screen.dart';
 import 'customer_home.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -7,12 +11,10 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-
+      backgroundColor: const Color(0xFFEAF5FB), // Matches AppColors.background
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-
         leading: TextButton(
           onPressed: () {
             Navigator.pop(context);
@@ -21,12 +23,11 @@ class ProfileScreen extends StatelessWidget {
             "Close",
             style: TextStyle(
               color: Colors.black,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
-
         centerTitle: true,
-
         title: const Text(
           "Profile Settings",
           style: TextStyle(
@@ -35,286 +36,318 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ),
-
       body: SingleChildScrollView(
-  padding: const EdgeInsets.all(20),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-
-      /// Profile Card
-      Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade200,
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-
+        padding: const EdgeInsets.all(20),
+        physics: const BouncingScrollPhysics(),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            Row(
-              children: [
-
-                const CircleAvatar(
-                  radius: 32,
-                  backgroundImage:
-                      AssetImage("assets/images/profile.jpg"),
-                ),
-
-                const SizedBox(width: 15),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-
-                      Text(
-                        "Milan Sanjaya",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+            /// 1. Profile Card
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade200,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 32,
+                        backgroundImage: AssetImage("assets/images/profile.jpg"),
                       ),
-
-                      SizedBox(height: 4),
-
-                      Text(
-                        "milan.sanjaya@email.com",
-                        style: TextStyle(
-                          color: Colors.grey,
-                        ),
-                      ),
-
-                      SizedBox(height: 4),
-
-                      Text(
-                        "+94 77 123 4567",
-                        style: TextStyle(
-                          color: Colors.black87,
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "Milan Sanjaya",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "milan.sanjaya@email.com",
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "+94 77 123 4567",
+                              style: TextStyle(
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            OutlinedButton.icon(
-              onPressed: () {},
-
-              icon: const Icon(Icons.swap_horiz),
-
-              label: const Text("Switch Account"),
-
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 45),
-
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                  const SizedBox(height: 20),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Switch Account feature coming soon")),
+                      );
+                    },
+                    icon: const Icon(Icons.swap_horiz, color: Color(0xff123D8C)),
+                    label: const Text(
+                      "Switch Account",
+                      style: TextStyle(color: Color(0xff123D8C)),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 45),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: const BorderSide(color: Color(0xff123D8C)),
+                    ),
+                  ),
+                ],
               ),
             ),
+            const SizedBox(height: 25),
+
+            /// 2. Profile Insights Card
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade200,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.bar_chart,
+                        color: Color(0xff123D8C),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Text(
+                          "Your Profile Insights",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.chevron_right,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      insightItem("12", "Total Orders"),
+                      insightItem("8.5K", "Total Spent\n(LKR)"),
+                      insightItem("24", "Reward Points"),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
+
+            /// 3. Account Settings Section
+            const Text(
+              "How do you set up an account?",
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
+            ),
+            const SizedBox(height: 15),
+            settingTile(
+              Icons.person_outline,
+              "Profile",
+              "Update profile picture and change username",
+              onTap: () {
+                _showSnackBar(context, "Profile settings coming soon");
+              },
+            ),
+            settingTile(
+              Icons.shield_outlined,
+              "Account Security",
+              "Change password, Two Factor Auth, Login Device",
+              onTap: () {
+                _showSnackBar(context, "Account security settings coming soon");
+              },
+            ),
+            settingTile(
+              Icons.lock_outline,
+              "Privacy Settings",
+              "Make your account private and control visibility",
+              onTap: () {
+                _showSnackBar(context, "Privacy settings coming soon");
+              },
+            ),
+            const SizedBox(height: 25),
+
+            /// 4. Theme Section
+            const Text(
+              "Adjust the theme to your preferences",
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
+            ),
+            const SizedBox(height: 15),
+            settingTile(
+              Icons.wb_sunny_outlined,
+              "Change Theme",
+              "Dark Mode, Light Mode, adjust as you like",
+              onTap: () {
+                _showSnackBar(context, "Theme settings coming soon");
+              },
+            ),
+            const SizedBox(height: 25),
+
+            /// 5. Additional Settings Section
+            const Text(
+              "Additional Settings",
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
+            ),
+            const SizedBox(height: 15),
+            settingTile(
+              Icons.delete_outline,
+              "Delete Account",
+              "Delete your account permanently",
+              iconColor: Colors.red,
+              onTap: () {
+                _showSnackBar(context, "Delete account option coming soon");
+              },
+            ),
+            settingTile(
+              Icons.logout,
+              "Log Out Account",
+              "Log out of your account",
+              iconColor: Colors.red,
+              onTap: () {
+                _showLogoutConfirmDialog(context);
+              },
+            ),
+            const SizedBox(height: 30),
           ],
         ),
       ),
-
-      const SizedBox(height: 25),
-
-      /// Profile Insights
-Container(
-  padding: const EdgeInsets.all(18),
-
-  decoration: BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(20),
-
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.shade200,
-        blurRadius: 10,
-        offset: const Offset(0, 4),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 3,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xff0A5B8E),
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          if (index != 3) {
+            Navigator.pop(context, index);
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: "Home",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.grid_view),
+            label: "Categories",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_bag_outlined),
+            label: "Orders",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "Profile",
+          ),
+        ],
       ),
-    ],
-  ),
+    );
+  }
 
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-
-    children: [
-
-      Row(
-        children: [
-
-          const Icon(
-            Icons.bar_chart,
+  /// Helper widget for displaying statistic insights
+  Widget insightItem(String value, String label) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
             color: Color(0xff123D8C),
           ),
-
-          const SizedBox(width: 10),
-
-          const Expanded(
-            child: Text(
-              "Your Profile Insights",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 12,
           ),
-
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(10),
-            ),
-
-            child: const Icon(
-              Icons.chevron_right,
-            ),
-          ),
-        ],
-      ),
-
-      const SizedBox(height: 20),
-
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-        children: [
-
-          insightItem(
-            "12",
-            "Total Orders",
-          ),
-
-          insightItem(
-            "8.5K",
-            "Total Spent\n(LKR)",
-          ),
-
-          insightItem(
-            "24",
-            "Reward Points",
-          ),
-        ],
-      ),
-    ],
-  ),
-),
-
-const SizedBox(height: 25),
-
-
-    const Text(
-  "How do you set up an account?",
-  style: TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.bold,
-  ),
-),
-
-const SizedBox(height: 15),
-
-settingTile(
-  Icons.person_outline,
-  "Profile",
-  "Update profile picture and change username",
-),
-
-settingTile(
-  Icons.shield_outlined,
-  "Account Security",
-  "Change password, Two Factor Auth, Login Device",
-),
-
-settingTile(
-  Icons.lock_outline,
-  "Privacy Settings",
-  "Make your account private and control visibility",
-),
-
-const SizedBox(height: 25),
-
-const Text(
-  "Adjust the theme to your preferences",
-  style: TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.bold,
-  ),
-),
-
-const SizedBox(height: 15),
-
-settingTile(
-  Icons.wb_sunny_outlined,
-  "Change Theme",
-  "Dark Mode, Light Mode, adjust as you like",
-),
-
-const SizedBox(height: 25),
-
-const Text(
-  "Additional Settings",
-  style: TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.bold,
-  ),
-),
-
-const SizedBox(height: 15),
-
-settingTile(
-  Icons.delete_outline,
-  "Delete Account",
-  "Delete your account permanently",
-  iconColor: Colors.red,
-),
-
-settingTile(
-  Icons.logout,
-  "Log Out Account",
-  "Log out of your account",
-  iconColor: Colors.red,
-),
-
-const SizedBox(height: 30),
-
-
-Widget settingTile(
-  IconData icon,
-  String title,
-  String subtitle, {
-  Color iconColor = const Color(0xff123D8C),
-}) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 15),
-    padding: const EdgeInsets.all(16),
-
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.shade200,
-          blurRadius: 8,
-          offset: const Offset(0, 4),
         ),
       ],
-    ),
+    );
+  }
 
-    child: Row(
-      children: [
-        CircleAvatar(
+  /// Helper widget for custom settings list tiles
+  Widget settingTile(
+    IconData icon,
+    String title,
+    String subtitle, {
+    Color iconColor = const Color(0xff123D8C),
+    VoidCallback? onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: CircleAvatar(
           radius: 24,
           backgroundColor: Colors.grey.shade100,
           child: Icon(
@@ -322,91 +355,58 @@ Widget settingTile(
             color: iconColor,
           ),
         ),
-
-        const SizedBox(width: 15),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-              ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
           ),
         ),
-
-        const Icon(Icons.chevron_right),
-
-        bottomNavigationBar: BottomNavigationBar(
-  currentIndex: 3,
-
-  type: BottomNavigationBarType.fixed,
-
-  selectedItemColor: const Color(0xff0A5B8E),
-
-  unselectedItemColor: Colors.grey,
-
-  onTap: (index) {
-    if (index == 0) {
-      Navigator.pop(context);
-    } else if (index == 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Categories coming soon"),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+          ),
         ),
-      );
-    } else if (index == 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Orders coming soon"),
-        ),
-      );
-    }
-  },
+        trailing: const Icon(Icons.chevron_right),
+      ),
+    );
+  }
 
-  items: const [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: "Home",
-    ),
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
-    BottomNavigationBarItem(
-      icon: Icon(Icons.grid_view),
-      label: "Categories",
-    ),
-
-    BottomNavigationBarItem(
-      icon: Icon(Icons.shopping_bag_outlined),
-      label: "Orders",
-    ),
-
-    BottomNavigationBarItem(
-      icon: Icon(Icons.person),
-      label: "Profile",
-    ),
-  ],
-),
-      ],
-    ),
-  );
-}
-
-    
+  void _showLogoutConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Confirm Logout"),
+        content: const Text("Are you sure you want to log out of your session?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Provider.of<AuthProvider>(context, listen: false).logout();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text(
+              "Log Out",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
