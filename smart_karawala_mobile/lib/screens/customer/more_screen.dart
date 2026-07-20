@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'heritage_screen.dart';
 import 'contact_screen.dart';
+import 'privacy_policy_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -61,10 +62,21 @@ class MoreScreen extends StatelessWidget {
               },
             ),
 
-            const ListTile(
-              leading: Icon(Icons.privacy_tip),
-              title: Text("Privacy Policy"),
-              trailing: Icon(Icons.chevron_right),
+            ListTile(
+              leading: const Icon(Icons.privacy_tip),
+              title: const Text("Privacy Policy"),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                // Close the drawer first
+                Navigator.pop(context);
+                // Push the Privacy Policy Screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PrivacyPolicyScreen(),
+                  ),
+                );
+              },
             ),
 
             const ListTile(
