@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/cart_provider.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -216,6 +218,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           elevation: 0,
                         ),
                         onPressed: () {
+                          Provider.of<CartProvider>(context, listen: false)
+                              .addToCart(product, quantity);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text("$name added to cart!"),
