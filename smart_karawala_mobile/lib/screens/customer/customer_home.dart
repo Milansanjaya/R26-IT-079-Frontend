@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_karawala_mobile/screens/customer/more_screen.dart';
+import 'package:smart_karawala_mobile/screens/customer/profile_screen.dart';
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({super.key});
@@ -41,7 +42,7 @@ class _CustomerHomeState extends State<CustomerHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      
+
        endDrawer: const MoreScreen(),
 
       body: SafeArea(
@@ -268,6 +269,25 @@ class _CustomerHomeState extends State<CustomerHome> {
         selectedItemColor: Colors.blue,
 
         unselectedItemColor: Colors.black54,
+
+        BottomNavigationBar(
+  currentIndex: currentIndex,
+  onTap: (index) {
+    if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ProfileScreen(),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      currentIndex = index;
+    });
+  },
+
 
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
