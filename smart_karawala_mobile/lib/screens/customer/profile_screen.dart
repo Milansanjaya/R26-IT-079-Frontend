@@ -1,507 +1,412 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../core/constants/app_colors.dart';
-import '../../services/user_service.dart';
-import '../../providers/auth_provider.dart';
-import '../auth/login_screen.dart';
+import 'customer_home.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  Map<String, dynamic>? user;
-  bool loading = true;
-  bool isDarkMode = false;
-
-  @override
-  void initState() {
-    super.initState();
-    loadUser();
-  }
-
-  Future<void> loadUser() async {
-    try {
-      final response = await UserService.getCurrentUser();
-      setState(() {
-        user = response["user"];
-        loading = false;
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-      setState(() {
-        loading = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return const Scaffold(
-        backgroundColor: AppColors.background,
-        body: Center(
-          child: CircularProgressIndicator(
-            color: AppColors.primary,
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
+
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.text),
+
+        leading: TextButton(
           onPressed: () {
             Navigator.pop(context);
           },
+          child: const Text(
+            "Close",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
         ),
+
         centerTitle: true,
+
         title: const Text(
           "Profile Settings",
           style: TextStyle(
-            color: AppColors.text,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 18,
           ),
         ),
       ),
+
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+  padding: const EdgeInsets.all(20),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+
+      /// Profile Card
+      Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade200,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 1. Profile Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primary.withOpacity(0.85)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+
+            Row(
+              children: [
+
+                const CircleAvatar(
+                  radius: 32,
+                  backgroundImage:
+                      AssetImage("assets/images/profile.jpg"),
                 ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.white,
-                        child: ClipOval(
-                          child: Image.asset(
-                            "assets/images/profile.jpg",
-                            width: 76,
-                            height: 76,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: AppColors.background,
-                                width: 76,
-                                height: 76,
-                                child: const Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: AppColors.primary,
-                                ),
-                              );
-                            },
-                          ),
+
+                const SizedBox(width: 15),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+
+                      Text(
+                        "Milan Sanjaya",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.edit,
-                            size: 14,
-                            color: AppColors.primary,
-                          ),
+
+                      SizedBox(height: 4),
+
+                      Text(
+                        "milan.sanjaya@email.com",
+                        style: TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+
+                      SizedBox(height: 4),
+
+                      Text(
+                        "+94 77 123 4567",
+                        style: TextStyle(
+                          color: Colors.black87,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user?["full_name"] ?? user?["name"] ?? "Guest Customer",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          user?["email"] ?? "guest@example.com",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          user?["phone"] ?? "+94 77 123 4567",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            (user?["role"] ?? "Customer").toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 25),
-
-            /// 2. Profile Insights Section
-            _sectionHeader("Profile Insights"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                insightItem(
-                  icon: Icons.shopping_bag_outlined,
-                  label: "Total Orders",
-                  value: "12",
-                  color: AppColors.primary,
-                ),
-                insightItem(
-                  icon: Icons.star_outline,
-                  label: "Loyalty Points",
-                  value: "450",
-                  color: Colors.orange,
-                ),
-                insightItem(
-                  icon: Icons.rate_review_outlined,
-                  label: "Reviews",
-                  value: "5",
-                  color: AppColors.success,
                 ),
               ],
             ),
-            const SizedBox(height: 25),
 
-            /// 3. Settings Section
-            _sectionHeader("Account Settings"),
-            settingTile(
-              icon: Icons.person_outline,
-              title: "Edit Profile",
-              subtitle: "Change username, phone and general details",
-              onTap: () {
-                _showFeatureComingSoonSnackBar("Edit Profile");
-              },
-            ),
-            settingTile(
-              icon: Icons.location_on_outlined,
-              title: "My Addresses",
-              subtitle: "Manage billing and shipping addresses",
-              onTap: () {
-                _showFeatureComingSoonSnackBar("My Addresses");
-              },
-            ),
-            settingTile(
-              icon: Icons.history,
-              title: "Order History",
-              subtitle: "View list of past purchases and tracking",
-              onTap: () {
-                _showFeatureComingSoonSnackBar("Order History");
-              },
-            ),
-            settingTile(
-              icon: Icons.notifications_none,
-              title: "Notification Settings",
-              subtitle: "Toggle alerts and newsletter subscriptions",
-              onTap: () {
-                _showFeatureComingSoonSnackBar("Notification Settings");
-              },
-            ),
-            const SizedBox(height: 15),
-
-            /// 4. Theme Section
-            _sectionHeader("Preferences"),
-            settingTile(
-              icon: Icons.dark_mode_outlined,
-              title: "Dark Theme",
-              subtitle: "Switch to high contrast dark styling",
-              trailing: Switch(
-                value: isDarkMode,
-                activeColor: AppColors.primary,
-                onChanged: (val) {
-                  setState(() {
-                    isDarkMode = val;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        val ? "Dark theme enabled (Mock)" : "Light theme enabled (Mock)",
-                      ),
-                      duration: const Duration(milliseconds: 800),
-                    ),
-                  );
-                },
-              ),
-              onTap: () {},
-            ),
-            const SizedBox(height: 15),
-
-            /// 5. Additional Settings
-            _sectionHeader("More Options"),
-            settingTile(
-              icon: Icons.help_outline,
-              title: "Help & Support",
-              subtitle: "FAQ, live chat and contact information",
-              onTap: () {
-                _showFeatureComingSoonSnackBar("Help & Support");
-              },
-            ),
-            settingTile(
-              icon: Icons.info_outline,
-              title: "About Smart Karawala",
-              subtitle: "App details, terms and privacy policy",
-              onTap: () {
-                _showFeatureComingSoonSnackBar("About Smart Karawala");
-              },
-            ),
-            settingTile(
-              icon: Icons.logout,
-              title: "Log Out",
-              subtitle: "Sign out of your active session safely",
-              iconColor: AppColors.error,
-              textColor: AppColors.error,
-              trailing: const SizedBox.shrink(),
-              onTap: () {
-                _showLogoutConfirmDialog();
-              },
-            ),
             const SizedBox(height: 20),
+
+            OutlinedButton.icon(
+              onPressed: () {},
+
+              icon: const Icon(Icons.swap_horiz),
+
+              label: const Text("Switch Account"),
+
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 45),
+
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 3,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: Colors.black54,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          if (index != 3) {
-            Navigator.pop(context, index);
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: "Categories",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag_outlined),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-        ],
-      ),
-    );
-  }
 
-  /// Section Header Widget
-  Widget _sectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: AppColors.text,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
+      const SizedBox(height: 25),
 
-  /// 6. insightItem helper method
-  Widget insightItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.15), width: 1),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              value,
+      /// Profile Insights
+Container(
+  padding: const EdgeInsets.all(18),
+
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(20),
+
+    boxShadow: [
+      BoxShadow(
+        color: Colors.grey.shade200,
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  ),
+
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+
+    children: [
+
+      Row(
+        children: [
+
+          const Icon(
+            Icons.bar_chart,
+            color: Color(0xff123D8C),
+          ),
+
+          const SizedBox(width: 10),
+
+          const Expanded(
+            child: Text(
+              "Your Profile Insights",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: color,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 11,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
+          ),
+
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(10),
             ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  /// 7. settingTile helper method
-  Widget settingTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    Widget? trailing,
-    required VoidCallback onTap,
-    Color? iconColor,
-    Color? textColor,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: Colors.grey.shade100, width: 1.5),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: (iconColor ?? AppColors.primary).withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: iconColor ?? AppColors.primary,
-            size: 20,
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14.5,
-            color: textColor ?? AppColors.text,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(
-            color: AppColors.hint,
-            fontSize: 12,
-          ),
-        ),
-        trailing: trailing ?? Icon(
-          Icons.chevron_right,
-          color: AppColors.hint.withOpacity(0.7),
-        ),
-      ),
-    );
-  }
-
-  void _showFeatureComingSoonSnackBar(String featureName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("$featureName is coming soon!"),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _showLogoutConfirmDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Confirm Logout"),
-        content: const Text("Are you sure you want to log out of your session?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              Provider.of<AuthProvider>(context, listen: false).logout();
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-            child: const Text(
-              "Log Out",
-              style: TextStyle(color: AppColors.error),
+            child: const Icon(
+              Icons.chevron_right,
             ),
           ),
         ],
       ),
+
+      const SizedBox(height: 20),
+
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+
+        children: [
+
+          insightItem(
+            "12",
+            "Total Orders",
+          ),
+
+          insightItem(
+            "8.5K",
+            "Total Spent\n(LKR)",
+          ),
+
+          insightItem(
+            "24",
+            "Reward Points",
+          ),
+        ],
+      ),
+    ],
+  ),
+),
+
+const SizedBox(height: 25),
+
+
+    const Text(
+  "How do you set up an account?",
+  style: TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.bold,
+  ),
+),
+
+const SizedBox(height: 15),
+
+settingTile(
+  Icons.person_outline,
+  "Profile",
+  "Update profile picture and change username",
+),
+
+settingTile(
+  Icons.shield_outlined,
+  "Account Security",
+  "Change password, Two Factor Auth, Login Device",
+),
+
+settingTile(
+  Icons.lock_outline,
+  "Privacy Settings",
+  "Make your account private and control visibility",
+),
+
+const SizedBox(height: 25),
+
+const Text(
+  "Adjust the theme to your preferences",
+  style: TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.bold,
+  ),
+),
+
+const SizedBox(height: 15),
+
+settingTile(
+  Icons.wb_sunny_outlined,
+  "Change Theme",
+  "Dark Mode, Light Mode, adjust as you like",
+),
+
+const SizedBox(height: 25),
+
+const Text(
+  "Additional Settings",
+  style: TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.bold,
+  ),
+),
+
+const SizedBox(height: 15),
+
+settingTile(
+  Icons.delete_outline,
+  "Delete Account",
+  "Delete your account permanently",
+  iconColor: Colors.red,
+),
+
+settingTile(
+  Icons.logout,
+  "Log Out Account",
+  "Log out of your account",
+  iconColor: Colors.red,
+),
+
+const SizedBox(height: 30),
+
+
+Widget settingTile(
+  IconData icon,
+  String title,
+  String subtitle, {
+  Color iconColor = const Color(0xff123D8C),
+}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 15),
+    padding: const EdgeInsets.all(16),
+
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.shade200,
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 24,
+          backgroundColor: Colors.grey.shade100,
+          child: Icon(
+            icon,
+            color: iconColor,
+          ),
+        ),
+
+        const SizedBox(width: 15),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const Icon(Icons.chevron_right),
+
+        bottomNavigationBar: BottomNavigationBar(
+  currentIndex: 3,
+
+  type: BottomNavigationBarType.fixed,
+
+  selectedItemColor: const Color(0xff0A5B8E),
+
+  unselectedItemColor: Colors.grey,
+
+  onTap: (index) {
+    if (index == 0) {
+      Navigator.pop(context);
+    } else if (index == 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Categories coming soon"),
+        ),
+      );
+    } else if (index == 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Orders coming soon"),
+        ),
+      );
+    }
+  },
+
+  items: const [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      label: "Home",
+    ),
+
+    BottomNavigationBarItem(
+      icon: Icon(Icons.grid_view),
+      label: "Categories",
+    ),
+
+    BottomNavigationBarItem(
+      icon: Icon(Icons.shopping_bag_outlined),
+      label: "Orders",
+    ),
+
+    BottomNavigationBarItem(
+      icon: Icon(Icons.person),
+      label: "Profile",
+    ),
+  ],
+),
+      ],
+    ),
+  );
+}
+
+    
     );
   }
 }
