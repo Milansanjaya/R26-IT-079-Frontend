@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_karawala_mobile/screens/customer/more_screen.dart';
 import 'package:smart_karawala_mobile/screens/customer/profile_screen.dart';
 import 'categories_screen.dart';
+import 'product_details_screen.dart';
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({super.key});
@@ -224,12 +225,19 @@ class _CustomerHomeState extends State<CustomerHome> {
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
+            children: [
+              const Text(
                 "Categories",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
-              Text("See all", style: TextStyle(color: Colors.blue)),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    currentIndex = 1;
+                  });
+                },
+                child: const Text("See all", style: TextStyle(color: Colors.blue)),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -251,12 +259,29 @@ class _CustomerHomeState extends State<CustomerHome> {
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
+            children: [
+              const Text(
                 "Popular Products",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
-              Text("See all", style: TextStyle(color: Colors.blue)),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProductDetailsScreen(
+                        product: {
+                          "name": "Mora (Shark)",
+                          "price": "Rs. 2,200 / kg",
+                          "image": "assets/images/mora.jpg",
+                          "rating": "4.7",
+                        },
+                      ),
+                    ),
+                  );
+                },
+                child: const Text("See all", style: TextStyle(color: Colors.blue)),
+              ),
             ],
           ),
           const SizedBox(height: 18),
