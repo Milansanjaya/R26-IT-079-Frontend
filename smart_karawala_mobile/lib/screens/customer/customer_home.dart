@@ -269,8 +269,8 @@ class _CustomerHomeState extends State<CustomerHome> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const ProductDetailsScreen(
-                        product: {
+                      builder: (_) => ProductDetailsScreen(
+                        product: const {
                           "name": "Mora (Shark)",
                           "price": "Rs. 2,200 / kg",
                           "image": "assets/images/mora.jpg",
@@ -349,46 +349,56 @@ class _CustomerHomeState extends State<CustomerHome> {
   }
 
   Widget productCard(Map<String, dynamic> product) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(14),
-              ),
-              child: Image.asset(
-                product["image"],
-                fit: BoxFit.cover,
-                width: double.infinity,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailsScreen(product: product),
+          ),
+        );
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(14),
+                ),
+                child: Image.asset(
+                  product["image"],
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product["name"],
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 5),
-                Text(product["price"]),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    const Icon(Icons.star, size: 16, color: Colors.orange),
-                    const SizedBox(width: 4),
-                    Text(product["rating"]),
-                  ],
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product["name"],
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(product["price"]),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, size: 16, color: Colors.orange),
+                      const SizedBox(width: 4),
+                      Text(product["rating"]),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

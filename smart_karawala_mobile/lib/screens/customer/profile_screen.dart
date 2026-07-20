@@ -10,6 +10,11 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+    final name = user?.fullName ?? "Jayani";
+    final email = user?.email ?? "jayani@gmail.com";
+
     return Scaffold(
       backgroundColor: const Color(0xFFEAF5FB), // Matches AppColors.background
       appBar: AppBar(
@@ -68,24 +73,24 @@ class ProfileScreen extends StatelessWidget {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              "Milan Sanjaya",
-                              style: TextStyle(
+                              name,
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
-                              "milan.sanjaya@email.com",
-                              style: TextStyle(
+                              email,
+                              style: const TextStyle(
                                 color: Colors.grey,
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              "+94 77 123 4567",
+                            const SizedBox(height: 4),
+                            const Text(
+                              "+94 76 123 1138",
                               style: TextStyle(
                                 color: Colors.black87,
                               ),

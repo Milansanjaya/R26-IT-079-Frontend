@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import 'product_details_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -197,23 +196,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailsScreen(
-                                product: {
-                                  "name": cat["name"],
-                                  "price": cat["name"] == "Thora"
-                                      ? "Rs. 2,500 / kg"
-                                      : cat["name"] == "Thalapath"
-                                          ? "Rs. 2,200 / kg"
-                                          : cat["name"] == "Mora"
-                                              ? "Rs. 2,200 / kg"
-                                              : "Rs. 1,800 / kg",
-                                  "image": cat["image"],
-                                  "rating": "4.8",
-                                },
-                              ),
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Selected category: ${cat["name"]}"),
+                              duration: const Duration(seconds: 1),
                             ),
                           );
                         },
