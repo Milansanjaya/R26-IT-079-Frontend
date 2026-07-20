@@ -106,25 +106,7 @@ class HeritageScreen extends StatelessWidget {
                             },
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            "Smart",
-                            style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 18,
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.text,
-                            ),
-                          ),
-                          const Text(
-                            "කරවල",
-                            style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.text,
-                            ),
-                          ),
+                          
                           const SizedBox(height: 25),
 
                           /// Heading
