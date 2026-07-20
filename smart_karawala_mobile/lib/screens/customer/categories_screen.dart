@@ -16,61 +16,61 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   {
     "name": "Salaya",
     "desc": "Popular small dried fish",
-    "image": "assets/images/categories/salaya.jpg",
+    "image": "assets/images/salaya.jpg",
     "gradient": [Colors.blue, Colors.blueAccent],
   },
   {
     "name": "Hurulla",
     "desc": "Great taste, premium dried",
-    "image": "assets/images/categories/hurulla.webp",
+    "image": "assets/images/hurulla.webp",
     "gradient": [Colors.teal, Colors.tealAccent],
   },
   {
     "name": "Kumbalawa",
     "desc": "Traditional salted dried fish",
-    "image": "assets/images/categories/kumbalawa.jpg",
+    "image": "assets/images/kumbalawa.jpg",
     "gradient": [Colors.orange, Colors.orangeAccent],
   },
   {
     "name": "Thora",
     "desc": "High quality king fish slabs",
-    "image": "assets/images/categories/thora.png",
+    "image": "assets/images/thora.png",
     "gradient": [Colors.indigo, Colors.indigoAccent],
   },
   {
     "name": "Kelawalla",
     "desc": "Tuna style rich flavor",
-    "image": "assets/images/categories/kelawalla.webp",
+    "image": "assets/images/kelawalla.webp",
     "gradient": [Colors.purple, Colors.purpleAccent],
   },
   {
     "name": "Balaya",
     "desc": "Local favorite dried tuna",
-    "image": "assets/images/categories/balaya.jpg",
+    "image": "assets/images/balaya.jpg",
     "gradient": [Colors.red, Colors.redAccent],
   },
   {
     "name": "Linna",
     "desc": "Salted & dried to perfection",
-    "image": "assets/images/categories/linna.jpg",
+    "image": "assets/images/linna.jpg",
     "gradient": [Colors.amber, Colors.orange],
   },
   {
     "name": "Thalapath",
     "desc": "Premium quality sailfish",
-    "image": "assets/images/categories/thalapath.jpg",
+    "image": "assets/images/thalapath.jpg",
     "gradient": [Colors.cyan, Colors.cyanAccent],
   },
   {
     "name": "Paraw",
     "desc": "Trevally dry fish portions",
-    "image": "assets/images/categories/paraw.jpg",
+    "image": "assets/images/paraw.jpg",
     "gradient": [Colors.deepOrange, Colors.orangeAccent],
   },
   {
     "name": "Mora",
     "desc": "Shark dry fish, thick cuts",
-    "image": "assets/images/categories/mora.jpg",
+    "image": "assets/images/mora.jpg",
     "gradient": [Colors.blueGrey, Colors.grey],
   },
 ];
@@ -233,6 +233,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       child: Image.asset(
         cat["image"] as String,
         fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(
+            Icons.set_meal,
+            color: Colors.white,
+            size: 26,
+          );
+        },
       ),
     ),
   ),
