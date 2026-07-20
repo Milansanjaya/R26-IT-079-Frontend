@@ -8,6 +8,7 @@ import 'categories_screen.dart';
 import 'product_details_screen.dart';
 import 'cart_screen.dart';
 import 'order_tracking_screen.dart';
+import 'all_products_screen.dart';
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({super.key});
@@ -316,14 +317,7 @@ class _CustomerHomeState extends State<CustomerHome> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ProductDetailsScreen(
-                        product: const {
-                          "name": "Mora (Shark)",
-                          "price": "Rs. 2,200 / kg",
-                          "image": "assets/images/mora.jpg",
-                          "rating": "4.7",
-                        },
-                      ),
+                      builder: (_) => const AllProductsScreen(),
                     ),
                   );
                 },
