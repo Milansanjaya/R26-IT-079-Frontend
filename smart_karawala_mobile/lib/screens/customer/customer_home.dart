@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:smart_karawala_mobile/screens/customer/more_screen.dart';
 import 'package:smart_karawala_mobile/screens/customer/profile_screen.dart';
-import '../../core/constants/app_colors.dart';
-import '../../providers/cart_provider.dart';
 import 'categories_screen.dart';
-import 'product_details_screen.dart';
-import 'cart_screen.dart';
-import 'order_tracking_screen.dart';
-import 'all_products_screen.dart';
+
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({super.key});
@@ -19,7 +13,6 @@ class CustomerHome extends StatefulWidget {
 
 class _CustomerHomeState extends State<CustomerHome> {
   int currentIndex = 0;
-  String selectedOrderTab = "All";
   final List<Map<String, dynamic>> products = [
     {
       "name": "Karawala",
@@ -94,50 +87,9 @@ class _CustomerHomeState extends State<CustomerHome> {
                           ),
                         ],
                       ),
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const MyCartScreen(),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.shopping_cart_outlined),
-                          ),
-                          Consumer<CartProvider>(
-                            builder: (context, cartProvider, child) {
-                              if (cartProvider.cartCount == 0) return const SizedBox.shrink();
-                              return Positioned(
-                                right: 4,
-                                top: 6,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 16,
-                                    minHeight: 16,
-                                  ),
-                                  child: Text(
-                                    "${cartProvider.cartCount}",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.shopping_cart_outlined),
                       ),
                       Builder(
                         builder: (context) {
@@ -314,12 +266,9 @@ class _CustomerHomeState extends State<CustomerHome> {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AllProductsScreen(),
-                    ),
-                  );
+                  setState(() {
+                    currentIndex = 1;
+                  });
                 },
                 child: const Text("See all", style: TextStyle(color: Colors.blue)),
               ),
@@ -346,252 +295,29 @@ class _CustomerHomeState extends State<CustomerHome> {
     );
   }
 
-  /// 2. Orders tab body (Mocked and Live orders)
+  /// 2. Orders tab body (Mock)
   Widget _buildOrdersTab() {
-    final cartProvider = Provider.of<CartProvider>(context);
-    final orders = cartProvider.orders;
-
-    // Filter orders by selected status tab
-    final filteredOrders = orders.where((order) {
-      if (selectedOrderTab == "All") return true;
-      return order.status.toLowerCase() == selectedOrderTab.toLowerCase();
-    }).toList();
-
-    final orderTabs = ["All", "Pending", "Processing", "Delivered", "Cancelled"];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Title and Filter icon
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "My Orders",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.text,
-              ),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.shopping_bag_outlined, size: 80, color: Colors.grey.shade300),
+          const SizedBox(height: 16),
+          const Text(
+            "My Orders",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
-            IconButton(
-              icon: const Icon(Icons.filter_alt_outlined, color: AppColors.text),
-              onPressed: () {},
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-
-        // Tabs Header
-        SizedBox(
-          height: 38,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: orderTabs.length,
-            physics: const BouncingScrollPhysics(),
-            itemBuilder: (context, index) {
-              final tab = orderTabs[index];
-              final isSelected = selectedOrderTab == tab;
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    selectedOrderTab = tab;
-                  });
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    tab,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              );
-            },
           ),
-        ),
-        const SizedBox(height: 16),
-
-        // Orders List
-        Expanded(
-          child: filteredOrders.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey.shade300),
-                      const SizedBox(height: 16),
-                      Text(
-                        "No $selectedOrderTab orders found.",
-                        style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: filteredOrders.length,
-                  physics: const BouncingScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    final order = filteredOrders[index];
-                    final String image = order.items.isNotEmpty
-                        ? order.items.first.image
-                        : "assets/images/placeholder.png";
-
-                    // Format dates
-                    final months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                    final dateStr = "${order.orderDate.day} ${months[order.orderDate.month - 1]} ${order.orderDate.year}";
-
-                    // Status style
-                    Color badgeColor;
-                    Color textColor;
-                    switch (order.status.toLowerCase()) {
-                      case "pending":
-                        badgeColor = Colors.orange.shade50;
-                        textColor = Colors.orange.shade800;
-                        break;
-                      case "processing":
-                        badgeColor = Colors.blue.shade50;
-                        textColor = Colors.blue.shade800;
-                        break;
-                      case "delivered":
-                        badgeColor = Colors.green.shade50;
-                        textColor = Colors.green.shade800;
-                        break;
-                      case "cancelled":
-                        badgeColor = Colors.red.shade50;
-                        textColor = Colors.red.shade800;
-                        break;
-                      default:
-                        badgeColor = Colors.grey.shade100;
-                        textColor = Colors.black87;
-                    }
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade100),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => OrderTrackingScreen(order: order),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.asset(
-                                image,
-                                width: 70,
-                                height: 70,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    width: 70,
-                                    height: 70,
-                                    color: Colors.grey.shade100,
-                                    child: const Icon(Icons.set_meal, color: AppColors.hint),
-                                  );
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        order.orderId,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: AppColors.text,
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: badgeColor,
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: Text(
-                                          order.status,
-                                          style: TextStyle(
-                                            color: textColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 11,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    dateStr,
-                                    style: const TextStyle(
-                                      color: AppColors.hint,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "${order.items.fold(0, (sum, i) => sum + i.quantity)} items",
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Total: Rs. ${order.total.toStringAsFixed(2)}",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                          color: AppColors.text,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.chevron_right, color: AppColors.hint),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            "You don't have any active orders right now.",
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+          ),
+        ],
+      ),
     );
   }
 
@@ -613,56 +339,46 @@ class _CustomerHomeState extends State<CustomerHome> {
   }
 
   Widget productCard(Map<String, dynamic> product) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ProductDetailsScreen(product: product),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
+              child: Image.asset(
+                product["image"],
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
+            ),
           ),
-        );
-      },
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(14),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product["name"],
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                child: Image.asset(
-                  product["image"],
-                  fit: BoxFit.cover,
-                  width: double.infinity,
+                const SizedBox(height: 5),
+                Text(product["price"]),
+                const SizedBox(height: 5),
+                Row(
+                  children: [
+                    const Icon(Icons.star, size: 16, color: Colors.orange),
+                    const SizedBox(width: 4),
+                    Text(product["rating"]),
+                  ],
                 ),
-              ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product["name"],
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(product["price"]),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      const Icon(Icons.star, size: 16, color: Colors.orange),
-                      const SizedBox(width: 4),
-                      Text(product["rating"]),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

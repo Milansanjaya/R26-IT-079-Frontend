@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/Batch/colors.dart';
 import '../Add_company/add_company_screen.dart';
 
 class WasteNotificationScreen extends StatefulWidget {
@@ -21,14 +22,12 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
       "selected": true,
       "icon": Icons.public,
     },
-
     {
       "name": "Ceylon Fish Meal (Pvt) Ltd",
       "phone": "+94 71 987 6543",
       "selected": true,
       "icon": Icons.recycling,
     },
-
     {
       "name": "BlueWave Eco Solutions",
       "phone": "+94 70 555 8899",
@@ -36,222 +35,242 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
       "icon": Icons.water,
     },
   ];
+
   @override
   void initState() {
     super.initState();
-
     final now = DateTime.now();
-
     collectionDateController.text = "${now.day}/${now.month}/${now.year}";
+  }
+
+  @override
+  void dispose() {
+    collectionDateController.dispose();
+    super.dispose();
+  }
+
+  InputDecoration _inputDecoration(String label, IconData icon, {String? suffix}) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+      suffixText: suffix,
+      suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+      filled: true,
+      fillColor: Colors.grey.shade50,
+      prefixIcon: Icon(icon, color: AppColors.primary.withOpacity(0.7)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
-
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(18),
-
+          padding: const EdgeInsets.all(20),
+          physics: const BouncingScrollPhysics(),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //------------------------------------------------
-              // Header
-              //------------------------------------------------
+              // Header navigation row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                 children: [
-                  Container(
-                    width: 45,
-                    height: 45,
-
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back),
-
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-
-                  Column(
-                    children: const [
-                      Icon(Icons.set_meal, color: Colors.blue, size: 45),
-
-                      Text(
-                        "Smart",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-
-                      Text("කරවල"),
-                    ],
+                      child: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
+                    ),
                   ),
+                  Image.asset('assets/images/logo.png', height: 32),
                 ],
               ),
+              const SizedBox(height: 24),
 
-              const SizedBox(height: 30),
-
+              // Title
               const Text(
                 "Waste Notification",
-
                 style: TextStyle(
-                  fontSize: 34,
-
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
-
-                  color: Color(0xff174C7B),
+                  color: AppColors.primary,
                 ),
               ),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 30),
-
-              //------------------------------------------------
-              // Company Selection Card
-              //------------------------------------------------
+              // 1. Company Selection Card
               Container(
                 width: double.infinity,
-
-                padding: const EdgeInsets.all(16),
-
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-
                   children: [
                     Row(
-                      children: const [
-                        Icon(Icons.group, color: Colors.blue),
-
-                        SizedBox(width: 10),
-
-                        Text(
-                          "1. Select Company",
-
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-
-                            fontSize: 18,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.group_outlined, color: AppColors.primary, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            "1. Select Company",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 5),
-
+                    const SizedBox(height: 8),
                     const Text(
                       "Choose one or more companies to notify.",
-
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: Colors.grey, fontSize: 13),
                     ),
-
                     const SizedBox(height: 20),
 
-                    //------------------------------------------------
                     // Company List
-                    //------------------------------------------------
                     ListView.builder(
                       shrinkWrap: true,
-
                       physics: const NeverScrollableScrollPhysics(),
-
                       itemCount: companies.length,
-
                       itemBuilder: (context, index) {
                         final company = companies[index];
+                        final bool isSelected = company["selected"];
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
-
-                          padding: const EdgeInsets.all(12),
-
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-
-                            borderRadius: BorderRadius.circular(12),
+                            color: isSelected ? const Color(0xFFF0F6FC) : Colors.white,
+                            border: Border.all(
+                              color: isSelected ? AppColors.primary.withOpacity(0.3) : Colors.grey.shade200,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-
-                          child: Row(
-                            children: [
-                              Checkbox(
-                                value: company["selected"],
-
-                                onChanged: (value) {
-                                  setState(() {
-                                    company["selected"] = value!;
-                                  });
-                                },
-                              ),
-
-                              CircleAvatar(
-                                backgroundColor: Colors.blue.shade50,
-
-                                child: Icon(
-                                  company["icon"],
-                                  color: Colors.blue,
-                                ),
-                              ),
-
-                              const SizedBox(width: 12),
-
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                                  children: [
-                                    Text(
-                                      company["name"],
-
-                                      style: const TextStyle(
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                company["selected"] = !isSelected;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: isSelected,
+                                    activeColor: AppColors.primary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        company["selected"] = value!;
+                                      });
+                                    },
+                                  ),
+                                  CircleAvatar(
+                                    backgroundColor: isSelected ? Colors.white : AppColors.background,
+                                    child: Icon(
+                                      company["icon"],
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          company["name"],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.text,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          company["phone"],
+                                          style: const TextStyle(color: Colors.black54, fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? const Color(0xFFE8F5E9)
+                                          : Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      isSelected ? "Selected" : "Select",
+                                      style: TextStyle(
+                                        fontSize: 11,
                                         fontWeight: FontWeight.bold,
+                                        color: isSelected
+                                            ? Colors.green.shade800
+                                            : Colors.black54,
                                       ),
                                     ),
-
-                                    const SizedBox(height: 4),
-
-                                    Text(company["phone"]),
-                                  ],
-                                ),
-                              ),
-
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 5,
-                                ),
-
-                                decoration: BoxDecoration(
-                                  color: company["selected"]
-                                      ? Colors.green.shade100
-                                      : Colors.grey.shade200,
-
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-
-                                child: Text(
-                                  company["selected"] ? "Selected" : "Select",
-
-                                  style: TextStyle(
-                                    fontSize: 12,
-
-                                    color: company["selected"]
-                                        ? Colors.green
-                                        : Colors.black,
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         );
                       },
@@ -259,100 +278,86 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
 
-              //------------------------------------------------
-              // 2. Waste Details
-              //------------------------------------------------
+              // 2. Waste Details Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: const [
-                        Icon(Icons.scale, color: Colors.blue),
-
-                        SizedBox(width: 10),
-
-                        Text(
-                          "2. Waste Details",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.scale_outlined, color: AppColors.primary, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            "2. Waste Details",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 20),
 
                     Row(
                       children: [
-                        //------------------------------------------------
                         // Estimated Waste
-                        //------------------------------------------------
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
                                 "Estimated Waste Quantity",
-                                style: TextStyle(fontWeight: FontWeight.w500),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.text),
                               ),
-
                               const SizedBox(height: 8),
-
                               TextFormField(
-                                initialValue:
-                                    "${widget.predictedWaste.toStringAsFixed(1)}",
-
-                                decoration: InputDecoration(
-                                  suffixText: "kg",
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
+                                initialValue: widget.predictedWaste.toStringAsFixed(1),
+                                decoration: _inputDecoration("Quantity", Icons.delete_outline_rounded, suffix: "kg"),
                               ),
                             ],
                           ),
                         ),
+                        const SizedBox(width: 16),
 
-                        const SizedBox(width: 15),
-
-                        //------------------------------------------------
                         // Collection Date
-                        //------------------------------------------------
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
                                 "Preferred Collection Date",
-                                style: TextStyle(fontWeight: FontWeight.w500),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.text),
                               ),
-
                               const SizedBox(height: 8),
-
                               TextFormField(
                                 controller: collectionDateController,
                                 readOnly: true,
-                                decoration: InputDecoration(
-                                  prefixIcon: const Icon(Icons.calendar_month),
-                                  suffixIcon: const Icon(Icons.arrow_drop_down),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
+                                decoration: _inputDecoration("Date", Icons.calendar_today_outlined),
                                 onTap: () async {
                                   final DateTime? picked = await showDatePicker(
                                     context: context,
@@ -377,65 +382,83 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
 
-              //------------------------------------------------
-              // 3. Additional Message
-              //------------------------------------------------
+              // 3. Additional Message Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: const [
-                        Icon(Icons.chat_bubble_outline, color: Colors.blue),
-
-                        SizedBox(width: 10),
-
-                        Text(
-                          "3. Additional Message (Optional)",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.primary, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            "3. Additional Message (Optional)",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 16),
 
                     TextField(
-                      maxLines: 5,
+                      maxLines: 4,
                       maxLength: 200,
-
                       decoration: InputDecoration(
                         hintText: "Add any additional information...",
-
+                        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
                         ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.all(16),
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 24),
 
-              const SizedBox(height: 20),
-
-              //------------------------------------------------
               // Send Notification Button
-              //------------------------------------------------
               SizedBox(
                 width: double.infinity,
-                height: 55,
+                height: 56,
                 child: ElevatedButton.icon(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -444,116 +467,122 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                         backgroundColor: Colors.green,
                       ),
                     );
-
-                    // TODO:
-                    // Call your backend API here.
-                    //
-                    // Example:
-                    // await BatchService.sendNotification(batchId);
                   },
-
-                  icon: const Icon(Icons.send),
-
+                  icon: const Icon(Icons.send_rounded, color: Colors.white),
                   label: const Text(
                     "Send Notification",
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff0A3E91),
+                    backgroundColor: AppColors.button,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
+                    elevation: 0,
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
 
-              //------------------------------------------------
-              // Information Card
-              //------------------------------------------------
+              // Information Card banner
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xffEEF6FF),
-                  borderRadius: BorderRadius.circular(15),
+                  color: const Color(0xFFE3F2FD), // Soft blue tint
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.blue.shade100, width: 1.5),
                 ),
-
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.info, color: Colors.blue),
-
-                    SizedBox(width: 12),
-
+                    Icon(Icons.info_outline_rounded, color: Colors.blue.shade800),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         "Companies will receive your waste details and estimated quantity for better planning and collection.",
-                        style: TextStyle(fontSize: 13),
+                        style: TextStyle(fontSize: 12, color: Colors.blue.shade900, height: 1.4),
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 20),
 
-              
-
-              //------------------------------------------------
-              // Create New Company
-              //------------------------------------------------
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddCompanyScreen(),
+              // Create New Company Card Link
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                  );
-                },
-
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-
-                  child: const Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Color(0xffEEF5FF),
-                        child: Icon(Icons.add, color: Colors.blue),
-                      ),
-
-                      SizedBox(width: 12),
-
-                      Expanded(
-                        child: Text(
-                          "Create new recycling or\nfish meal processing companies",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                  ],
+                  border: Border.all(color: Colors.grey.shade100),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddCompanyScreen(),
                         ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.add, color: AppColors.primary),
+                          ),
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Create Recycling Company",
+                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.text, fontSize: 14),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Add new recycling or fish meal processing companies",
+                                  style: TextStyle(color: Colors.grey, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right, color: AppColors.hint),
+                        ],
                       ),
-
-                      Icon(Icons.arrow_forward_ios),
-                    ],
+                    ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 50),
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
 
-              //------------------------------------------------
-              // Footer
-              //------------------------------------------------
-              const Text(
-                "Powered by Smart Karawala",
-                style: TextStyle(color: Colors.grey, fontSize: 15),
+              const Center(
+                child: Text(
+                  "Powered by Smart Karawala",
+                  style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
+                ),
               ),
-
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
             ],
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/Batch/colors.dart';
 import '../admin/admin_home_screen.dart';
 import 'add_new_batch_screen.dart';
 
@@ -22,121 +23,196 @@ class BatchCreatedSuccessScreen extends StatelessWidget {
     required this.notes,
   });
 
-  Widget item(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+  Widget _buildDetailRow(String label, String value, {bool showDivider = true}) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  value.isEmpty ? "N/A" : value,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.end,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            flex: 3,
-            child: Text(value),
-          ),
-        ],
-      ),
+        ),
+        if (showDivider)
+          Divider(color: Colors.grey.shade100, height: 1),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Spacer(),
+              Image.asset('assets/images/logo.png', height: 45),
+              const SizedBox(height: 32),
 
-              const SizedBox(height: 20),
-
-              const CircleAvatar(
-                radius: 35,
-                backgroundColor: Colors.green,
-                child: Icon(
-                  Icons.check,
-                  color: Colors.white,
-                  size: 40,
-                ),
+              // Success checkmark illustration
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    height: 110,
+                    width: 110,
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  Container(
+                    height: 80,
+                    width: 80,
+                    decoration: const BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 44,
+                    ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 15),
+              const SizedBox(height: 24),
 
               const Text(
                 "Batch Created Successfully!",
                 style: TextStyle(
                   color: Colors.green,
-                  fontSize: 26,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
               ),
 
               const SizedBox(height: 8),
 
               const Text(
                 "Your new batch has been created and saved.",
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 32),
 
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      item("Batch ID", batchId),
-                      item("Fish Type", fishType),
-                      item("Raw Weight", "$rawWeight kg"),
-                      item("Date", date),
-                      item("Time", time),
-                      item("Location", location),
-                      item("Notes", notes),
-                    ],
+              // Details Card
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _buildDetailRow("Batch ID", batchId),
+                    _buildDetailRow("Fish Type", fishType),
+                    _buildDetailRow("Raw Weight", "$rawWeight kg"),
+                    _buildDetailRow("Date", date),
+                    _buildDetailRow("Time", time),
+                    _buildDetailRow("Location", location),
+                    _buildDetailRow("Notes", notes, showDivider: false),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // Action buttons
+              ElevatedButton.icon(
+                icon: const Icon(Icons.home, color: Colors.white),
+                label: const Text(
+                  "Go to Dashboard",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.button,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
+                  elevation: 0,
+                  minimumSize: const Size(double.infinity, 50),
                 ),
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AdminHomeScreen(),
+                    ),
+                    (route) => false,
+                  );
+                },
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 12),
 
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: const Text("Create Another Batch"),
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddNewBatchScreen(),
-                      ),
-                    );
-                  },
+              OutlinedButton.icon(
+                icon: const Icon(Icons.add, color: AppColors.primary),
+                label: const Text(
+                  "Create Another Batch",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-              ),
-
-              const SizedBox(height: 15),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.home),
-                  label: const Text("Go to Dashboard"),
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AdminHomeScreen(),
-                      ),
-                      (route) => false,
-                    );
-                  },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary, width: 1.5),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                  minimumSize: const Size(double.infinity, 50),
                 ),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AddNewBatchScreen(),
+                    ),
+                  );
+                },
               ),
+              const SizedBox(height: 10),
             ],
           ),
         ),

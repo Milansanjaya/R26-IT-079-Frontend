@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../../models/batch_model.dart';
 import '../../models/salt_prediction_model.dart';
 import '../../services/Salt/salt_service.dart';
-
+import '../../widgets/Batch/colors.dart';
 import '../../widgets/Batch/cleaned_weight_card.dart';
 import '../../widgets/Prediction/prediction_result_card.dart';
-
 import '../../services/Salt/salting_service.dart';
 import 'salting_monitoring_screen.dart';
 
@@ -30,10 +28,6 @@ class _SaltPredictionScreenState extends State<SaltPredictionScreen> {
     loadLatestBatch();
   }
 
-  //------------------------------------------------
-  // Load latest batch
-  //------------------------------------------------
-
   Future<void> loadLatestBatch() async {
     try {
       final latest = await SaltService.getLatestBatch();
@@ -52,10 +46,6 @@ class _SaltPredictionScreenState extends State<SaltPredictionScreen> {
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
-
-  //------------------------------------------------
-  // Predict Salt
-  //------------------------------------------------
 
   Future<void> predictSalt() async {
     if (batch == null) return;
@@ -81,204 +71,206 @@ class _SaltPredictionScreenState extends State<SaltPredictionScreen> {
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
-  //------------------------------------------------
-  // UI
-  //------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
     if (loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
-
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xffEAF7FF),
-        centerTitle: true,
-        title: const Text(
-          "Salt Prediction",
-          style: TextStyle(
-            color: Color(0xff214E77),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xff214E77)),
-      ),
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(18),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            //------------------------------------------------
-            // Cleaned Weight Card
-            //------------------------------------------------
-            CleanedWeightCard(
-              batchId: batch!.batchId,
-              fishType: batch!.fishType,
-              cleanedWeight: batch!.cleanedWeight,
-            ),
-
-            const SizedBox(height: 25),
-
-            //------------------------------------------------
-            // Predict Button
-            //------------------------------------------------
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-
-              child: ElevatedButton.icon(
-                onPressed: predicting ? null : predictSalt,
-
-                icon: predicting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Icon(Icons.analytics),
-
-                label: Text(predicting ? "Predicting..." : "Predict Salt"),
-
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff214E77),
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            //------------------------------------------------
-            // Prediction Result
-            //------------------------------------------------
-            if (prediction != null)
-              PredictionResultCard(
-                saltAmount: prediction!.saltAmount,
-                saltingDurationHours: prediction!.saltingDurationHours,
-              ),
-
-            const SizedBox(height: 30),
-
-            //------------------------------------------------
-            // Action Buttons
-            //------------------------------------------------
-            if (prediction != null)
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header navigation row
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          prediction = null;
-                        });
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text("Reset"),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(50),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: AppColors.primary,
+                        size: 18,
                       ),
                     ),
                   ),
-
-                  const SizedBox(width: 15),
-
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        if (batch == null) return;
-
-                        final success = await SaltingService.startSalting(
-                          batch!.batchId,
-                        );
-
-                        if (!mounted) return;
-
-                        if (success) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => SaltingMonitoringScreen(
-                                batchId: batch!.batchId,
-                              ),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Failed to start salting"),
-                            ),
-                          );
-                        }
-                      },
-
-                      icon: const Icon(Icons.arrow_forward),
-
-                      label: const Text("Proceed"),
-
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(50),
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ),
+                  Image.asset('assets/images/logo.png', height: 32),
                 ],
               ),
+              const SizedBox(height: 24),
 
-            const SizedBox(height: 25),
-
-            //------------------------------------------------
-            // Recommendation
-            //------------------------------------------------
-            if (prediction != null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xffF3FFF3),
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Colors.green.shade300),
+              // Title
+              const Text(
+                "Salt Prediction",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              const SizedBox(height: 20),
+
+              // Cleaned Weight Card
+              CleanedWeightCard(
+                batchId: batch!.batchId,
+                fishType: batch!.fishType,
+                cleanedWeight: batch!.cleanedWeight,
+              ),
+
+              const SizedBox(height: 24),
+
+              // Predict Button
+              if (prediction == null)
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: predicting ? null : predictSalt,
+                    icon: predicting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Icon(Icons.analytics_outlined, color: Colors.white),
+                    label: Text(
+                      predicting ? "Predicting..." : "Predict Salt",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+
+              // Prediction Result Card
+              if (prediction != null) ...[
+                PredictionResultCard(
+                  saltAmount: prediction!.saltAmount,
+                  saltingDurationHours: prediction!.saltingDurationHours,
+                ),
+                const SizedBox(height: 24),
+
+                // Action Buttons
+                Row(
                   children: [
-                    const Icon(Icons.lightbulb, color: Colors.green),
-
-                    const SizedBox(width: 10),
-
                     Expanded(
-                      child: Text(
-                        "Recommended salt amount is "
-                        "${prediction!.saltAmount.toStringAsFixed(2)} kg.\n\n"
-                        "Recommended salting duration is "
-                        "${prediction!.saltingDurationHours} hours.",
-                        style: const TextStyle(fontSize: 14),
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            prediction = null;
+                          });
+                        },
+                        icon: const Icon(Icons.refresh_rounded, color: AppColors.primary),
+                        label: const Text(
+                          "Reset",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(color: AppColors.primary, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          minimumSize: const Size(0, 56),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          if (batch == null) return;
+
+                          final success = await SaltingService.startSalting(
+                            batch!.batchId,
+                          );
+
+                          if (!mounted) return;
+
+                          if (success) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SaltingMonitoringScreen(
+                                  batchId: batch!.batchId,
+                                ),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Failed to start salting"),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                        label: const Text(
+                          "Proceed",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          minimumSize: const Size(0, 56),
+                          elevation: 0,
+                        ),
                       ),
                     ),
                   ],
                 ),
+              ],
+
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
+
+              const Center(
+                child: Text(
+                  "Powered by Smart Karawala",
+                  style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
+                ),
               ),
-
-            const SizedBox(height: 30),
-
-            const Center(
-              child: Text(
-                "Powered by Smart Karawala",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );

@@ -12,4 +12,6 @@ class AppColors {
   static const Color border = Color.fromARGB(255, 250, 250, 250);
 
   static const Color text = Color.fromARGB(255, 255, 255, 255);
+
+  static const Color hint = Colors.grey;
 }
