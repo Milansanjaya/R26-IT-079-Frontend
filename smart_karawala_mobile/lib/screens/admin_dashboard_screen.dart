@@ -5,6 +5,7 @@ import '../widgets/Batch/colors.dart';
 import './auth/login_screen.dart';
 import 'Waste/waste_traceability_screen.dart';
 import 'admin/admin_home_screen.dart';
+import 'admin/sales_dashboard_screen.dart';
 import 'Batch_admin/batch_records_dashboard_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -204,9 +205,10 @@ class AdminDashboardScreen extends StatelessWidget {
                 subtitle:
                     "Track sales performance, revenue, and top-selling products.",
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Sales Dashboard coming soon"),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SalesDashboardScreen(),
                     ),
                   );
                 },
