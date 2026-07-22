@@ -80,7 +80,7 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Image.asset('assets/images/logo.png', height: 40),
+          Image.asset('assets/images/logo.png', height: 55),
           const SizedBox(width: 16),
         ],
       ),

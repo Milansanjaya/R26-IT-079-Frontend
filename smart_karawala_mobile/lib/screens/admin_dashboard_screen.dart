@@ -52,7 +52,7 @@ class AdminDashboardScreen extends StatelessWidget {
                       child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 48),
+                  Image.asset('assets/images/logo.png', height: 70),
                   GestureDetector(
                     onTap: () async {
                       await StorageService.clearToken();

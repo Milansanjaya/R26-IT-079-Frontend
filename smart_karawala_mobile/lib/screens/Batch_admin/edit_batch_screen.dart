@@ -99,7 +99,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 48),
+                  Image.asset('assets/images/logo.png', height: 70),
                 ],
               ),
               const SizedBox(height: 24),

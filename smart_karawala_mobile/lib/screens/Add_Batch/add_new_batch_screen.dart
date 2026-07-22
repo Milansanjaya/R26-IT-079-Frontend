@@ -201,7 +201,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
                       child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
                     ),
                   ),
-                  const Icon(Icons.set_meal_outlined, size: 32, color: AppColors.primary),
+                  Image.asset('assets/images/logo.png', height: 70),
                 ],
               ),
 
