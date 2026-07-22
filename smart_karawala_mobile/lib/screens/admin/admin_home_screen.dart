@@ -9,21 +9,25 @@ import '../Salt/salting_monitoring_screen.dart';
 import '../../services/Salt/salt_service.dart';
 import '../Waste/waste_traceability_screen.dart';
 import '../admin_dashboard_screen.dart';
+import 'admin_profile_screen.dart';
 
-class AdminHomeScreen extends StatelessWidget {
+class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      bottomNavigationBar: const AdminBottomNav(),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+  State<AdminHomeScreen> createState() => _AdminHomeScreenState();
+}
+
+class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  int _currentIndex = 0;
+
+  Widget _buildHomeBody(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
               // Header navigation row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -268,6 +272,32 @@ class AdminHomeScreen extends StatelessWidget {
             ],
           ),
         ),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: _currentIndex == 0 ? _buildHomeBody(context) : const AdminProfileScreen(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        selectedItemColor: Colors.blue[800],
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }
