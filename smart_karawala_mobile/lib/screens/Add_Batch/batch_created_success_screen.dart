@@ -73,7 +73,7 @@ class BatchCreatedSuccessScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              Image.asset('assets/images/logo.png', height: 45),
+              Image.asset('assets/images/logo.png', height: 75),
               const SizedBox(height: 32),
 
               // Success checkmark illustration

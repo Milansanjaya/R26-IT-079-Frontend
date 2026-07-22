@@ -101,7 +101,7 @@ class _ProcessingReportsScreenState extends State<ProcessingReportsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Image.asset('assets/images/logo.png', height: 28),
+          Image.asset('assets/images/logo.png', height: 40),
           const SizedBox(width: 16),
         ],
       ),

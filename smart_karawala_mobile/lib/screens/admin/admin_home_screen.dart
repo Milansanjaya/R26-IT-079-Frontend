@@ -48,7 +48,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     ),
                     child: const Icon(Icons.menu, size: 22, color: AppColors.primary),
                   ),
-                  Image.asset('assets/images/logo.png', height: 32),
+                  Image.asset('assets/images/logo.png', height: 48),
                 ],
               ),
 

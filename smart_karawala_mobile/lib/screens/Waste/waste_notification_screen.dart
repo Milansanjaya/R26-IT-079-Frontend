@@ -112,7 +112,7 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 32),
+                  Image.asset('assets/images/logo.png', height: 48),
                 ],
               ),
               const SizedBox(height: 24),
