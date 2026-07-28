@@ -10,6 +10,7 @@ import '../../services/Salt/salt_service.dart';
 import '../Waste/waste_traceability_screen.dart';
 import '../admin_dashboard_screen.dart';
 import 'admin_profile_screen.dart';
+import 'system_overview_dashboard_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});

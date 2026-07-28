@@ -426,17 +426,21 @@ class _BatchRecordsDashboardScreenState
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
-                                  color: report.status == "Completed"
+                                  color: report.status.toLowerCase() == "completed"
                                       ? const Color(0xFFE8F5E9)
-                                      : const Color(0xFFFFF3E0),
+                                      : report.status.toLowerCase().contains("progress")
+                                          ? const Color(0xFFFFF3E0)
+                                          : const Color(0xFFE3F2FD),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
                                   report.status,
                                   style: TextStyle(
-                                    color: report.status == "Completed"
+                                    color: report.status.toLowerCase() == "completed"
                                         ? Colors.green.shade800
-                                        : Colors.orange.shade800,
+                                        : report.status.toLowerCase().contains("progress")
+                                            ? Colors.orange.shade800
+                                            : Colors.blue.shade800,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 11,
                                   ),
@@ -489,15 +493,26 @@ class _BatchRecordsDashboardScreenState
                               const SizedBox(width: 8),
                               TextButton.icon(
                                 onPressed: () async {
-                                  final result = await Navigator.push(
+                                  final updatedReport = await Navigator.push<ProcessingReportModel>(
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => EditBatchScreen(batch: report),
                                     ),
                                   );
 
-                                  if (result == true) {
-                                    loadData();
+                                  if (updatedReport != null) {
+                                    setState(() {
+                                      final index = reports.indexWhere((r) => r.batchId == updatedReport.batchId);
+                                      if (index != -1) {
+                                        reports[index] = updatedReport;
+                                      }
+                                      filterReports();
+                                    });
+
+                                    try {
+                                      await loadData();
+                                      filterReports();
+                                    } catch (_) {}
                                   }
                                 },
                                 icon: const Icon(Icons.edit_outlined, size: 16),
