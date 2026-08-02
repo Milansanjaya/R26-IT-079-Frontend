@@ -4,7 +4,15 @@ import '../Add_company/add_company_screen.dart';
 
 class WasteNotificationScreen extends StatefulWidget {
   final double predictedWaste;
-  const WasteNotificationScreen({super.key, required this.predictedWaste});
+  final String? batchId;
+  final double? wastePercentage;
+
+  const WasteNotificationScreen({
+    super.key,
+    required this.predictedWaste,
+    this.batchId,
+    this.wastePercentage,
+  });
 
   @override
   State<WasteNotificationScreen> createState() =>
@@ -14,6 +22,8 @@ class WasteNotificationScreen extends StatefulWidget {
 class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
   final TextEditingController collectionDateController =
       TextEditingController();
+  final TextEditingController messageController = TextEditingController();
+  final TextEditingController quantityController = TextEditingController();
 
   final List<Map<String, dynamic>> companies = [
     {
@@ -36,16 +46,115 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
     },
   ];
 
+  Widget _buildNotificationStatusCard(double pct) {
+    String statusText;
+    String notificationLevel;
+    Color cardBg;
+    Color borderColor;
+    Color textColor;
+    String emoji;
+
+    if (pct <= 10.0) {
+      emoji = "🟢";
+      statusText = "Low Waste";
+      notificationLevel = "Normal";
+      cardBg = const Color(0xFFE8F5E9);
+      borderColor = Colors.green.shade300;
+      textColor = Colors.green.shade900;
+    } else if (pct <= 20.0) {
+      emoji = "🟡";
+      statusText = "Moderate Waste";
+      notificationLevel = "Warning";
+      cardBg = const Color(0xFFFFF8E1);
+      borderColor = Colors.amber.shade400;
+      textColor = Colors.amber.shade900;
+    } else {
+      emoji = "🔴";
+      statusText = "High Waste";
+      notificationLevel = "Alert";
+      cardBg = const Color(0xFFFFEBEE);
+      borderColor = Colors.red.shade300;
+      textColor = Colors.red.shade900;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 26)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      statusText,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: textColor,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: textColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        notificationLevel,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: textColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Waste Percentage: ${pct.toStringAsFixed(1)}%",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: textColor.withOpacity(0.85),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     final now = DateTime.now();
     collectionDateController.text = "${now.day}/${now.month}/${now.year}";
+    
+    double predKg = widget.predictedWaste > 0 ? widget.predictedWaste : 21.75;
+    quantityController.text = predKg.toStringAsFixed(1);
+    messageController.text = "Please come waste collected";
   }
 
   @override
   void dispose() {
     collectionDateController.dispose();
+    messageController.dispose();
+    quantityController.dispose();
     super.dispose();
   }
 
@@ -126,7 +235,12 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                   color: AppColors.primary,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+
+              // Waste Percentage Status Notification Card
+              _buildNotificationStatusCard(
+                widget.wastePercentage ?? (widget.predictedWaste > 0 && widget.predictedWaste <= 100 ? widget.predictedWaste : 15.0),
+              ),
 
               // 1. Company Selection Card
               Container(
@@ -336,7 +450,8 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                               ),
                               const SizedBox(height: 8),
                               TextFormField(
-                                initialValue: widget.predictedWaste.toStringAsFixed(1),
+                                controller: quantityController,
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 decoration: _inputDecoration("Quantity", Icons.delete_outline_rounded, suffix: "kg"),
                               ),
                             ],
@@ -428,6 +543,7 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                     const SizedBox(height: 16),
 
                     TextField(
+                      controller: messageController,
                       maxLines: 4,
                       maxLength: 200,
                       decoration: InputDecoration(

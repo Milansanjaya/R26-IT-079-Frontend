@@ -466,6 +466,8 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                         MaterialPageRoute(
                           builder: (context) => WasteNotificationScreen(
                             predictedWaste: batch!.predictedWaste,
+                            batchId: batch!.batchId,
+                            wastePercentage: wastePercentage,
                           ),
                         ),
                       );

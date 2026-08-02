@@ -27,6 +27,7 @@ class SaltingMonitoringScreen extends StatefulWidget {
 class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
   SaltingMonitorModel? monitor;
   bool loading = true;
+  bool isRefreshing = false;
   Timer? timer;
 
   @override
@@ -38,7 +39,7 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
     timer = Timer.periodic(
       const Duration(seconds: 5),
       (_) {
-        loadMonitoring();
+        loadMonitoring(isPeriodic: true);
       },
     );
   }
@@ -49,7 +50,13 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
     super.dispose();
   }
 
-  Future<void> loadMonitoring() async {
+  Future<void> loadMonitoring({bool isPeriodic = false, bool isUserManual = false}) async {
+    if (isUserManual) {
+      setState(() {
+        isRefreshing = true;
+      });
+    }
+
     try {
       final result = await SaltingMonitorService.getMonitoring(
         widget.batchId,
@@ -60,19 +67,34 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
       setState(() {
         monitor = result;
         loading = false;
+        isRefreshing = false;
       });
+
+      if (isUserManual) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Monitoring Data Refreshed Successfully"),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
         loading = false;
+        isRefreshing = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
+      if (isUserManual || loading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -165,7 +187,8 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
 
             // Refresh Button
             MonitoringUpdateButton(
-              onPressed: loadMonitoring,
+              isRefreshing: isRefreshing,
+              onPressed: () => loadMonitoring(isUserManual: true),
             ),
 
             const SizedBox(height: 32),
