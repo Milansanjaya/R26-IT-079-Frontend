@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/Batch/colors.dart';
 import '../admin/admin_home_screen.dart';
+import '../Waste/waste_prediction_screen.dart';
 import 'add_new_batch_screen.dart';
 
 class BatchCreatedSuccessScreen extends StatelessWidget {
@@ -161,9 +162,9 @@ class BatchCreatedSuccessScreen extends StatelessWidget {
 
                 // Action buttons
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.home, color: Colors.white),
+                  icon: const Icon(Icons.auto_delete_outlined, color: Colors.white),
                   label: const Text(
-                    "Go to Dashboard",
+                    "Waste Prediction",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -177,12 +178,11 @@ class BatchCreatedSuccessScreen extends StatelessWidget {
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   onPressed: () {
-                    Navigator.pushAndRemoveUntil(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const AdminHomeScreen(),
+                        builder: (_) => const WastePredictionScreen(),
                       ),
-                      (route) => false,
                     );
                   },
                 ),
