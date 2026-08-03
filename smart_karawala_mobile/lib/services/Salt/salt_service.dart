@@ -27,26 +27,72 @@ class SaltService {
   }
 
   
-  /// Predict salt
-  static Future<SaltPredictionModel> predictSalt(BatchModel batch) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/${batch.batchId}/predict-salt"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"cleanedWeight": batch.cleanedWeight}),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception("Salt prediction failed");
+  /// Returns recommended duration formatted string based on cleaned weight (kg).
+  ///
+  /// - 0 – 100 kg: "12 Hours"
+  /// - 101 – 200 kg: "24 Hours"
+  /// - 201 – 300 kg: "48 Hours"
+  /// - Above 300 kg: "72 Hours"
+  static String getRecommendedDuration(double cleanedWeight) {
+    if (cleanedWeight <= 100) {
+      return "12 Hours";
+    } else if (cleanedWeight <= 200) {
+      return "24 Hours";
+    } else if (cleanedWeight <= 300) {
+      return "48 Hours";
+    } else {
+      return "72 Hours";
     }
+  }
 
-    final json = jsonDecode(response.body);
+  /// Calculates recommended salting duration (in hours) based on cleaned weight (kg).
+  static int calculateRecommendedDuration(double cleanedWeight) {
+    if (cleanedWeight <= 100) {
+      return 12;
+    } else if (cleanedWeight <= 200) {
+      return 24;
+    } else if (cleanedWeight <= 300) {
+      return 48;
+    } else {
+      return 72;
+    }
+  }
+
+  /// Predict salt and duration based on batch parameters
+  static Future<SaltPredictionModel> predictSalt(BatchModel batch) async {
+    final double weight = batch.cleanedWeight;
+    final int saltingDurationHours = calculateRecommendedDuration(weight);
+
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/${batch.batchId}/predict-salt"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"cleanedWeight": weight}),
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final returnedWeight = (json["cleanedWeight"] as num?)?.toDouble() ?? weight;
+        final calculatedDuration = calculateRecommendedDuration(returnedWeight);
+
+        return SaltPredictionModel(
+          batchId: batch.batchId,
+          fishType: batch.fishType,
+          cleanedWeight: returnedWeight,
+          saltAmount: (json["saltAmount"] as num?)?.toDouble() ?? (returnedWeight * 0.25),
+          saltingDurationHours: calculatedDuration,
+        );
+      }
+    } catch (_) {
+      // Fallback if backend API is offline or throws error
+    }
 
     return SaltPredictionModel(
       batchId: batch.batchId,
       fishType: batch.fishType,
-      cleanedWeight: (json["cleanedWeight"] as num).toDouble(),
-      saltAmount: (json["saltAmount"] as num).toDouble(),
-      saltingDurationHours: json["saltingDurationHours"],
+      cleanedWeight: weight,
+      saltAmount: weight * 0.25,
+      saltingDurationHours: saltingDurationHours,
     );
   }
 }

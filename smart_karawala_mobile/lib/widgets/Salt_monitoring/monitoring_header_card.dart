@@ -106,7 +106,9 @@ class MonitoringHeaderCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    startTime.replaceFirst("T", "\n").substring(0, 16),
+                    startTime.length >= 16
+                        ? startTime.replaceFirst("T", "\n").substring(0, 16)
+                        : startTime,
                     textAlign: TextAlign.center,
                   ),
                 ],
