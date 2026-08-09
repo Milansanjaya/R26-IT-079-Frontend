@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../core/constants/app_images.dart';
 import '../../services/storage_service.dart';
+import '../../widgets/auth/auth_background.dart';
 import '../admin/admin_home_screen.dart';
 import '../customer/customer_home.dart';
-import 'login_screen.dart';
+import 'welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
+          builder: (_) => const WelcomeScreen(),
         ),
       );
     } else {
@@ -41,20 +43,67 @@ class _SplashScreenState extends State<SplashScreen> {
           builder: (_) => const CustomerHome(),
         ),
       );
-
-      // Later, replace this with:
-      // GET /auth/me
-      // if (role == "admin") -> AdminHomeScreen()
-      // else -> CustomerHome()
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
+    return AuthBackground(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 100,
+              width: 100,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xff0A5B8E).withOpacity(0.15),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Image.asset(
+                AppImages.logo,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Smart Karawala",
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff0A5B8E),
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Quality Dry Fish Management",
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xff5A7C99),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 40),
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: Color(0xff0A5B8E),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
+}
