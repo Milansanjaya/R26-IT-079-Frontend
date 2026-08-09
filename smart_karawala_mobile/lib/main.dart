@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
-
+import 'screens/drying/drying_control_screen.dart';
 import 'screens/auth/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         title: "Smart Karawala",
         theme: AppTheme.lightTheme,
 
-        home: const DryingDashboardScreen(),
+        home: const SplashScreen(),
 
         routes: {
           '/login': (context) => const LoginScreen(),

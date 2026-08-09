@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class StatusTile extends StatelessWidget {
   final IconData icon;
   final String title;
-  final bool status;
+  final bool? status;
 
   const StatusTile({
     super.key,
@@ -13,6 +13,10 @@ class StatusTile extends StatelessWidget {
   });
 
   Color get iconColor {
+    if (status == null) {
+      return Colors.grey;
+    }
+
     switch (title) {
       case "Heater":
         return Colors.red;
@@ -27,6 +31,8 @@ class StatusTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isActive = status == true;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.symmetric(
@@ -75,9 +81,11 @@ class StatusTile extends StatelessWidget {
                 ),
 
                 Text(
-                  status
-                      ? "Currently Running"
-                      : "Currently Stopped",
+                  status == null
+                      ? "No live data"
+                      : isActive
+                          ? "Currently Running"
+                          : "Currently Stopped",
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 13,
@@ -95,9 +103,11 @@ class StatusTile extends StatelessWidget {
               vertical: 8,
             ),
             decoration: BoxDecoration(
-              color: status
-                  ? Colors.green.shade100
-                  : Colors.red.shade100,
+              color: status == null
+                  ? Colors.grey.shade200
+                  : isActive
+                      ? Colors.green.shade100
+                      : Colors.red.shade100,
               borderRadius: BorderRadius.circular(30),
             ),
             child: Row(
@@ -106,7 +116,9 @@ class StatusTile extends StatelessWidget {
                 Icon(
                   Icons.circle,
                   size: 10,
-                  color: status
+                  color: status == null
+                    ? Colors.grey
+                    : isActive
                       ? Colors.green
                       : Colors.red,
                 ),
@@ -114,11 +126,13 @@ class StatusTile extends StatelessWidget {
                 const SizedBox(width: 6),
 
                 Text(
-                  status ? "ON" : "OFF",
+                  status == null ? "N/A" : (isActive ? "ON" : "OFF"),
                   style: TextStyle(
-                    color: status
-                        ? Colors.green.shade700
-                        : Colors.red.shade700,
+                    color: status == null
+                        ? Colors.grey.shade700
+                        : isActive
+                            ? Colors.green.shade700
+                            : Colors.red.shade700,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
