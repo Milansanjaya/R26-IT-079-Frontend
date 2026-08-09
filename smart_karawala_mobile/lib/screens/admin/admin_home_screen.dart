@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../drying/drying_system_screen.dart';
 import '../../widgets/Batch/dashboard_card.dart';
 import '../../widgets/admin_bottom_nav.dart';
+import '../../providers/auth_provider.dart';
+import '../auth/login_screen.dart';
 
 import '../Add_Batch/add_new_batch_screen.dart';
 
@@ -45,6 +48,23 @@ class AdminHomeScreen extends StatelessWidget {
                   const Icon(
                     Icons.menu,
                     size: 28,
+                  ),
+
+                  IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: () async {
+                      context.read<AuthProvider>().logout();
+
+                      if (!context.mounted) return;
+
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LoginScreen(),
+                        ),
+                        (route) => false,
+                      );
+                    },
                   ),
 
                   Column(
@@ -218,73 +238,6 @@ class AdminHomeScreen extends StatelessWidget {
     ),
   ),
 
-  /// Drying Dashboard
-  GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              const DryingDashboardScreen(),
-        ),
-      );
-    },
-    child: const DashboardCard(
-      icon: Icons.wb_sunny,
-      title: "Drying Dashboard",
-    ),
-  ),
-
-  /// Drying Control
-  GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              const DryingControlScreen(),
-        ),
-      );
-    },
-    child: const DashboardCard(
-      icon: Icons.tune,
-      title: "Drying Control",
-    ),
-  ),
-
-  /// Live Graph
-  GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              const LiveGraphScreen(),
-        ),
-      );
-    },
-    child: const DashboardCard(
-      icon: Icons.show_chart,
-      title: "Live Graph",
-    ),
-  ),
-
-  /// IoT Status
-  GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              const DeviceStatusScreen(),
-        ),
-      );
-    },
-    child: const DashboardCard(
-      icon: Icons.memory,
-      title: "IoT Status",
-    ),
-  ),
 
   /// Alerts
   GestureDetector(
