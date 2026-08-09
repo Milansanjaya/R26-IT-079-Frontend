@@ -6,23 +6,29 @@ import '../../models/sensor_model.dart';
 import '../../services/iot_service.dart';
 import '../../widgets/drying/live_chart.dart';
 
-class LiveGraphScreen extends StatefulWidget {
-  const LiveGraphScreen({super.key});
+class LiveGraphScreen
+    extends StatefulWidget {
+  const LiveGraphScreen({
+    super.key,
+  });
 
   @override
-  State<LiveGraphScreen> createState() => _LiveGraphScreenState();
+  State<LiveGraphScreen> createState() =>
+      _LiveGraphScreenState();
 }
 
-class _LiveGraphScreenState extends State<LiveGraphScreen> {
-  Timer? timer;
+class _LiveGraphScreenState
+    extends State<LiveGraphScreen> {
 
-  bool loading = true;
+  Timer? timer;
 
   SensorModel? sensor;
 
-  List<double> tempHistory = [];
-  List<double> humidityHistory = [];
-  List<double> weightHistory = [];
+  bool loading = true;
+
+  List<double> temperatures = [];
+  List<double> humidities = [];
+  List<double> weights = [];
 
   @override
   void initState() {
@@ -38,7 +44,8 @@ class _LiveGraphScreenState extends State<LiveGraphScreen> {
 
   Future<void> loadSensor() async {
     try {
-      final data = await IotService.getLiveData();
+      final data =
+          await IotService.getLiveData();
 
       if (!mounted) return;
 
@@ -46,24 +53,34 @@ class _LiveGraphScreenState extends State<LiveGraphScreen> {
         sensor = data;
         loading = false;
 
-        tempHistory.add(data.temperature);
-        humidityHistory.add(data.humidity);
-        weightHistory.add(data.weight);
+        temperatures.add(
+          data.temperature,
+        );
 
-        if (tempHistory.length > 30) {
-          tempHistory.removeAt(0);
+        humidities.add(
+          data.humidity,
+        );
+
+        weights.add(
+          data.weight,
+        );
+
+        if (temperatures.length > 30) {
+          temperatures.removeAt(0);
         }
 
-        if (humidityHistory.length > 30) {
-          humidityHistory.removeAt(0);
+        if (humidities.length > 30) {
+          humidities.removeAt(0);
         }
 
-        if (weightHistory.length > 30) {
-          weightHistory.removeAt(0);
+        if (weights.length > 30) {
+          weights.removeAt(0);
         }
       });
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint(
+        "Graph error: $e",
+      );
 
       if (!mounted) return;
 
@@ -82,208 +99,186 @@ class _LiveGraphScreenState extends State<LiveGraphScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
+      backgroundColor:
+          const Color(0xffEAF7FF),
 
       appBar: AppBar(
-        backgroundColor: const Color(0xff234D73),
+        title:
+            const Text("Live Sensor Graphs"),
+        backgroundColor:
+            const Color(0xff234D73),
         foregroundColor: Colors.white,
-        title: const Text("Live Sensor Graphs"),
       ),
 
       body: loading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child:
+                  CircularProgressIndicator(),
             )
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding:
+                  const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
+
                   const Text(
-  "Temperature History",
-  style: TextStyle(
-    fontSize: 22,
-    fontWeight: FontWeight.bold,
-    color: Color(0xff234D73),
-  ),
-),
+                    "Temperature",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight:
+                          FontWeight.bold,
+                      color:
+                          Color(0xff234D73),
+                    ),
+                  ),
 
-const SizedBox(height: 15),
+                  const SizedBox(height: 12),
 
-Card(
-  elevation: 3,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-  child: Padding(
-    padding: const EdgeInsets.all(16),
-    child:LiveChart(
-  title: "Temperature History",
-  temperatures: tempHistory,
-),
-  ),
-),
+                  LiveChart(
+                    title:
+                        "Temperature History",
+                    values:
+                        temperatures,
+                    unit: "°C",
+                    color: Colors.red,
+                  ),
 
-const SizedBox(height: 30),
+                  const SizedBox(height: 25),
 
-const Text(
-  "Humidity History",
-  style: TextStyle(
-    fontSize: 22,
-    fontWeight: FontWeight.bold,
-    color: Color(0xff234D73),
-  ),
-),
+                  const Text(
+                    "Humidity",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight:
+                          FontWeight.bold,
+                      color:
+                          Color(0xff234D73),
+                    ),
+                  ),
 
-const SizedBox(height: 15),
+                  const SizedBox(height: 12),
 
-Card(
-  elevation: 3,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-  child: Padding(
-    padding: const EdgeInsets.all(16),
-    child: LiveChart(
-  title: "Humidity History",
-  humidities: humidityHistory,
-),
-  ),
-),
+                  LiveChart(
+                    title:
+                        "Humidity History",
+                    values:
+                        humidities,
+                    unit: "%",
+                    color: Colors.blue,
+                  ),
 
+                  const SizedBox(height: 25),
 
+                  const Text(
+                    "Fish Weight",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight:
+                          FontWeight.bold,
+                      color:
+                          Color(0xff234D73),
+                    ),
+                  ),
 
-const SizedBox(height: 30),
+                  const SizedBox(height: 12),
 
-const Text(
-  "Weight History",
-  style: TextStyle(
-    fontSize: 22,
-    fontWeight: FontWeight.bold,
-    color: Color(0xff234D73),
-  ),
-),
+                  LiveChart(
+                    title:
+                        "Weight History",
+                    values:
+                        weights,
+                    unit: "kg",
+                    color:
+                        Colors.deepPurple,
+                  ),
 
-const SizedBox(height: 15),
+                  const SizedBox(height: 25),
 
-Card(
-  elevation: 3,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-  child: Padding(
-    padding: const EdgeInsets.all(16),
-    child: LiveChart(
-      title: "Weight History",
-      weights: weightHistory,
-    ),
-  ),
-),
+                  if (sensor != null)
+                    Card(
+                      child: Padding(
+                        padding:
+                            const EdgeInsets
+                                .all(16),
+                        child: Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment
+                                  .spaceBetween,
+                          children: [
+                            const Text(
+                              "Current Weight",
+                              style:
+                                  TextStyle(
+                                fontWeight:
+                                    FontWeight
+                                        .bold,
+                              ),
+                            ),
+                            Text(
+                              "${sensor!.weight.toStringAsFixed(2)} kg",
+                              style:
+                                  const TextStyle(
+                                fontSize: 20,
+                                fontWeight:
+                                    FontWeight
+                                        .bold,
+                                color: Colors
+                                    .deepPurple,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
 
-const SizedBox(height: 30),
+                  const SizedBox(height: 20),
 
-const Text(
-  "Current Sensor Values",
-  style: TextStyle(
-    fontSize: 22,
-    fontWeight: FontWeight.bold,
-    color: Color(0xff234D73),
-  ),
-),
+                  SizedBox(
+                    width:
+                        double.infinity,
+                    child:
+                        ElevatedButton.icon(
+                      onPressed:
+                          loadSensor,
+                      icon: const Icon(
+                        Icons.refresh,
+                      ),
+                      label: const Text(
+                        "Refresh Now",
+                      ),
+                      style:
+                          ElevatedButton
+                              .styleFrom(
+                        backgroundColor:
+                            const Color(
+                          0xff234D73,
+                        ),
+                        foregroundColor:
+                            Colors.white,
+                        padding:
+                            const EdgeInsets
+                                .symmetric(
+                          vertical: 15,
+                        ),
+                      ),
+                    ),
+                  ),
 
-const SizedBox(height: 15),
+                  const SizedBox(height: 20),
 
-Card(
-  elevation: 3,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-  child: Padding(
-    padding: const EdgeInsets.all(20),
-    child: Column(
-      children: [
-
-        ListTile(
-          leading: const Icon(
-            Icons.thermostat,
-            color: Colors.red,
-          ),
-          title: const Text("Temperature"),
-          trailing: Text(
-            "${sensor?.temperature ?? 0} °C",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-
-        const Divider(),
-
-        ListTile(
-          leading: const Icon(
-            Icons.water_drop,
-            color: Colors.blue,
-          ),
-          title: const Text("Humidity"),
-          trailing: Text(
-            "${sensor?.humidity ?? 0} %",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-
-        const Divider(),
-
-        ListTile(
-          leading: const Icon(
-            Icons.scale,
-            color: Colors.deepPurple,
-          ),
-          title: const Text("Weight"),
-          trailing: Text(
-            "${sensor?.weight ?? 0} kg",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
-const SizedBox(height: 30),
-
-SizedBox(
-  width: double.infinity,
-  child: ElevatedButton.icon(
-    onPressed: loadSensor,
-    icon: const Icon(Icons.refresh),
-    label: const Text("Refresh Now"),
-    style: ElevatedButton.styleFrom(
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      backgroundColor: const Color(0xff234D73),
-      foregroundColor: Colors.white,
-    ),
-  ),
-),
-
-const SizedBox(height: 20),
-
-const Center(
-  child: Text(
-    "Powered by Smart Karawala",
-    style: TextStyle(
-      color: Colors.grey,
-    ),
-  ),
-),
+                  const Center(
+                    child: Text(
+                      "Powered by Smart Karawala",
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
     );
   }
-  
-  
 }

@@ -114,17 +114,21 @@ class _AlertsScreenState extends State<AlertsScreen> {
         );
       }
 
-      if (sensor!.gas > 300) {
-        alerts.add(
-          buildAlert(
-            icon: Icons.warning,
-            color: Colors.deepOrange,
-            title: "Gas Level Warning",
-            message:
-                "Gas sensor value is ${sensor!.gas}",
-          ),
-        );
-      }
+     if (
+  sensor!.targetGas != null &&
+  sensor!.gas != null &&
+  sensor!.gas! > sensor!.targetGas!
+) {
+  alerts.add(
+    buildAlert(
+      icon: Icons.warning,
+      color: Colors.deepOrange,
+      title: "Gas Level Warning",
+      message:
+          "Gas level is ${sensor!.gas!.toStringAsFixed(0)}. Target is ${sensor!.targetGas!.toStringAsFixed(0)}.",
+    ),
+  );
+}
 
       if (alerts.isEmpty) {
         alerts.add(

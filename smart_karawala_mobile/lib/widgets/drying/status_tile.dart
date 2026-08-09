@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class StatusTile extends StatelessWidget {
   final IconData icon;
   final String title;
-  final bool? status;
+  final bool status;
 
   const StatusTile({
     super.key,
@@ -12,132 +12,64 @@ class StatusTile extends StatelessWidget {
     required this.status,
   });
 
-  Color get iconColor {
-    if (status == null) {
-      return Colors.grey;
-    }
-
-    switch (title) {
-      case "Heater":
-        return Colors.red;
-      case "Fan":
-        return Colors.indigo;
-      case "Light":
-        return Colors.amber;
-      default:
-        return Colors.blue;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final isActive = status == true;
-
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 16,
+        horizontal: 15,
+        vertical: 12,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.grey.withOpacity(.15),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black12,
+            blurRadius: 5,
           ),
         ],
       ),
       child: Row(
         children: [
-
-          /// Icon
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: iconColor.withOpacity(.12),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 26,
-            ),
+          Icon(
+            icon,
+            color: status
+                ? Colors.green
+                : Colors.red,
           ),
 
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
 
-          /// Title
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                Text(
-                  status == null
-                      ? "No live data"
-                      : isActive
-                          ? "Currently Running"
-                          : "Currently Stopped",
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
 
-          /// Status
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
+          Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 8,
+              horizontal: 14,
+              vertical: 5,
             ),
             decoration: BoxDecoration(
-              color: status == null
-                  ? Colors.grey.shade200
-                  : isActive
-                      ? Colors.green.shade100
-                      : Colors.red.shade100,
-              borderRadius: BorderRadius.circular(30),
+              color: status
+                  ? Colors.green.shade100
+                  : Colors.red.shade100,
+              borderRadius:
+                  BorderRadius.circular(20),
             ),
-            child: Row(
-              children: [
-
-                Icon(
-                  Icons.circle,
-                  size: 10,
-                  color: status == null
-                    ? Colors.grey
-                    : isActive
-                      ? Colors.green
-                      : Colors.red,
-                ),
-
-                const SizedBox(width: 6),
-
-                Text(
-                  status == null ? "N/A" : (isActive ? "ON" : "OFF"),
-                  style: TextStyle(
-                    color: status == null
-                        ? Colors.grey.shade700
-                        : isActive
-                            ? Colors.green.shade700
-                            : Colors.red.shade700,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+            child: Text(
+              status ? "ON" : "OFF",
+              style: TextStyle(
+                color: status
+                    ? Colors.green
+                    : Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

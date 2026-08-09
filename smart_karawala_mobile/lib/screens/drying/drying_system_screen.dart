@@ -1,43 +1,44 @@
 import 'package:flutter/material.dart';
 
-import 'alerts_screen.dart';
-import 'device_status_screen.dart';
-import 'drying_control_screen.dart';
 import 'drying_dashboard_screen.dart';
+import 'drying_control_screen.dart';
 import 'live_graph_screen.dart';
+import 'device_status_screen.dart';
+import 'alerts_screen.dart';
 
-class DryingSystemScreen extends StatelessWidget {
-  const DryingSystemScreen({super.key});
+class DryingSystemScreen
+    extends StatelessWidget {
+  const DryingSystemScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
+      backgroundColor:
+          const Color(0xffEAF7FF),
 
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding:
+              const EdgeInsets.all(20),
 
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
 
-              /// Header
               Row(
                 children: [
-
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
+                    onPressed: () {
+                      Navigator.pop(
+                        context,
+                      );
+                    },
                   ),
 
                   const Spacer(),
@@ -49,81 +50,82 @@ class DryingSystemScreen extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
               const Text(
                 "Drying System",
                 style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xff234D73),
+                  fontSize: 36,
+                  fontWeight:
+                      FontWeight.bold,
+                  color:
+                      Color(0xff234D73),
                 ),
               ),
 
-              const SizedBox(height: 8),
-
-              const Text(
-                "Monitor and control the smart drying process",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 15,
-                ),
-              ),
-
-              const SizedBox(height: 25),
+              const SizedBox(height: 30),
 
               Expanded(
                 child: GridView.count(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.88,
+                  crossAxisSpacing: 18,
+                  mainAxisSpacing: 18,
+                  childAspectRatio: .95,
 
                   children: [
 
                     _menuCard(
                       context,
-                      icon: Icons.dashboard,
-                      title: "Dashboard",
-                      subtitle: "View live sensor values",
+                      icon:
+                          Icons.dashboard,
+                      title:
+                          "Dashboard",
                       color: Colors.blue,
-                      page: const DryingDashboardScreen(),
+                      page:
+                          const DryingDashboardScreen(),
                     ),
 
                     _menuCard(
                       context,
                       icon: Icons.tune,
                       title: "Control",
-                      subtitle: "Operate heater & fan",
                       color: Colors.green,
-                      page: const DryingControlScreen(),
+                      page:
+                          const DryingControlScreen(),
                     ),
 
                     _menuCard(
                       context,
-                      icon: Icons.show_chart,
-                      title: "Live Graph",
-                      subtitle: "Temperature & humidity",
-                      color: Colors.orange,
-                      page: const LiveGraphScreen(),
+                      icon:
+                          Icons.show_chart,
+                      title:
+                          "Live Graph",
+                      color:
+                          Colors.orange,
+                      page:
+                          const LiveGraphScreen(),
                     ),
 
                     _menuCard(
                       context,
-                      icon: Icons.memory,
-                      title: "Device Status",
-                      subtitle: "Arduino & sensors",
-                      color: Colors.deepPurple,
-                      page: const DeviceStatusScreen(),
+                      icon:
+                          Icons.memory,
+                      title:
+                          "Device Status",
+                      color:
+                          Colors.deepPurple,
+                      page:
+                          const DeviceStatusScreen(),
                     ),
 
                     _menuCard(
                       context,
-                      icon: Icons.notifications_active,
+                      icon:
+                          Icons.notifications,
                       title: "Alerts",
-                      subtitle: "Warnings & notifications",
                       color: Colors.red,
-                      page: const AlertsScreen(),
+                      page:
+                          const AlertsScreen(),
                     ),
                   ],
                 ),
@@ -150,12 +152,12 @@ class DryingSystemScreen extends StatelessWidget {
     BuildContext context, {
     required IconData icon,
     required String title,
-    required String subtitle,
     required Color color,
     required Widget page,
   }) {
     return InkWell(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius:
+          BorderRadius.circular(18),
 
       onTap: () {
         Navigator.push(
@@ -167,56 +169,45 @@ class DryingSystemScreen extends StatelessWidget {
       },
 
       child: Container(
-        padding: const EdgeInsets.all(18),
-
-        decoration: BoxDecoration(
+        decoration:
+            BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-
+          borderRadius:
+              BorderRadius.circular(18),
           boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 8,
-              offset: Offset(0, 3),
             ),
           ],
         ),
 
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
 
           children: [
-
             CircleAvatar(
-              radius: 34,
-              backgroundColor: color.withOpacity(0.12),
-
+              radius: 35,
+              backgroundColor:
+                  color.withOpacity(.12),
               child: Icon(
                 icon,
-                size: 36,
                 color: color,
+                size: 38,
               ),
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
 
             Text(
               title,
-              textAlign: TextAlign.center,
+              textAlign:
+                  TextAlign.center,
               style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 13,
+                fontSize: 17,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
           ],

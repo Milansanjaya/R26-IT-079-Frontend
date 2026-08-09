@@ -2,94 +2,112 @@ import 'package:flutter/material.dart';
 
 class ProgressCard extends StatelessWidget {
   final double progress;
+  final double currentWeight;
+  final double initialWeight;
+  final double targetWeight;
 
   const ProgressCard({
     super.key,
     required this.progress,
+    required this.currentWeight,
+    required this.initialWeight,
+    required this.targetWeight,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final value = progress.clamp(0, 100);
-
-    String status;
-
-    if (value >= 100) {
-      status = "Completed";
-    } else if (value >= 80) {
-      status = "Almost Done";
-    } else {
-      status = "In Progress";
-    }
+  Widget build(
+    BuildContext context,
+  ) {
+    final double safeProgress =
+        progress.clamp(0.0, 100.0);
 
     return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
+      padding:
+          const EdgeInsets.all(15),
+
+      decoration:
+          BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+
+        borderRadius:
+            BorderRadius.circular(16),
+
+        boxShadow: const [
           BoxShadow(
-            color: Colors.grey.withOpacity(.15),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black12,
+            blurRadius: 6,
           ),
         ],
       ),
+
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+            MainAxisAlignment.center,
+
         children: [
+          SizedBox(
+            height: 90,
+            width: 90,
 
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: value / 100),
-            duration: const Duration(milliseconds: 800),
-            builder: (context, animatedValue, child) {
-              return SizedBox(
-                height: 100,
-                width: 100,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
+            child: Stack(
+              fit: StackFit.expand,
 
-                    CircularProgressIndicator(
-                      value: animatedValue,
-                      strokeWidth: 9,
-                      backgroundColor: Colors.grey.shade300,
-                      valueColor:
-                          const AlwaysStoppedAnimation(Color(0xff6C4AB6)),
-                    ),
+              children: [
+                CircularProgressIndicator(
+                  value:
+                      safeProgress / 100,
 
-                    Center(
-                      child: Text(
-                        "${value.toInt()}%",
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff2D2D2D),
-                        ),
-                      ),
-                    ),
-                  ],
+                  strokeWidth: 8,
+
+                  backgroundColor:
+                      Colors.grey.shade300,
+
+                  valueColor:
+                      const AlwaysStoppedAnimation<
+                          Color>(
+                    Color(0xff6B42C1),
+                  ),
                 ),
-              );
-            },
-          ),
 
-          const SizedBox(height: 14),
+                Center(
+                  child: Text(
+                    "${safeProgress.toStringAsFixed(0)}%",
 
-          const Text(
-            "Drying Progress",
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
+                    style:
+                        const TextStyle(
+                      fontWeight:
+                          FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
-          const SizedBox(height: 5),
+          const SizedBox(
+            height: 10,
+          ),
+
+          const Text(
+            "Drying Progress",
+
+            style: TextStyle(
+              fontWeight:
+                  FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(
+            height: 6,
+          ),
 
           Text(
-            status,
-            style: TextStyle(
-              color: Colors.grey.shade600,
+            "${currentWeight.toStringAsFixed(2)} kg",
+
+            style:
+                const TextStyle(
+              color: Colors.grey,
               fontSize: 13,
             ),
           ),
