@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
-import 'providers/cart_provider.dart';
 
 import 'screens/auth/splash_screen.dart';
 import 'screens/auth/welcome_screen.dart';
@@ -13,7 +12,7 @@ import 'screens/auth/forgot_password_screen.dart';
 import 'screens/auth/reset_password_screen.dart';
 import 'screens/auth/otp_verification_screen.dart';
 import 'screens/auth/account_verified_screen.dart';
-
+import 'screens/drying/drying_dashboard_screen.dart';
 void main() {
   runApp(const MyApp());
 }
