@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/cart_provider.dart';
 
 import 'screens/auth/splash_screen.dart';
 import 'screens/auth/welcome_screen.dart';

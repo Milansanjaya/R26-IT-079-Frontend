@@ -9,6 +9,11 @@ import '../../widgets/drying/sensor_card.dart';
 import '../../widgets/drying/status_tile.dart';
 import '../../widgets/drying/progress_card.dart';
 
+import 'alerts_screen.dart';
+import 'device_status_screen.dart';
+import 'drying_control_screen.dart';
+import 'live_graph_screen.dart';
+
 class DryingDashboardScreen
     extends StatefulWidget {
   const DryingDashboardScreen({
@@ -22,6 +27,9 @@ class DryingDashboardScreen
 
 class _DryingDashboardScreenState
     extends State<DryingDashboardScreen> {
+
+  final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>();
 
   SensorModel? sensor;
 
@@ -74,9 +82,111 @@ class _DryingDashboardScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor:
           const Color(0xffEAF7FF),
-
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xff234D73),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.water_drop,
+                    color: Colors.white,
+                    size: 42,
+                  ),
+                  SizedBox(height: 15),
+                  Text(
+                    "Smart Karawala",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    "Drying Module",
+                    style: TextStyle(
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: const Text("Dashboard"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.tune),
+              title: const Text("Control"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DryingControlScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.show_chart),
+              title: const Text("Live Graph"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => LiveGraphScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.memory),
+              title: const Text("Device Status"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DeviceStatusScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text("Alerts"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AlertsScreen(),
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.arrow_back),
+              title: const Text("Close"),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      ),
       body: loading
           ? const Center(
               child:
@@ -128,21 +238,26 @@ class _DryingDashboardScreenState
                               MainAxisAlignment
                                   .spaceBetween,
                           children: [
-                            Container(
-                              height: 42,
-                              width: 42,
-                              decoration:
-                                  BoxDecoration(
-                                color:
-                                    Colors.white,
-                                borderRadius:
-                                    BorderRadius
-                                        .circular(
-                                  12,
+                            GestureDetector(
+                              onTap: () {
+                                _scaffoldKey.currentState?.openDrawer();
+                              },
+                              child: Container(
+                                height: 42,
+                                width: 42,
+                                decoration:
+                                    BoxDecoration(
+                                  color:
+                                      Colors.white,
+                                  borderRadius:
+                                      BorderRadius
+                                          .circular(
+                                    12,
+                                  ),
                                 ),
-                              ),
-                              child: const Icon(
-                                Icons.menu,
+                                child: const Icon(
+                                  Icons.menu,
+                                ),
                               ),
                             ),
 

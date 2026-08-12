@@ -541,6 +541,28 @@ class _DryingControlScreenState
 
         // Get latest Arduino state.
         await loadSensor();
+        // If manual mode was started, ensure heater and light turn ON immediately.
+        if (!autoMode) {
+          try {
+            // Use changeDevice helper to keep UI state and sending flags consistent.
+            await changeDevice(
+              "Heater",
+              true,
+              "heater_on",
+              "heater_off",
+            );
+
+            await changeDevice(
+              "Light",
+              true,
+              "light_on",
+              "light_off",
+            );
+          } catch (e) {
+            // Non-fatal; user will see device command errors through changeDevice.
+            debugPrint("Post-start device commands failed: $e");
+          }
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -635,6 +657,19 @@ class _DryingControlScreenState
             backgroundColor: Colors.red,
           ),
         );
+
+        // Ensure actuators are explicitly turned OFF in case backend didn't update them.
+        try {
+          await IotService.sendCommand("heater_off");
+        } catch (_) {}
+
+        try {
+          await IotService.sendCommand("fan_off");
+        } catch (_) {}
+
+        try {
+          await IotService.sendCommand("light_off");
+        } catch (_) {}
 
         await loadSensor();
       } else {
