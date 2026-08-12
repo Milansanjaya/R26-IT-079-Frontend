@@ -1,10 +1,11 @@
+import '../services/Salt/salt_service.dart';
+
 class SaltPredictionModel {
   final String batchId;
   final String fishType;
   final double cleanedWeight;
   final double saltAmount;
   final int saltingDurationHours;
-
 
   SaltPredictionModel({
     required this.batchId,
@@ -15,15 +16,19 @@ class SaltPredictionModel {
   });
 
   factory SaltPredictionModel.fromJson(Map<String, dynamic> json) {
+    final weight = (json["cleanedWeight"] as num?)?.toDouble() ?? 0.0;
+    int duration = (json["saltingDurationHours"] as num?)?.toInt() ?? 0;
+
+    if (duration == 0 && weight > 0) {
+      duration = SaltService.calculateRecommendedDuration(weight);
+    }
+
     return SaltPredictionModel(
       batchId: json["batchId"] ?? "",
       fishType: json["fishType"] ?? "",
-      cleanedWeight:
-          (json["cleanedWeight"] as num?)?.toDouble() ?? 0.0,
-      saltAmount:
-          (json["saltAmount"] as num?)?.toDouble() ?? 0.0,
-      saltingDurationHours:
-          (json["saltingDurationHours"] as num?)?.toInt() ?? 0,
+      cleanedWeight: weight,
+      saltAmount: (json["saltAmount"] as num?)?.toDouble() ?? 0.0,
+      saltingDurationHours: duration,
     );
   }
 

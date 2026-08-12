@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/processing_report_model.dart';
 import '../../services/Batch/pdf_service.dart';
+import '../../widgets/Batch/colors.dart';
 
 class BatchDetailsScreen extends StatelessWidget {
   final ProcessingReportModel batch;
@@ -10,185 +11,167 @@ class BatchDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
-
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-
+          padding: const EdgeInsets.all(20),
+          physics: const BouncingScrollPhysics(),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //--------------------------------------------------
-              // Header
-              //--------------------------------------------------
+              // Header navigation row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      color: const Color(0xff214E77),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-
-                    children: const [
-                      Text(
-                        "Smart",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      Text("කරවල"),
-                    ],
+                      child: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
+                    ),
                   ),
+                  Image.asset('assets/images/logo.png', height: 70),
                 ],
               ),
+              const SizedBox(height: 24),
 
+              // Title
+              const Text(
+                "Batch Details",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              ),
               const SizedBox(height: 20),
 
-              //--------------------------------------------------
               // Batch Summary Card
-              //--------------------------------------------------
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(18),
-
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-
-                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-
                   children: [
                     Container(
-                      width: 55,
-                      height: 55,
-
+                      width: 50,
+                      height: 50,
                       decoration: BoxDecoration(
-                        color: const Color(0xffEEF5FF),
-                        borderRadius: BorderRadius.circular(14),
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-
                       child: const Icon(
-                        Icons.assignment,
-                        color: Color(0xff214E77),
-                        size: 30,
+                        Icons.assignment_outlined,
+                        color: AppColors.primary,
+                        size: 26,
                       ),
                     ),
-
-                    const SizedBox(width: 15),
-
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-
                         children: [
                           const Text(
                             "Batch ID",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                            style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
                           ),
-
                           const SizedBox(height: 4),
-
                           Text(
                             batch.batchId,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 22,
-                              color: Color(0xff103F73),
+                              fontSize: 20,
+                              color: AppColors.primary,
                             ),
                           ),
-
-                          const SizedBox(height: 5),
-
+                          const SizedBox(height: 4),
                           Text(
                             batch.fishType,
-                            style: const TextStyle(color: Colors.black54),
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold),
                           ),
-
-                          const SizedBox(height: 8),
-
+                          const SizedBox(height: 12),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
-                              vertical: 5,
+                              vertical: 6,
                             ),
-
                             decoration: BoxDecoration(
-                              color:
-                                  batch.status.toLowerCase().contains(
-                                    "completed",
-                                  )
-                                  ? Colors.green.shade100
-                                  : Colors.orange.shade100,
-
+                              color: batch.status.toLowerCase().contains("completed")
+                                  ? const Color(0xFFE8F5E9)
+                                  : const Color(0xFFFFF3E0),
                               borderRadius: BorderRadius.circular(20),
                             ),
-
                             child: Text(
                               batch.status,
-
                               style: TextStyle(
-                                color:
-                                    batch.status.toLowerCase().contains(
-                                      "completed",
-                                    )
-                                    ? Colors.green
-                                    : Colors.orange,
-
+                                color: batch.status.toLowerCase().contains("completed")
+                                    ? Colors.green.shade800
+                                    : Colors.orange.shade800,
                                 fontWeight: FontWeight.bold,
+                                fontSize: 12,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Row(
                           children: [
                             const Icon(
-                              Icons.calendar_today,
-                              size: 18,
-                              color: Color(0xff214E77),
+                              Icons.calendar_today_outlined,
+                              size: 14,
+                              color: AppColors.hint,
                             ),
-
                             const SizedBox(width: 6),
-
-                            Text(batch.date),
+                            Text(
+                              batch.date,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                            ),
                           ],
                         ),
-
                         const SizedBox(height: 10),
-
                         const Row(
                           children: [
                             Icon(
-                              Icons.access_time,
-                              size: 18,
-                              color: Color(0xff214E77),
+                              Icons.access_time_outlined,
+                              size: 14,
+                              color: AppColors.hint,
                             ),
-
-                            SizedBox(width: 6),
-
-                            Text("11:05 AM"),
+                            const SizedBox(width: 6),
+                            Text(
+                              "11:05 AM",
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                            ),
                           ],
                         ),
                       ],
@@ -197,346 +180,230 @@ class BatchDetailsScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
 
-              //--------------------------------------------------
               // 1. Basic Information
-              //--------------------------------------------------
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 5),
-                  ],
-                ),
+              _buildSectionCard(
+                title: "1. Basic Information",
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "1. Basic Information",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff214E77),
-                      ),
-                    ),
-
-                    const SizedBox(height: 15),
-
                     Row(
                       children: [
                         Expanded(
                           child: infoTile(
-                            Icons.scale,
+                            Icons.scale_outlined,
                             "Raw Weight",
                             "${batch.rawWeight.toStringAsFixed(1)} kg",
                           ),
                         ),
-
                         Expanded(
                           child: infoTile(
-                            Icons.location_on,
+                            Icons.location_on_outlined,
                             "Location",
                             "Negombo",
                           ),
                         ),
-
-                        Expanded(child: infoTile(Icons.note, "Notes", "-")),
+                        Expanded(
+                          child: infoTile(
+                            Icons.notes_rounded,
+                            "Notes",
+                            "-",
+                          ),
+                        ),
                       ],
                     ),
-
-                    const SizedBox(height: 18),
-
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
                           child: infoTile(
-                            Icons.calendar_today,
+                            Icons.calendar_today_outlined,
                             "Date",
                             batch.date,
                           ),
                         ),
-
                         Expanded(
                           child: infoTile(
-                            Icons.access_time,
+                            Icons.access_time_outlined,
                             "Time",
                             "11:05 AM",
                           ),
                         ),
+                        const Expanded(child: SizedBox()),
                       ],
                     ),
                   ],
                 ),
               ),
 
-              //--------------------------------------------------
               // 2. Prediction Summary
-              //--------------------------------------------------
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 5),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              _buildSectionCard(
+                title: "2. Prediction Summary",
+                child: Row(
                   children: [
-                    const Text(
-                      "2. Prediction Summary",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff214E77),
+                    Expanded(
+                      child: predictionTile(
+                        Icons.delete_outline_rounded,
+                        "Predicted Waste",
+                        "${batch.predictedWaste.toStringAsFixed(1)} kg",
+                        "${batch.wastePercentage.toStringAsFixed(1)}%",
                       ),
                     ),
-
-                    const SizedBox(height: 18),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: predictionTile(
-                            Icons.delete,
-                            "Predicted Waste",
-                            "${batch.predictedWaste.toStringAsFixed(1)} kg",
-                            "${batch.wastePercentage.toStringAsFixed(1)}%",
-                          ),
-                        ),
-
-                        Expanded(
-                          child: predictionTile(
-                            Icons.set_meal,
-                            "Cleaned Weight",
-                            "${(batch.rawWeight - batch.predictedWaste).toStringAsFixed(1)} kg",
-                            "${(100 - batch.wastePercentage).toStringAsFixed(1)}%",
-                          ),
-                        ),
-                      ],
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: predictionTile(
+                        Icons.set_meal_outlined,
+                        "Cleaned Weight",
+                        "${(batch.rawWeight - batch.predictedWaste).toStringAsFixed(1)} kg",
+                        "${(100 - batch.wastePercentage).toStringAsFixed(1)}%",
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              //--------------------------------------------------
               // 3. Salt Information
-              //--------------------------------------------------
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 5),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              _buildSectionCard(
+                title: "3. Salt Information",
+                child: Row(
                   children: [
-                    const Text(
-                      "3. Salt Information",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff214E77),
+                    Expanded(
+                      child: infoTile(
+                        Icons.opacity_outlined,
+                        "Salt Amount",
+                        "7.2 kg",
                       ),
                     ),
-
-                    const SizedBox(height: 18),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: infoTile(
-                            Icons.inventory_2,
-                            "Salt Amount",
-                            "7.2 kg",
-                          ),
-                        ),
-
-                        Expanded(
-                          child: infoTile(
-                            Icons.hourglass_bottom,
-                            "Salting Duration",
-                            "12 Hours",
-                          ),
-                        ),
-                      ],
+                    Expanded(
+                      child: infoTile(
+                        Icons.hourglass_empty_outlined,
+                        "Salting Duration",
+                        "12 Hours",
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              //--------------------------------------------------
               // 4. Monitoring Summary
-              //--------------------------------------------------
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 5),
-                  ],
-                ),
-
+              _buildSectionCard(
+                title: "4. Monitoring Summary",
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "4. Monitoring Summary",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff214E77),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
                     Row(
                       children: [
                         Expanded(
                           child: monitoringTile(
-                            Icons.scale,
-                            "Initial",
+                            Icons.scale_outlined,
+                            "Initial Weight",
                             "${batch.rawWeight.toStringAsFixed(1)} kg",
                           ),
                         ),
-
                         Expanded(
                           child: monitoringTile(
-                            Icons.monitor_weight,
-                            "Current",
+                            Icons.monitor_weight_outlined,
+                            "Current Weight",
                             "${(batch.rawWeight - batch.predictedWaste).toStringAsFixed(1)} kg",
                           ),
                         ),
-
                         Expanded(
                           child: monitoringTile(
-                            Icons.trending_down,
+                            Icons.trending_down_rounded,
                             "Weight Loss",
                             "${batch.predictedWaste.toStringAsFixed(1)} kg",
                           ),
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 18),
-
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
                           child: monitoringTile(
-                            Icons.percent,
-                            "Loss %",
+                            Icons.percent_rounded,
+                            "Loss Percentage",
                             "${batch.wastePercentage.toStringAsFixed(1)}%",
                           ),
                         ),
-
                         Expanded(
                           child: monitoringTile(
-                            Icons.verified_user,
-                            "Status",
+                            Icons.verified_user_outlined,
+                            "Quality Status",
                             batch.status,
                           ),
                         ),
+                        const Expanded(child: SizedBox()),
                       ],
                     ),
                   ],
                 ),
               ),
 
-              //--------------------------------------------------
               // 5. Notification Information
-              //--------------------------------------------------
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 5),
-                  ],
-                ),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              _buildSectionCard(
+                title: "5. Notification Information",
+                child: Row(
                   children: [
-                    const Text(
-                      "5. Notification Information",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff214E77),
+                    Expanded(
+                      child: infoTile(
+                        Icons.notifications_active_outlined,
+                        "Waste Notification",
+                        "Sent",
                       ),
                     ),
-
-                    const SizedBox(height: 18),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: infoTile(
-                            Icons.notifications_active,
-                            "Waste Notification",
-                            "Sent",
-                          ),
-                        ),
-
-                        Expanded(
-                          child: infoTile(
-                            Icons.people,
-                            "Recipient",
-                            "Fish Meal Company",
-                          ),
-                        ),
-
-                        Expanded(
-                          child: infoTile(Icons.sms, "Channel", "In-App, SMS"),
-                        ),
-                      ],
+                    Expanded(
+                      child: infoTile(
+                        Icons.people_outline_rounded,
+                        "Recipient",
+                        "Fish Meal Company",
+                      ),
+                    ),
+                    Expanded(
+                      child: infoTile(
+                        Icons.chat_bubble_outline_rounded,
+                        "Channel",
+                        "In-App, SMS",
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              //--------------------------------------------------
+              const SizedBox(height: 24),
+
               // Buttons
-              //--------------------------------------------------
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
+                    child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(0, 50),
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary, width: 1.5),
+                        minimumSize: const Size(0, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text("Back to Dashboard"),
+                      child: const Text(
+                        "Back",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
                     ),
                   ),
-
-                  const SizedBox(width: 15),
-
+                  const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(0, 50),
-                        backgroundColor: const Color(0xff214E77),
+                        minimumSize: const Size(0, 56),
+                        backgroundColor: AppColors.button,
                         foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
                       ),
                       onPressed: () async {
                         await PdfService.generateReport(
@@ -548,21 +415,27 @@ class BatchDetailsScreen extends StatelessWidget {
                           status: batch.status,
                         );
                       },
-                      icon: const Icon(Icons.picture_as_pdf),
-                      label: const Text("Export Report"),
+                      icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
+                      label: const Text(
+                        "Export Report",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 35),
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
 
-              const Text(
-                "Powered by Smart Karawala",
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+              const Center(
+                child: Text(
+                  "Powered by Smart Karawala",
+                  style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
+                ),
               ),
-
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
             ],
           ),
         ),
@@ -570,43 +443,67 @@ class BatchDetailsScreen extends StatelessWidget {
     );
   }
 
-  //--------------------------------------------------
-  // Helper Widgets
-  //--------------------------------------------------
-
-  static Widget infoTile(IconData icon, String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.all(6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: const Color(0xff214E77), size: 22),
-
-          const SizedBox(width: 8),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 11, color: Colors.grey),
-                ),
-
-                const SizedBox(height: 3),
-
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
+  Widget _buildSectionCard({required String title, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 20),
+          child,
+        ],
+      ),
+    );
+  }
+
+  static Widget infoTile(IconData icon, String title, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.background.withOpacity(0.4),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppColors.primary, size: 20),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 
@@ -616,53 +513,79 @@ class BatchDetailsScreen extends StatelessWidget {
     String value,
     String percent,
   ) {
-    return Column(
-      children: [
-        Icon(icon, color: const Color(0xff214E77)),
-
-        const SizedBox(height: 8),
-
-        Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-
-        const SizedBox(height: 5),
-
-        Text(
-          value,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xff103F73),
-            fontSize: 16,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.background.withOpacity(0.4),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppColors.primary, size: 22),
           ),
-        ),
-
-        Text(
-          percent,
-          style: const TextStyle(
-            color: Colors.green,
-            fontWeight: FontWeight.bold,
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+              fontSize: 16,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            percent,
+            style: const TextStyle(
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
   static Widget monitoringTile(IconData icon, String title, String value) {
     return Column(
       children: [
-        Icon(icon, color: const Color(0xff214E77)),
-
-        const SizedBox(height: 6),
-
-        Text(title, style: const TextStyle(fontSize: 11, color: Colors.grey)),
-
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.background.withOpacity(0.4),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppColors.primary, size: 20),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 4),
-
         Text(
           value,
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            color: Color(0xff103F73),
+            color: Colors.black87,
+            fontSize: 13,
           ),
         ),
       ],

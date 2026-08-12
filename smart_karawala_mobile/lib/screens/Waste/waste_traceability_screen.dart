@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-
+import '../../widgets/Batch/colors.dart';
 import '../../widgets/Traceability/traceability_stat_card.dart';
 import '../../widgets/Traceability/processing_record_card.dart';
 import '../../widgets/Traceability/quick_action_card.dart';
 
 import '../../services/Batch/traceability_service.dart';
 import '../../models/traceability_dashboard_model.dart';
+import '../../models/processing_report_model.dart';
 import '../Batch_admin/processing_reports_screen.dart';
+import '../Batch_admin/batch_details_screen.dart';
 import '../Add_Batch/add_new_batch_screen.dart';
 
 class WasteTraceabilityScreen extends StatefulWidget {
@@ -19,8 +21,8 @@ class WasteTraceabilityScreen extends StatefulWidget {
 
 class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
   TraceabilityDashboardModel? dashboard;
-
   bool loading = true;
+
   @override
   void initState() {
     super.initState();
@@ -46,97 +48,115 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     if (loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
     }
 
     final d = dashboard!;
 
-    print("Total Batches: ${d.totalBatches}");
-    print("Completed Batches: ${d.completedBatches}");
-    print("In Progress Batches: ${d.inProgressBatches}");
-
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
-
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xffEAF7FF),
+        backgroundColor: Colors.transparent,
         centerTitle: true,
         title: const Text(
-          "Waste & Traceability Dashboard",
+          "Waste & Traceability",
           style: TextStyle(
-            color: Color(0xff214E77),
+            color: AppColors.primary,
             fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
-        iconTheme: const IconThemeData(color: Color(0xff214E77)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          Image.asset('assets/images/logo.png', height: 55),
+          const SizedBox(width: 16),
+        ],
       ),
-
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        physics: const BouncingScrollPhysics(),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20),
-
+            // Stat Cards (2x2 Grid)
             Row(
               children: [
                 TraceabilityStatCard(
-                  icon: Icons.inventory,
+                  icon: Icons.inventory_2_outlined,
                   iconColor: Colors.green,
                   title: "Total Batches",
                   value: d.totalBatches.toString(),
                   subtitle: "This Month",
                 ),
-
                 TraceabilityStatCard(
-                  icon: Icons.scale,
-                  iconColor: Colors.brown,
-                  title: "Total Waste\n(kg)",
+                  icon: Icons.scale_outlined,
+                  iconColor: Colors.deepOrange,
+                  title: "Total Waste (kg)",
                   value: d.totalWasteKg.toStringAsFixed(1),
                   subtitle: "This Month",
                 ),
-
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
                 TraceabilityStatCard(
-                  icon: Icons.show_chart,
-                  iconColor: Colors.pink,
-                  title: "Inprogress\n",
+                  icon: Icons.hourglass_empty_outlined,
+                  iconColor: Colors.orange,
+                  title: "In Progress",
                   value: d.inProgressBatches.toString(),
                   subtitle: "This Month",
                 ),
-
                 TraceabilityStatCard(
-                  icon: Icons.assignment,
+                  icon: Icons.check_circle_outline_rounded,
                   iconColor: Colors.blue,
-                  title: "completed\nBatches",
+                  title: "Completed Batches",
                   value: d.completedBatches.toString(),
-                  subtitle: "Total",
+                  subtitle: "Total Batches",
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
+            // Recent Processing Records Card
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Recent Processing Records",
+                      const Text(
+                        "Recent Records",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: Color(0xff214E77),
+                          color: AppColors.primary,
                         ),
                       ),
-
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -150,52 +170,77 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                           "View All",
                           style: TextStyle(
                             color: Colors.blue,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
                           ),
                         ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
 
-                  const SizedBox(height: 15),
-
-                  const ProcessingRecordCard(
-                    batchId: "BATCH-2025-056",
-                    fishType: "Sprats",
-                    date: "25 May 2025",
-                    time: "10:30 AM",
-                    status: "Completed",
-                  ),
-
-                  Divider(),
-
-                  const ProcessingRecordCard(
-                    batchId: "BATCH-2025-055",
-                    fishType: "Mackerel",
-                    date: "24 May 2025",
-                    time: "03:15 PM",
-                    status: "In Progress",
-                  ),
-
-                  Divider(),
-
-                  const ProcessingRecordCard(
-                    batchId: "BATCH-2025-054",
-                    fishType: "Tuna",
-                    date: "23 May 2025",
-                    time: "09:45 AM",
-                    status: "Completed",
-                  ),
+                  if (d.recentBatches.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(
+                        child: Text(
+                          "No recent records found",
+                          style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    )
+                  else
+                    ...d.recentBatches.take(3).map((record) {
+                      final isLast = d.recentBatches.indexOf(record) == d.recentBatches.length - 1 || d.recentBatches.indexOf(record) == 2;
+                      return Column(
+                        children: [
+                          ProcessingRecordCard(
+                            batchId: record.batchId,
+                            fishType: record.fishType,
+                            date: record.date,
+                            time: "11:05 AM",
+                            status: record.status,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BatchDetailsScreen(
+                                    batch: ProcessingReportModel(
+                                      batchId: record.batchId,
+                                      fishType: record.fishType,
+                                      rawWeight: record.rawWeight,
+                                      status: record.status,
+                                      date: record.date,
+                                      predictedWaste: record.predictedWaste,
+                                      wastePercentage: record.wastePercentage,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          if (!isLast) Divider(color: Colors.grey.shade100, height: 24),
+                        ],
+                      );
+                    }).toList(),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
+            // Quick Actions Card
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,17 +250,16 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xff214E77),
+                      color: AppColors.primary,
                     ),
                   ),
-
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
 
                   Row(
                     children: [
                       QuickActionCard(
-                        icon: Icons.add_circle_outline,
-                        title: "Add New Batch",
+                        icon: Icons.add_circle_outline_rounded,
+                        title: "Add Batch",
                         onTap: () {
                           Navigator.push(
                             context,
@@ -225,9 +269,8 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                           );
                         },
                       ),
-
                       QuickActionCard(
-                        icon: Icons.bar_chart,
+                        icon: Icons.bar_chart_rounded,
                         title: "View Reports",
                         onTap: () {
                           Navigator.push(
@@ -238,10 +281,8 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
                           );
                         },
                       ),
-
-                      
                       QuickActionCard(
-                        icon: Icons.settings,
+                        icon: Icons.settings_outlined,
                         title: "Settings",
                         onTap: () {},
                       ),
@@ -251,16 +292,17 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
 
             const Center(
               child: Text(
                 "Powered by Smart Karawala",
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+                style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
               ),
             ),
-
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
           ],
         ),
       ),

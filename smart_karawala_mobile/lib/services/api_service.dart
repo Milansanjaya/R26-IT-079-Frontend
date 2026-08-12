@@ -3,27 +3,34 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl = "http://localhost:8000";
+  static const String wasteBaseUrl = "http://localhost:8001";
 
   static Future<Map<String, dynamic>> post(
-    String endpoint,
-    Map<String, dynamic> body,
-  ) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl$endpoint"),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode(body),
+  String endpoint,
+  Map<String, dynamic> body, {
+  bool useWasteApi = false,
+}) async {
+  final url =
+      "${useWasteApi ? wasteBaseUrl : baseUrl}$endpoint";
+
+  final response = await http.post(
+    Uri.parse(url),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode(body),
+  );
+
+  final data = jsonDecode(response.body);
+
+  if (response.statusCode >= 200 && response.statusCode < 300) {
+    return Map<String, dynamic>.from(data);
+  } else {
+    throw Exception(
+      data["detail"] ?? data["message"] ?? "Something went wrong",
     );
-
-    final data = jsonDecode(response.body);
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return Map<String, dynamic>.from(data);
-    } else {
-      throw Exception(data["detail"] ?? data["message"] ?? "Something went wrong");
-    }
   }
+}
 
   static Future<Map<String, dynamic>> get(
     String endpoint,

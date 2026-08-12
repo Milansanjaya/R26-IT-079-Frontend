@@ -52,7 +52,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     // Auto-generate a batchId since there is no input field for it in the UI
     final generatedBatchId =
         "B${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
-    final url = Uri.parse("http://localhost:8000/api/batches");
+    final url = Uri.parse("http://localhost:8001/api/batches");
 
     try {
       final response = await http.post(
@@ -132,15 +132,46 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     }
   }
 
+  InputDecoration _inputDecoration(String label, IconData icon, {String? suffix}) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+      suffixText: suffix,
+      suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+      filled: true,
+      fillColor: Colors.grey.shade50,
+      prefixIcon: Icon(icon, color: AppColors.primary.withOpacity(0.7)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(20),
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
+              // Header navigation row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -158,57 +189,76 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
                       width: 40,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.arrow_back),
+                      child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
                     ),
                   ),
-
-                  const Column(children: [Icon(Icons.set_meal, size: 40)]),
+                  Image.asset('assets/images/logo.png', height: 70),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text(
-                "Add New Batch",
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+              // Title
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Add New Batch",
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
 
               const SizedBox(height: 20),
 
+              // Info card
               Container(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.lightBlue,
-                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.assignment),
+                      child: const Icon(Icons.assignment_outlined, color: AppColors.primary),
                     ),
-                    const SizedBox(width: 15),
+                    const SizedBox(width: 16),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Start a new batch",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 15),
                           ),
-                          SizedBox(height: 5),
+                          SizedBox(height: 4),
                           Text(
                             "Provide accurate details for better prediction and tracking.",
+                            style: TextStyle(color: Colors.black54, fontSize: 13, height: 1.3),
                           ),
                         ],
                       ),
@@ -219,123 +269,178 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
 
               const SizedBox(height: 20),
 
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Batch Information",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+              // Form Container Card
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Batch Information",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    buildDropdown(Icons.set_meal_outlined, "Fish Type", fish, [
+                      "Salaya",
+                      "Hurulla",
+                      "Kumbalawa",
+                      "Thora",
+                      "Kelawalla",
+                      "Balaya",
+                      "Linna",
+                      "Thalapath",
+                      "Paraw",
+                      "Mora",
+                    ]),
+                    const SizedBox(height: 16),
+
+                    buildWeight(),
+                    const SizedBox(height: 16),
+
+                    buildDropdown(Icons.location_on_outlined, "Location", location, [
+                      "Mathara",
+                      "Chillaw",
+                      "Deundara",
+                      "Negombo",
+                      "Jaffna",
+                      "Trincomalee",
+                    ]),
+                    const SizedBox(height: 16),
+
+                    buildDate(),
+                    const SizedBox(height: 16),
+
+                    buildTime(),
+                    const SizedBox(height: 16),
+
+                    buildNotes(),
+                  ],
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 24),
 
-              buildDropdown(Icons.set_meal, "Fish Type", fish, [
-                "Salaya",
-                "Hurulla",
-                "Kumbalawa",
-                "Thora",
-                "Kelawalla",
-                "Balaya",
-                "Linna",
-                "Thalapath",
-                "Paraw",
-                "Mora",
-              ]),
-
-              const SizedBox(height: 15),
-              buildWeight(),
-
-              const SizedBox(height: 15),
-
-              buildDropdown(Icons.location_on_outlined, "Location", location, [
-                "Mathara",
-                "Chillaw",
-                "Deundara",
-                "Negombo",
-                "Jaffna",
-                "Trincomalee",
-              ]),
-
-              const SizedBox(height: 15),
-              buildDate(),
-
-              const SizedBox(height: 15),
-              buildTime(),
-
-              const SizedBox(height: 15),
-              buildNotes(),
-
-              const SizedBox(height: 20),
-
+              // Cancel & Save Buttons Row
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminHomeScreen(),
+                          ),
+                        );
+                      },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
-                        minimumSize: const Size(0, 55),
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        minimumSize: const Size(0, 56),
+                        elevation: 0,
                       ),
-                      child: const Text("Cancel"),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 15),
+                  const SizedBox(width: 16),
                   Expanded(
                     flex: 2,
-                    child: ElevatedButton.icon(
-                      // Attached the saveBatch execution block here
+                    child: ElevatedButton(
                       onPressed: isLoading ? null : saveBatch,
-                      icon: isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Color.fromARGB(255, 255, 1, 1),
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Icon(Icons.add),
-                      label: Text(
-                        isLoading ? "Saving..." : "Create Batch",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.button,
-                        minimumSize: const Size(0, 55),
+                        disabledBackgroundColor: AppColors.button.withOpacity(0.6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        minimumSize: const Size(0, 56),
+                        elevation: 0,
                       ),
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.add, color: Colors.white),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Create Batch",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
+              // Quality Tip Card
               Container(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xffEDFCEB),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFE8F5E9), // Soft green background
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.green.shade100, width: 1.5),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.lightbulb_outline, color: Colors.green),
-                    SizedBox(width: 10),
+                    Icon(Icons.lightbulb, color: Colors.green.shade700, size: 24),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Why accurate details matter?",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade900,
+                              fontSize: 14,
+                            ),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 4),
                           Text(
-                            "Accurate batch information helps us provide better predictions, reduce waste and ensure quality.",
-                            style: TextStyle(fontSize: 12),
+                            "Accurate batch information helps us provide better predictions, reduce waste, and ensure top quality.",
+                            style: TextStyle(
+                              color: Colors.green.shade800,
+                              fontSize: 12,
+                              height: 1.4,
+                            ),
                           ),
                         ],
                       ),
@@ -344,12 +449,13 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 32),
 
               const Text(
                 "Powered by Smart Karawala",
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
               ),
+              const SizedBox(height: 10),
             ],
           ),
         ),
@@ -364,11 +470,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
       ],
-      decoration: const InputDecoration(
-        labelText: "Raw Fish Weight",
-        suffixText: "kg",
-        border: OutlineInputBorder(),
-      ),
+      decoration: _inputDecoration("Raw Fish Weight", Icons.scale_outlined, suffix: "kg"),
     );
   }
 
@@ -376,10 +478,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     return TextField(
       controller: notesController,
       maxLines: 4,
-      decoration: const InputDecoration(
-        labelText: "Notes (Optional)",
-        border: OutlineInputBorder(),
-      ),
+      decoration: _inputDecoration("Notes (Optional)", Icons.note_alt_outlined),
     );
   }
 
@@ -388,14 +487,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       controller: dateController,
       readOnly: true,
       onTap: pickDate,
-      decoration: InputDecoration(
-        labelText: "Date",
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.calendar_today),
-          onPressed: pickDate,
-        ),
-      ),
+      decoration: _inputDecoration("Date", Icons.calendar_today_outlined),
     );
   }
 
@@ -404,14 +496,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       controller: timeController,
       readOnly: true,
       onTap: pickTime,
-      decoration: InputDecoration(
-        labelText: "Time",
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.access_time),
-          onPressed: pickTime,
-        ),
-      ),
+      decoration: _inputDecoration("Time", Icons.access_time_outlined),
     );
   }
 
@@ -422,12 +507,10 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     List<String> items,
   ) {
     return DropdownButtonFormField<String>(
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon),
-        labelText: title,
-        border: const OutlineInputBorder(),
-      ),
+      decoration: _inputDecoration(title, icon),
       value: value,
+      dropdownColor: Colors.white,
+      borderRadius: BorderRadius.circular(16),
       items: items
           .map((e) => DropdownMenuItem(value: e, child: Text(e)))
           .toList(),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../models/processing_report_model.dart';
 import '../../services/Batch/processing_report_service.dart';
-
+import '../../widgets/Batch/colors.dart';
 import '../../widgets/Traceability/report_filter_section.dart';
 import '../../widgets/Traceability/processing_record_card.dart';
 import 'batch_details_screen.dart';
@@ -75,51 +74,56 @@ class _ProcessingReportsScreenState extends State<ProcessingReportsScreen> {
   @override
   Widget build(BuildContext context) {
     if (loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
-
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xffEAF7FF),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          color: Color(0xff214E77),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        backgroundColor: Colors.transparent,
+        centerTitle: true,
+        title: const Text(
+          "Processing Reports",
+          style: TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          Image.asset('assets/images/logo.png', height: 55),
+          const SizedBox(width: 16),
+        ],
       ),
-
       body: Padding(
-        padding: const EdgeInsets.all(16),
-
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            const Text(
-              "Processing Reports",
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff214E77),
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
             Expanded(
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-
                 child: Column(
                   children: [
                     ReportFilterSection(
@@ -127,46 +131,49 @@ class _ProcessingReportsScreenState extends State<ProcessingReportsScreen> {
                         searchText = value;
                         filterReports();
                       },
-
                       onFishChanged: (value) {
                         selectedFish = value!;
                         filterReports();
                       },
-
                       onStatusChanged: (value) {
                         selectedStatus = value!;
                         filterReports();
                       },
                     ),
-                    const SizedBox(height: 20),
-
+                    const SizedBox(height: 24),
                     Expanded(
-                      child: ListView.separated(
-                        itemCount: filteredReports.length,
+                      child: filteredReports.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "No reports found",
+                                style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                              ),
+                            )
+                          : ListView.separated(
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: filteredReports.length,
+                              separatorBuilder: (_, __) => Divider(color: Colors.grey.shade100, height: 24),
+                              itemBuilder: (context, index) {
+                                final report = filteredReports[index];
 
-                        separatorBuilder: (_, __) => const Divider(),
-
-                        itemBuilder: (context, index) {
-                          final report = filteredReports[index];
-
-                          return ProcessingRecordCard(
-                            batchId: report.batchId,
-                            fishType: report.fishType,
-                            date: report.date,
-                            time: "",
-                            status: report.status,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      BatchDetailsScreen(batch: report),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                                return ProcessingRecordCard(
+                                  batchId: report.batchId,
+                                  fishType: report.fishType,
+                                  date: report.date,
+                                  time: "",
+                                  status: report.status,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            BatchDetailsScreen(batch: report),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                     ),
                   ],
                 ),
@@ -177,8 +184,9 @@ class _ProcessingReportsScreenState extends State<ProcessingReportsScreen> {
 
             const Text(
               "Powered by Smart Karawala",
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
             ),
+            const SizedBox(height: 10),
           ],
         ),
       ),

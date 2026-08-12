@@ -18,217 +18,293 @@ class PdfService {
 
     pdf.addPage(
       pw.Page(
-        margin: const pw.EdgeInsets.all(30),
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.symmetric(horizontal: 40, vertical: 40),
         build: (context) {
-          return pw.Container(
-            decoration: pw.BoxDecoration(
-              border: pw.Border.all(
-                color: PdfColors.blue800,
-                width: 2,
-              ),
-            ),
-            child: pw.Padding(
-              padding: const pw.EdgeInsets.all(20),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-
-                  //------------------------------------------------------
-                  // Header
-                  //------------------------------------------------------
-
-                  pw.Container(
-                    width: double.infinity,
-                    color: PdfColors.blue800,
-                    padding: const pw.EdgeInsets.all(15),
-                    child: pw.Column(
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              // 1. Header Banner
+              pw.Container(
+                width: double.infinity,
+                padding: const pw.EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                decoration: const pw.BoxDecoration(
+                  color: PdfColor.fromInt(0xff0C3F7A),
+                  borderRadius: pw.BorderRadius.all(pw.Radius.circular(12)),
+                ),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-
                         pw.Text(
                           "SMART KARAWALA",
                           style: pw.TextStyle(
                             color: PdfColors.white,
-                            fontSize: 24,
+                            fontSize: 20,
                             fontWeight: pw.FontWeight.bold,
+                            letterSpacing: 1.2,
                           ),
                         ),
-
-                        pw.SizedBox(height: 5),
-
+                        pw.SizedBox(height: 4),
                         pw.Text(
-                          "Batch Processing Report",
+                          "AI-powered Dry Fish Processing System",
                           style: const pw.TextStyle(
-                            color: PdfColors.white,
-                            fontSize: 14,
+                            color: PdfColors.blue100,
+                            fontSize: 10,
                           ),
                         ),
                       ],
                     ),
-                  ),
-
-                  pw.SizedBox(height: 25),
-
-                  //------------------------------------------------------
-                  // Batch Information
-                  //------------------------------------------------------
-
-                  sectionTitle("Batch Information"),
-
-                  infoRow("Batch ID", batchId),
-                  infoRow("Fish Type", fishType),
-                  infoRow("Processing Date", date),
-                  infoRow("Status", status),
-
-                  pw.SizedBox(height: 20),
-
-                  //------------------------------------------------------
-                  // Weight Summary
-                  //------------------------------------------------------
-
-                  sectionTitle("Weight Summary"),
-
-                  infoRow(
-                    "Raw Weight",
-                    "${rawWeight.toStringAsFixed(1)} kg",
-                  ),
-
-                  infoRow(
-                    "Predicted Waste",
-                    "${waste.toStringAsFixed(1)} kg",
-                  ),
-
-                  infoRow(
-                    "Clean Weight",
-                    "${cleanWeight.toStringAsFixed(1)} kg",
-                  ),
-
-                  infoRow(
-                    "Waste Percentage",
-                    "${wastePercentage.toStringAsFixed(1)} %",
-                  ),
-
-                  pw.SizedBox(height: 20),
-
-                  //------------------------------------------------------
-                  // Prediction
-                  //------------------------------------------------------
-
-                  sectionTitle("Prediction Summary"),
-
-                  pw.Container(
-                    padding: const pw.EdgeInsets.all(12),
-                    decoration: pw.BoxDecoration(
-                      color: PdfColors.grey100,
-                      border: pw.Border.all(
-                        color: PdfColors.grey400,
+                    pw.Container(
+                      padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: const pw.BoxDecoration(
+                        color: PdfColor.fromInt(0xff03113F),
+                        borderRadius: pw.BorderRadius.all(pw.Radius.circular(6)),
+                      ),
+                      child: pw.Text(
+                        "BATCH REPORT",
+                        style: pw.TextStyle(
+                          color: PdfColors.white,
+                          fontSize: 10,
+                          fontWeight: pw.FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
                       ),
                     ),
-                    child: pw.Text(
-                      "This report summarizes the predicted waste "
-                      "generated during the dry fish processing stage. "
-                      "The prediction assists producers in monitoring "
-                      "processing efficiency and improving waste utilization.",
-                      style: const pw.TextStyle(
-                        fontSize: 11,
+                  ],
+                ),
+              ),
+
+              pw.SizedBox(height: 24),
+
+              // 2. Metadata Section
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        "PREPARED FOR:",
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.grey500,
+                        ),
                       ),
-                    ),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        "Smart Karawala Processor Ltd.",
+                        style: pw.TextStyle(
+                          fontSize: 11,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.Text(
+                        "Sri Lanka",
+                        style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+                      ),
+                    ],
                   ),
-
-                  pw.Spacer(),
-
-                  //------------------------------------------------------
-                  // Footer
-                  //------------------------------------------------------
-
-                  pw.Divider(),
-
-                  pw.Center(
-                    child: pw.Column(
-                      children: [
-
-                        pw.Text(
-                          "Generated by Smart Karawala",
-                          style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.blue800,
-                          ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    children: [
+                      pw.Text(
+                        "REPORT METADATA:",
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.grey500,
                         ),
-
-                        pw.SizedBox(height: 5),
-
-                        pw.Text(
-                          "AI-powered Dry Fish Processing Management System",
-                          style: const pw.TextStyle(fontSize: 10),
+                      ),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        "Date: $date",
+                        style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+                      ),
+                      pw.Text(
+                        "Batch ID: $batchId",
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                          fontWeight: pw.FontWeight.bold,
+                          color: const PdfColor.fromInt(0xff0C3F7A),
                         ),
-
-                        pw.SizedBox(height: 5),
-
-                        pw.Text(
-                          "© 2026 Smart Karawala",
-                          style: const pw.TextStyle(fontSize: 10),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
+
+              pw.SizedBox(height: 28),
+
+              // 3. Earning / Weight Cards Row (like app cards)
+              pw.Row(
+                children: [
+                  _buildStatCard("RAW WEIGHT", "${rawWeight.toStringAsFixed(1)} kg", const PdfColor.fromInt(0xff0C3F7A)),
+                  pw.SizedBox(width: 12),
+                  _buildStatCard("PREDICTED WASTE", "${waste.toStringAsFixed(1)} kg", PdfColors.orange800),
+                  pw.SizedBox(width: 12),
+                  _buildStatCard("CLEAN WEIGHT", "${cleanWeight.toStringAsFixed(1)} kg", PdfColors.green800),
+                  pw.SizedBox(width: 12),
+                  _buildStatCard("WASTE PERCENT", "${wastePercentage.toStringAsFixed(1)}%", PdfColors.red800),
+                ],
+              ),
+
+              pw.SizedBox(height: 32),
+
+              // 4. Batch Details List
+              pw.Text(
+                "BATCH SPECIFICATIONS",
+                style: pw.TextStyle(
+                  fontSize: 12,
+                  fontWeight: pw.FontWeight.bold,
+                  color: const PdfColor.fromInt(0xff0C3F7A),
+                  letterSpacing: 0.5,
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              _buildDetailRow("Reference Identifier", batchId),
+              _buildDetailRow("Fish Variety", fishType),
+              _buildDetailRow("Processing Date", date),
+              _buildDetailRow("Raw Stock Weight", "${rawWeight.toStringAsFixed(1)} kg"),
+              _buildDetailRow("Calculated Waste Yield", "${waste.toStringAsFixed(1)} kg"),
+              _buildDetailRow("Net Clean Yield", "${cleanWeight.toStringAsFixed(1)} kg"),
+              _buildDetailRow("Current Status", status, isStatus: true),
+
+              pw.SizedBox(height: 32),
+
+              // 5. Prediction Callout Box (Left-bordered warning-style card)
+              pw.Container(
+                padding: const pw.EdgeInsets.all(16),
+                decoration: const pw.BoxDecoration(
+                  color: PdfColor.fromInt(0xffF4F8FC),
+                  border: pw.Border(
+                    left: pw.BorderSide(color: PdfColor.fromInt(0xff0C3F7A), width: 4),
+                  ),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      "AI INSIGHTS & FORECAST SUMMARY",
+                      style: pw.TextStyle(
+                        fontSize: 10,
+                        fontWeight: pw.FontWeight.bold,
+                        color: const PdfColor.fromInt(0xff0C3F7A),
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Text(
+                      "The waste prediction model analyzes salting concentration levels, raw species weights, and drying hours to forecast batch yields. This estimate assists processing floor supervisors in minimizing waste and validating drying process margins.",
+                      style: const pw.TextStyle(
+                        fontSize: 9.5,
+                        color: PdfColors.grey800,
+                        lineSpacing: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              pw.Spacer(),
+
+              // 6. Professional Footer
+              pw.Divider(color: PdfColors.grey200, thickness: 1),
+              pw.SizedBox(height: 8),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                    "© 2026 Smart Karawala System",
+                    style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500),
+                  ),
+                  pw.Text(
+                    "Generated via Smart Karawala Mobile Admin App",
+                    style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500),
+                  ),
+                ],
+              ),
+            ],
           );
         },
       ),
     );
 
-    await Printing.layoutPdf(
-      onLayout: (format) async => pdf.save(),
+    await Printing.sharePdf(
+      bytes: await pdf.save(),
+      filename: 'batch_report_$batchId.pdf',
     );
   }
 
-  //------------------------------------------------------
-  // Helper Widgets
-  //------------------------------------------------------
-
-  static pw.Widget sectionTitle(String title) {
-    return pw.Container(
-      width: double.infinity,
-      color: PdfColors.blue100,
-      padding: const pw.EdgeInsets.all(8),
-      margin: const pw.EdgeInsets.only(bottom: 10),
-      child: pw.Text(
-        title,
-        style: pw.TextStyle(
-          fontWeight: pw.FontWeight.bold,
-          color: PdfColors.blue900,
-          fontSize: 14,
+  // Helper: Card Generator
+  static pw.Widget _buildStatCard(String title, String value, PdfColor valueColor) {
+    return pw.Expanded(
+      child: pw.Container(
+        padding: const pw.EdgeInsets.all(12),
+        decoration: pw.BoxDecoration(
+          color: const PdfColor.fromInt(0xffF9FAFC),
+          borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+          border: pw.Border.all(color: PdfColors.grey200, width: 1),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              title,
+              style: const pw.TextStyle(fontSize: 7.5, color: PdfColors.grey600, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 6),
+            pw.Text(
+              value,
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: valueColor),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  static pw.Widget infoRow(
-    String title,
-    String value,
-  ) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(vertical: 5),
+  // Helper: Detail Row Generator
+  static pw.Widget _buildDetailRow(String label, String value, {bool isStatus = false}) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.symmetric(vertical: 8),
+      decoration: const pw.BoxDecoration(
+        border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey100, width: 0.8)),
+      ),
       child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
-
-          pw.Expanded(
-            flex: 2,
-            child: pw.Text(
-              title,
-              style: pw.TextStyle(
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
+          pw.Text(
+            label,
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
           ),
-
-          pw.Text(":  "),
-
-          pw.Expanded(
-            flex: 3,
-            child: pw.Text(value),
-          ),
+          isStatus
+              ? pw.Container(
+                  padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: pw.BoxDecoration(
+                    color: value.toLowerCase().contains("completed")
+                        ? const PdfColor.fromInt(0xffE8F5E9)
+                        : const PdfColor.fromInt(0xffFFF3E0),
+                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                  ),
+                  child: pw.Text(
+                    value,
+                    style: pw.TextStyle(
+                      fontSize: 9,
+                      fontWeight: pw.FontWeight.bold,
+                      color: value.toLowerCase().contains("completed")
+                          ? const PdfColor.fromInt(0xff2E7D32)
+                          : const PdfColor.fromInt(0xffEF6C00),
+                    ),
+                  ),
+                )
+              : pw.Text(
+                  value,
+                  style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: const PdfColor.fromInt(0xff0C3F7A)),
+                ),
         ],
       ),
     );

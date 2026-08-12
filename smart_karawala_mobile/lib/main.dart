@@ -3,8 +3,9 @@ import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
-import 'screens/drying/drying_control_screen.dart';
+
 import 'screens/auth/splash_screen.dart';
+import 'screens/auth/welcome_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'screens/auth/forgot_password_screen.dart';
@@ -26,6 +27,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AuthProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -35,6 +39,7 @@ class MyApp extends StatelessWidget {
         home: const SplashScreen(),
 
         routes: {
+          '/welcome': (context) => const WelcomeScreen(),
           '/login': (context) => const LoginScreen(),
           '/signup': (context) => const SignupScreen(),
           '/forgot-password': (context) =>

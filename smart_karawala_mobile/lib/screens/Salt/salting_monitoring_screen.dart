@@ -1,10 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
 import '../../models/salting_monitor_model.dart';
 import '../../services/Salt/salting_monitor_service.dart';
-
+import '../../widgets/Batch/colors.dart';
 import '../../widgets/Salt_monitoring/monitoring_header_card.dart';
 import '../../widgets/Salt_monitoring/monitoring_progress_card.dart';
 import '../../widgets/Salt_monitoring/monitoring_recommendation_card.dart';
@@ -26,30 +24,25 @@ class SaltingMonitoringScreen extends StatefulWidget {
       _SaltingMonitoringScreenState();
 }
 
-class _SaltingMonitoringScreenState
-    extends State<SaltingMonitoringScreen> {
-
+class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
   SaltingMonitorModel? monitor;
-
   bool loading = true;
-
+  bool isRefreshing = false;
   Timer? timer;
 
- @override
-void initState() {
-  super.initState();
+  @override
+  void initState() {
+    super.initState();
+    debugPrint("Batch ID = ${widget.batchId}");
+    loadMonitoring();
 
-  print("Batch ID = ${widget.batchId}");
-
-  loadMonitoring();
-
-  timer = Timer.periodic(
-    const Duration(seconds: 5),
-    (_) {
-      loadMonitoring();
-    },
-  );
-}
+    timer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) {
+        loadMonitoring(isPeriodic: true);
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -57,11 +50,15 @@ void initState() {
     super.dispose();
   }
 
-  Future<void> loadMonitoring() async {
-    try {
+  Future<void> loadMonitoring({bool isPeriodic = false, bool isUserManual = false}) async {
+    if (isUserManual) {
+      setState(() {
+        isRefreshing = true;
+      });
+    }
 
-      final result =
-          await SaltingMonitorService.getMonitoring(
+    try {
+      final result = await SaltingMonitorService.getMonitoring(
         widget.batchId,
       );
 
@@ -70,31 +67,44 @@ void initState() {
       setState(() {
         monitor = result;
         loading = false;
+        isRefreshing = false;
       });
 
+      if (isUserManual) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Monitoring Data Refreshed Successfully"),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
-
       if (!mounted) return;
 
       setState(() {
         loading = false;
+        isRefreshing = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
+      if (isUserManual || loading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
     if (loading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
         ),
       );
     }
@@ -102,33 +112,35 @@ void initState() {
     final m = monitor!;
 
     return Scaffold(
-      backgroundColor: const Color(0xffEAF7FF),
-
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xffEAF7FF),
+        backgroundColor: Colors.transparent,
         centerTitle: true,
         title: const Text(
           "Salting Monitoring",
           style: TextStyle(
-            color: Color(0xff214E77),
+            color: AppColors.primary,
             fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
-        iconTheme: const IconThemeData(
-          color: Color(0xff214E77),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
+          onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          Image.asset('assets/images/logo.png', height: 55),
+          const SizedBox(width: 16),
+        ],
       ),
-
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-                        //------------------------------------------------
-            // Monitoring Header
-            //------------------------------------------------
+            // Monitoring Header Card
             MonitoringHeaderCard(
               batchId: m.batchId,
               fishType: m.fishType,
@@ -138,35 +150,26 @@ void initState() {
 
             const SizedBox(height: 16),
 
-            //------------------------------------------------
             // Status Card
-            //------------------------------------------------
             MonitoringStatusCard(
               status: m.status,
             ),
 
             const SizedBox(height: 20),
 
-            //------------------------------------------------
-            // Monitoring Cards
-            //------------------------------------------------
+            // Monitoring Details Row (Progress, Weight, Time)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 MonitoringProgressCard(
                   progress: m.progress,
                 ),
-
                 const SizedBox(width: 10),
-
                 MonitoringWeightCard(
                   weightLoss: m.weightLoss,
                   percentage: m.weightLossPercentage,
                 ),
-
                 const SizedBox(width: 10),
-
                 MonitoringTimeCard(
                   remainingHours: m.remainingHours,
                 ),
@@ -174,41 +177,32 @@ void initState() {
             ),
 
             const SizedBox(height: 20),
-            
-                        //------------------------------------------------
+
             // Recommendation Card
-            //------------------------------------------------
             MonitoringRecommendationCard(
               status: m.status,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
-            //------------------------------------------------
             // Refresh Button
-            //------------------------------------------------
             MonitoringUpdateButton(
-              onPressed: loadMonitoring,
+              isRefreshing: isRefreshing,
+              onPressed: () => loadMonitoring(isUserManual: true),
             ),
 
-            const SizedBox(height: 25),
-            const SizedBox(height: 25),
-            const SizedBox(height: 25),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
 
-            //------------------------------------------------
-            // Powered By
-            //------------------------------------------------
+            // Powered By Footer
             const Center(
               child: Text(
                 "Powered by Smart Karawala",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
               ),
             ),
-
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
           ],
         ),
       ),
