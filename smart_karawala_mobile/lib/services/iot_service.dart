@@ -59,6 +59,20 @@ class IotService {
     );
   }
 
+  static Future<Map<String, dynamic>> getDryingSession(String batchId) async {
+    final response = await http.get(
+      Uri.parse("$baseUrl/api/iot/sessions/${Uri.encodeComponent(batchId)}"),
+    );
+    if (response.statusCode != 200) {
+      throw Exception(_errorMessage(response));
+    }
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic>) {
+      throw Exception("Invalid drying session response");
+    }
+    return decoded;
+  }
+
   static Future<Map<String, dynamic>> setManualActuators({
     required String batchId,
     bool? heater,

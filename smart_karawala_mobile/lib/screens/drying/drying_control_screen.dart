@@ -43,6 +43,7 @@ class _DryingControlScreenState
 
   String? dryingMode;
   String? activeBatchId;
+  String? stoppedReason;
 
   // ============================================================
   // COMMAND STATUS
@@ -112,7 +113,19 @@ class _DryingControlScreenState
 
   Future<void> loadSensor() async {
     try {
+      final previousBatchId = activeBatchId;
       final data = await IotService.getLiveData();
+
+      Map<String, dynamic>? stoppedSession;
+      if (!sendingCommand &&
+          data.dryingStatus == null &&
+          previousBatchId != null) {
+        try {
+          stoppedSession = await IotService.getDryingSession(previousBatchId);
+        } catch (_) {
+          // The live sensor state remains usable if the historical lookup fails.
+        }
+      }
 
       if (!mounted) {
         return;
@@ -128,12 +141,25 @@ class _DryingControlScreenState
           dryingRunning = true;
           dryingStopped = false;
           dryingMode = data.dryingMode;
+          stoppedReason = null;
           autoMode = data.dryingMode != "MANUAL";
         } else if (!sendingCommand) {
           activeBatchId = null;
           dryingRunning = false;
           dryingStopped = true;
-          dryingMode = null;
+          dryingMode = stoppedSession?["mode"]?.toString();
+          stoppedReason = _stoppedReason(stoppedSession);
+          if (stoppedSession != null) {
+            temperatureController.text =
+                (stoppedSession["target_temperature_c"] as num?)?.toStringAsFixed(1) ??
+                    temperatureController.text;
+            humidityController.text =
+                (stoppedSession["target_humidity_percent"] as num?)?.toStringAsFixed(1) ??
+                    humidityController.text;
+            durationController.text =
+                stoppedSession["predicted_duration_minutes"]?.toString() ??
+                    durationController.text;
+          }
         }
 
         // --------------------------------------------------------
@@ -184,6 +210,17 @@ class _DryingControlScreenState
         loading = false;
       });
     }
+  }
+
+  String? _stoppedReason(Map<String, dynamic>? session) {
+    if (session == null) return null;
+    final fault = session["fault_reason"]?.toString();
+    if (fault != null && fault.isNotEmpty) return "Safety stop: $fault";
+    return switch (session["stop_reason"]?.toString()) {
+      "duration_target_reached" => "Stopped: target duration reached",
+      "operator_stop" => "Stopped by operator",
+      _ => null,
+    };
   }
 
   // ============================================================
@@ -378,6 +415,16 @@ class _DryingControlScreenState
       return;
     }
 
+    if (title != "Light") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Heater and exhaust fan follow your MANUAL target conditions."),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     // ----------------------------------------------------------
     // PREVENT DUPLICATE COMMAND
     // ----------------------------------------------------------
@@ -531,6 +578,7 @@ class _DryingControlScreenState
         dryingStopped = false;
         dryingMode = response["mode"]?.toString() ??
             (autoMode ? "AUTO" : "MANUAL");
+        stoppedReason = null;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -613,6 +661,7 @@ class _DryingControlScreenState
         dryingRunning = false;
         dryingStopped = true;
         dryingMode = null;
+        stoppedReason = "Stopped by operator";
         heaterOn = false;
         fanOn = false;
       });
@@ -730,12 +779,13 @@ class _DryingControlScreenState
     //   Device controls locked.
     //
     // MANUAL:
-    //   Device controls available only while drying is running.
+    //   Heater and exhaust fan follow the operator-entered target conditions.
+    //   Light remains an independent manual switch.
     // ----------------------------------------------------------
 
-    final bool enabled =
-        !autoMode &&
+    final bool enabled = !autoMode &&
         dryingRunning &&
+        title == "Light" &&
         !sending;
 
     return Card(
@@ -814,9 +864,9 @@ class _DryingControlScreenState
   // ============================================================
 
   Widget targetConditionsCard() {
-    final bool editable =
-        !autoMode &&
-        !dryingRunning;
+    // MANUAL targets are chosen before a run starts. Lock them during a run
+    // so the active drying profile cannot be changed accidentally.
+    final bool editable = !autoMode && !dryingRunning;
 
     return Container(
       width: double.infinity,
@@ -915,6 +965,7 @@ class _DryingControlScreenState
             controller:
                 temperatureController,
 
+            enabled: editable,
             readOnly:
                 !editable,
 
@@ -935,7 +986,7 @@ class _DryingControlScreenState
               ),
 
               suffixIcon:
-                  autoMode
+                  !editable
                       ? const Icon(
                           Icons.lock,
                         )
@@ -944,7 +995,7 @@ class _DryingControlScreenState
               filled: true,
 
               fillColor:
-                  autoMode
+                  !editable
                       ? Colors.grey.shade100
                       : Colors.white,
 
@@ -970,6 +1021,7 @@ class _DryingControlScreenState
             controller:
                 humidityController,
 
+            enabled: editable,
             readOnly:
                 !editable,
 
@@ -990,7 +1042,7 @@ class _DryingControlScreenState
               ),
 
               suffixIcon:
-                  autoMode
+                  !editable
                       ? const Icon(
                           Icons.lock,
                         )
@@ -999,7 +1051,7 @@ class _DryingControlScreenState
               filled: true,
 
               fillColor:
-                  autoMode
+                  !editable
                       ? Colors.grey.shade100
                       : Colors.white,
 
@@ -1019,14 +1071,15 @@ class _DryingControlScreenState
 
           TextField(
             controller: durationController,
-            readOnly: dryingRunning,
+            enabled: editable,
+            readOnly: !editable,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: "Target Duration (minutes)",
               prefixIcon: const Icon(Icons.timer_outlined),
-              suffixIcon: dryingRunning ? const Icon(Icons.lock) : null,
+              suffixIcon: !editable ? const Icon(Icons.lock) : null,
               filled: true,
-              fillColor: dryingRunning ? Colors.grey.shade100 : Colors.white,
+              fillColor: !editable ? Colors.grey.shade100 : Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -1086,7 +1139,7 @@ class _DryingControlScreenState
                     autoMode
                         ? "AUTO mode uses the target temperature and humidity from the drying calculation system. It completes only after both the target duration and target weight are reached."
                         : dryingRunning
-                            ? "Manual relays stay under operator control until Stop is pressed or the target duration ends."
+                            ? "Target conditions are locked while drying is running. Stop drying before changing them."
                             : "MANUAL mode allows the administrator to edit target values and duration.",
                     style: TextStyle(
                       color: autoMode
@@ -1416,9 +1469,8 @@ class _DryingControlScreenState
                                 Text(
                                   dryingRunning
                                       ? "${dryingMode ?? (autoMode ? "AUTO" : "MANUAL")} Mode"
-                                      : autoMode
-                                          ? "AUTO Mode"
-                                          : "MANUAL Mode",
+                                      : stoppedReason ??
+                                          "${dryingMode ?? (autoMode ? "AUTO" : "MANUAL")} Mode",
 
                                   style:
                                       const TextStyle(
@@ -1610,7 +1662,7 @@ class _DryingControlScreenState
                     // AUTO LOCK MESSAGE
                     // ==================================================
 
-                    if (autoMode)
+                    if (autoMode || dryingRunning)
                       Container(
                         width:
                             double.infinity,
@@ -1623,9 +1675,7 @@ class _DryingControlScreenState
 
                         decoration:
                             BoxDecoration(
-                          color:
-                              Colors.blue
-                                  .shade50,
+                          color: autoMode ? Colors.blue.shade50 : Colors.orange.shade50,
 
                           borderRadius:
                               BorderRadius
@@ -1634,12 +1684,11 @@ class _DryingControlScreenState
                           ),
                         ),
 
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(
                               Icons.lock,
-                              color:
-                                  Colors.blue,
+                              color: autoMode ? Colors.blue : Colors.orange,
                             ),
 
                             SizedBox(
@@ -1648,11 +1697,11 @@ class _DryingControlScreenState
 
                             Expanded(
                               child: Text(
-                                "AUTO mode controls the heater, exhaust fan and light automatically. Manual switches are locked.",
-                                style:
-                                    TextStyle(
-                                  color:
-                                      Colors.blue,
+                                autoMode
+                                    ? "AUTO mode controls Heater and exhaust Fan from its calculated target conditions."
+                                    : "MANUAL targets control Heater and exhaust Fan automatically. Light remains available as a manual switch.",
+                                style: TextStyle(
+                                  color: autoMode ? Colors.blue : Colors.orange,
                                 ),
                               ),
                             ),
