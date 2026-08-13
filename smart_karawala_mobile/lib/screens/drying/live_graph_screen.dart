@@ -217,7 +217,7 @@ class _LiveGraphScreenState
                               ),
                             ),
                             Text(
-                              "${sensor!.weight.toStringAsFixed(2)} kg",
+                              "${sensor!.weight.toStringAsFixed(3)} kg",
                               style:
                                   const TextStyle(
                                 fontSize: 20,

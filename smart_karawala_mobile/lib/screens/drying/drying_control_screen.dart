@@ -42,6 +42,7 @@ class _DryingControlScreenState
   bool dryingStopped = true;
 
   String? dryingMode;
+  String? activeBatchId;
 
   // ============================================================
   // COMMAND STATUS
@@ -78,6 +79,9 @@ class _DryingControlScreenState
   final TextEditingController humidityController =
       TextEditingController();
 
+  final TextEditingController durationController =
+      TextEditingController();
+
   // ============================================================
   // INIT
   // ============================================================
@@ -85,6 +89,12 @@ class _DryingControlScreenState
   @override
   void initState() {
     super.initState();
+
+    // These are editable in MANUAL mode and also provide safe initial values
+    // until an operator/prediction profile is supplied for AUTO mode.
+    temperatureController.text = "40.0";
+    humidityController.text = "12.0";
+    durationController.text = "60";
 
     loadSensor();
 
@@ -107,10 +117,24 @@ class _DryingControlScreenState
       if (!mounted) {
         return;
       }
-
       setState(() {
         sensor = data;
         loading = false;
+
+        final status = data.dryingStatus;
+        final sessionIsActive = status == "DRYING" || status == "COOLING";
+        if (!sendingCommand && sessionIsActive) {
+          activeBatchId = data.batchId;
+          dryingRunning = true;
+          dryingStopped = false;
+          dryingMode = data.dryingMode;
+          autoMode = data.dryingMode != "MANUAL";
+        } else if (!sendingCommand) {
+          activeBatchId = null;
+          dryingRunning = false;
+          dryingStopped = true;
+          dryingMode = null;
+        }
 
         // --------------------------------------------------------
         // Get current device states from Arduino
@@ -137,10 +161,12 @@ class _DryingControlScreenState
         // User cannot edit them.
         // --------------------------------------------------------
 
-        if (autoMode) {
+        if (autoMode && data.targetTemperature > 0) {
           temperatureController.text =
               data.targetTemperature.toStringAsFixed(1);
+        }
 
+        if (autoMode && data.targetHumidity >= 0 && data.targetHumidity > 0) {
           humidityController.text =
               data.targetHumidity.toStringAsFixed(1);
         }
@@ -304,8 +330,8 @@ class _DryingControlScreenState
   Future<void> changeDevice(
     String title,
     bool newValue,
-    String onCommand,
-    String offCommand,
+    String _,
+    String __,
   ) async {
     // ----------------------------------------------------------
     // AUTO MODE
@@ -341,6 +367,17 @@ class _DryingControlScreenState
       return;
     }
 
+    final batchId = activeBatchId ?? sensor?.batchId;
+    if (batchId == null || batchId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No active MANUAL drying session was found."),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     // ----------------------------------------------------------
     // PREVENT DUPLICATE COMMAND
     // ----------------------------------------------------------
@@ -368,51 +405,18 @@ class _DryingControlScreenState
       );
     });
 
-    final String command =
-        newValue
-            ? onCommand
-            : offCommand;
-
     try {
-      debugPrint(
-        "Sending device command: $command",
-      );
-
-      final response =
-          await IotService.sendCommand(
-        command,
-      );
-
-      debugPrint(
-        "Device response: $response",
+      await IotService.setManualActuators(
+        batchId: batchId,
+        heater: title == "Heater" ? newValue : null,
+        fan: title == "Fan" ? newValue : null,
+        light: title == "Light" ? newValue : null,
       );
 
       if (!mounted) {
         return;
       }
 
-      final bool success =
-          response["success"] == true;
-
-      if (!success) {
-        // Revert UI if backend failed.
-        setState(() {
-          setDeviceState(
-            title,
-            oldValue,
-          );
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              response["message"]?.toString() ??
-                  "Device command failed.",
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     } catch (e) {
       debugPrint(
         "Device command error: $e",
@@ -465,6 +469,30 @@ class _DryingControlScreenState
       return;
     }
 
+    final targetTemperature =
+        double.tryParse(temperatureController.text.trim());
+    final targetHumidity =
+        double.tryParse(humidityController.text.trim());
+    final targetDurationMinutes =
+        int.tryParse(durationController.text.trim());
+    if (targetTemperature == null ||
+        targetTemperature <= 0 ||
+        targetTemperature > 120 ||
+        targetHumidity == null ||
+        targetHumidity < 0 ||
+        targetHumidity > 100 ||
+        targetDurationMinutes == null ||
+        targetDurationMinutes <= 0 ||
+        targetDurationMinutes > 14400) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Enter valid temperature, humidity, and duration (1-14400 minutes)."),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     // ----------------------------------------------------------
     // SET LOADING IMMEDIATELY
     // ----------------------------------------------------------
@@ -475,105 +503,47 @@ class _DryingControlScreenState
     });
 
     try {
-      final String command =
-          autoMode
-              ? "start_auto_drying"
-              : "start_manual_drying";
-
-      debugPrint(
-        "====================================",
-      );
-
-      debugPrint(
-        "START DRYING",
-      );
-
-      debugPrint(
-        "MODE: ${autoMode ? "AUTO" : "MANUAL"}",
-      );
-
-      debugPrint(
-        "COMMAND: $command",
-      );
-
-      debugPrint(
-        "====================================",
-      );
-
-      final response =
-          await IotService.sendCommand(
-        command,
-      );
-
-      debugPrint(
-        "START RESPONSE: $response",
+      // The backend requires every run to have a separate, traceable session.
+      // Reuse a READY session when a previous start was rejected (for example,
+      // because the sensor was temporarily unavailable).
+      final readyBatchId = sensor?.dryingStatus == "READY" ? sensor?.batchId : null;
+      final batchId = readyBatchId ??
+          "MOBILE-${DateTime.now().millisecondsSinceEpoch}";
+      if (readyBatchId == null) {
+        await IotService.createControlProfile(
+          batchId: batchId,
+          targetTemperature: targetTemperature,
+          targetHumidity: targetHumidity,
+          targetDurationMinutes: targetDurationMinutes,
+        );
+      }
+      final response = await IotService.startDryingSession(
+        batchId: batchId,
+        mode: autoMode ? "AUTO" : "MANUAL",
       );
 
       if (!mounted) {
         return;
       }
+      setState(() {
+        activeBatchId = response["batch_id"]?.toString() ?? batchId;
+        dryingRunning = true;
+        dryingStopped = false;
+        dryingMode = response["mode"]?.toString() ??
+            (autoMode ? "AUTO" : "MANUAL");
+      });
 
-      final bool success =
-          response["success"] == true;
-
-      if (success) {
-        setState(() {
-          dryingRunning = true;
-          dryingStopped = false;
-
-          dryingMode =
-              response["mode"]?.toString() ??
-                  (autoMode
-                      ? "AUTO"
-                      : "MANUAL");
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              autoMode
-                  ? "AUTO drying started successfully."
-                  : "MANUAL drying started successfully.",
-            ),
-            backgroundColor: Colors.green,
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            autoMode
+                ? "AUTO drying started successfully."
+                : "MANUAL drying started successfully.",
           ),
-        );
-
-        // Get latest Arduino state.
-        await loadSensor();
-        // If manual mode was started, ensure heater and light turn ON immediately.
-        if (!autoMode) {
-          try {
-            // Use changeDevice helper to keep UI state and sending flags consistent.
-            await changeDevice(
-              "Heater",
-              true,
-              "heater_on",
-              "heater_off",
-            );
-
-            await changeDevice(
-              "Light",
-              true,
-              "light_on",
-              "light_off",
-            );
-          } catch (e) {
-            // Non-fatal; user will see device command errors through changeDevice.
-            debugPrint("Post-start device commands failed: $e");
-          }
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              response["message"]?.toString() ??
-                  "Unable to start drying.",
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+          backgroundColor: Colors.green,
+        ),
+      );
+      await loadSensor();
     } catch (e) {
       debugPrint(
         "START DRYING ERROR: $e",
@@ -611,6 +581,17 @@ class _DryingControlScreenState
       return;
     }
 
+    final batchId = activeBatchId ?? sensor?.batchId;
+    if (batchId == null || batchId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No active drying session was found."),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       sendingCommand = true;
       stopSending = true;
@@ -621,68 +602,28 @@ class _DryingControlScreenState
         "STOPPING DRYING...",
       );
 
-      final response =
-          await IotService.sendCommand(
-        "stop_drying",
-      );
-
-      debugPrint(
-        "STOP RESPONSE: $response",
-      );
+      await IotService.stopDryingSession(batchId);
 
       if (!mounted) {
         return;
       }
 
-      final bool success =
-          response["success"] == true;
+      setState(() {
+        activeBatchId = null;
+        dryingRunning = false;
+        dryingStopped = true;
+        dryingMode = null;
+        heaterOn = false;
+        fanOn = false;
+      });
 
-      if (success) {
-        setState(() {
-          dryingRunning = false;
-          dryingStopped = true;
-          dryingMode = null;
-
-          // Local device states reset.
-          heaterOn = false;
-          fanOn = false;
-          lightOn = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Drying stopped successfully.",
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-
-        // Ensure actuators are explicitly turned OFF in case backend didn't update them.
-        try {
-          await IotService.sendCommand("heater_off");
-        } catch (_) {}
-
-        try {
-          await IotService.sendCommand("fan_off");
-        } catch (_) {}
-
-        try {
-          await IotService.sendCommand("light_off");
-        } catch (_) {}
-
-        await loadSensor();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              response["message"]?.toString() ??
-                  "Unable to stop drying.",
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Drying stopped successfully."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      await loadSensor();
     } catch (e) {
       debugPrint(
         "STOP DRYING ERROR: $e",
@@ -728,40 +669,20 @@ class _DryingControlScreenState
         "Sending tare command...",
       );
 
-      final response =
-          await IotService.sendCommand(
-        "tare",
-      );
-
-      debugPrint(
-        "TARE RESPONSE: $response",
-      );
+      await IotService.tareScale(batchId: activeBatchId ?? sensor?.batchId);
 
       if (!mounted) {
         return;
       }
 
-      final bool success =
-          response["success"] == true;
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            success
-                ? "Weight reset successfully."
-                : response["message"]?.toString() ??
-                    "Tare failed.",
-          ),
-          backgroundColor:
-              success
-                  ? Colors.green
-                  : Colors.red,
+        const SnackBar(
+          content: Text("Weight reset successfully."),
+          backgroundColor: Colors.green,
         ),
       );
 
-      if (success) {
-        await loadSensor();
-      }
+      await loadSensor();
     } catch (e) {
       debugPrint(
         "TARE ERROR: $e",
@@ -1096,6 +1017,26 @@ class _DryingControlScreenState
             height: 15,
           ),
 
+          TextField(
+            controller: durationController,
+            readOnly: dryingRunning,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: "Target Duration (minutes)",
+              prefixIcon: const Icon(Icons.timer_outlined),
+              suffixIcon: dryingRunning ? const Icon(Icons.lock) : null,
+              filled: true,
+              fillColor: dryingRunning ? Colors.grey.shade100 : Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+
+          const SizedBox(
+            height: 15,
+          ),
+
           // ------------------------------------------------------
           // INFORMATION
           // ------------------------------------------------------
@@ -1143,10 +1084,10 @@ class _DryingControlScreenState
                 Expanded(
                   child: Text(
                     autoMode
-                        ? "AUTO mode uses target temperature and humidity from the drying calculation system. These values cannot be edited."
+                        ? "AUTO mode uses the target temperature and humidity from the drying calculation system. It completes only after both the target duration and target weight are reached."
                         : dryingRunning
-                            ? "Drying is running. Stop drying before changing target values."
-                            : "MANUAL mode allows the administrator to edit the target values.",
+                            ? "Manual relays stay under operator control until Stop is pressed or the target duration ends."
+                            : "MANUAL mode allows the administrator to edit target values and duration.",
                     style: TextStyle(
                       color: autoMode
                           ? Colors.blue
@@ -1237,7 +1178,7 @@ class _DryingControlScreenState
             icon: Icons.scale,
             title: "Current Weight",
             value:
-                "${sensor!.weight.toStringAsFixed(2)} kg",
+                "${sensor!.weight.toStringAsFixed(3)} kg",
             color: Colors.deepPurple,
           ),
         ],
@@ -1986,6 +1927,7 @@ class _DryingControlScreenState
 
     temperatureController.dispose();
     humidityController.dispose();
+    durationController.dispose();
 
     super.dispose();
   }

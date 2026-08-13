@@ -406,7 +406,7 @@ class _DryingDashboardScreenState
                                   Icons.scale,
                               title: "Weight",
                               value:
-                                  "${sensor!.weight.toStringAsFixed(2)} kg",
+                                  "${sensor!.weight.toStringAsFixed(3)} kg",
                               subtitle:
                                   "Live Fish Weight",
                               color:
@@ -648,7 +648,7 @@ class _DryingDashboardScreenState
         Text(title),
 
         Text(
-          "${value.toStringAsFixed(2)} kg",
+          "${value.toStringAsFixed(3)} kg",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: color,

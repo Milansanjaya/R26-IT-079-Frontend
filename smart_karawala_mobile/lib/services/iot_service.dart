@@ -7,217 +7,117 @@ import '../models/sensor_model.dart';
 class IotService {
   static const String baseUrl = "http://127.0.0.1:8002";
 
-  // ============================================================
-  // GET LIVE SENSOR DATA
-  // ============================================================
-
   static Future<SensorModel> getLiveData() async {
-    final response = await http.get(
-      Uri.parse("$baseUrl/api/iot/live"),
-    );
-
-    print("LIVE STATUS: ${response.statusCode}");
-    print("LIVE RESPONSE: ${response.body}");
-
+    final response = await http.get(Uri.parse("$baseUrl/api/iot/live"));
     if (response.statusCode != 200) {
-      throw Exception(
-        "Failed to load live sensor data",
-      );
+      throw Exception(_errorMessage(response));
     }
 
     final decoded = jsonDecode(response.body);
-
     if (decoded is! Map<String, dynamic>) {
-      throw Exception(
-        "Invalid sensor response",
-      );
+      throw Exception("Invalid sensor response");
     }
-
     return SensorModel.fromJson(decoded);
   }
 
-  // ============================================================
-  // SEND DEVICE / DRYING COMMAND
-  // ============================================================
-
-  static Future<Map<String, dynamic>> sendCommand(
-    String command,
-  ) async {
-    print("=================================");
-    print("SENDING COMMAND: $command");
-    print("=================================");
-
-    final response = await http.post(
-      Uri.parse("$baseUrl/api/iot/command"),
-
-      headers: {
-        "Content-Type": "application/json",
+  static Future<Map<String, dynamic>> createControlProfile({
+    required String batchId,
+    required double targetTemperature,
+    required double targetHumidity,
+    required int targetDurationMinutes,
+  }) {
+    return _request(
+      "POST",
+      "/api/iot/control-profiles",
+      body: {
+        "batch_id": batchId,
+        "target_temperature_c": targetTemperature,
+        "target_humidity_percent": targetHumidity,
+        "predicted_duration_minutes": targetDurationMinutes,
+        "profile_version": "mobile-control",
+        "source": "operator_override",
       },
-
-      body: jsonEncode({
-        "command": command,
-      }),
+      expectedStatus: 201,
     );
+  }
 
-    print("COMMAND: $command");
-    print("STATUS: ${response.statusCode}");
-    print("BODY: ${response.body}");
+  static Future<Map<String, dynamic>> startDryingSession({
+    required String batchId,
+    required String mode,
+  }) {
+    return _request(
+      "POST",
+      "/api/iot/sessions/${Uri.encodeComponent(batchId)}/start",
+      body: {"mode": mode},
+    );
+  }
 
-    if (response.statusCode != 200) {
-      throw Exception(
-        "Command failed: ${response.statusCode}",
-      );
+  static Future<Map<String, dynamic>> stopDryingSession(String batchId) {
+    return _request(
+      "POST",
+      "/api/iot/sessions/${Uri.encodeComponent(batchId)}/stop",
+    );
+  }
+
+  static Future<Map<String, dynamic>> setManualActuators({
+    required String batchId,
+    bool? heater,
+    bool? fan,
+    bool? light,
+  }) {
+    return _request(
+      "PUT",
+      "/api/iot/sessions/${Uri.encodeComponent(batchId)}/manual-actuators",
+      body: {
+        if (heater != null) "heater": heater,
+        if (fan != null) "fan": fan,
+        if (light != null) "light": light,
+      },
+    );
+  }
+
+  static Future<Map<String, dynamic>> tareScale({String? batchId}) {
+    return _request(
+      "POST",
+      "/api/iot/tare",
+      body: {if (batchId != null) "batch_id": batchId},
+    );
+  }
+
+  static Future<Map<String, dynamic>> _request(
+    String method,
+    String path, {
+    Map<String, dynamic>? body,
+    int expectedStatus = 200,
+  }) async {
+    final uri = Uri.parse("$baseUrl$path");
+    final headers = {"Content-Type": "application/json"};
+    final encodedBody = body == null ? null : jsonEncode(body);
+    final response = switch (method) {
+      "POST" => await http.post(uri, headers: headers, body: encodedBody),
+      "PUT" => await http.put(uri, headers: headers, body: encodedBody),
+      _ => throw ArgumentError("Unsupported HTTP method: $method"),
+    };
+
+    if (response.statusCode != expectedStatus) {
+      throw Exception(_errorMessage(response));
     }
-
     final decoded = jsonDecode(response.body);
-
     if (decoded is! Map<String, dynamic>) {
-      throw Exception(
-        "Invalid command response",
-      );
+      throw Exception("Invalid backend response");
     }
-
     return decoded;
   }
 
-  // ============================================================
-  // GET DRYING STATUS
-  //
-  // Backend:
-  // GET /api/iot/drying-status
-  //
-  // Example:
-  // {
-  //   "drying_running": true,
-  //   "drying_mode": "AUTO"
-  // }
-  // ============================================================
-
-  static Future<Map<String, dynamic>> getDryingStatus() async {
-    final response = await http.get(
-      Uri.parse("$baseUrl/api/iot/drying-status"),
-    );
-
-    print(
-      "DRYING STATUS CODE: ${response.statusCode}",
-    );
-
-    print(
-      "DRYING STATUS RESPONSE: ${response.body}",
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception(
-        "Failed to load drying status",
-      );
+  static String _errorMessage(http.Response response) {
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic> && decoded["detail"] != null) {
+        return decoded["detail"].toString();
+      }
+    } catch (_) {
+      // Use the status when the response is not JSON.
     }
-
-    final decoded = jsonDecode(response.body);
-
-    if (decoded is! Map<String, dynamic>) {
-      throw Exception(
-        "Invalid drying status response",
-      );
-    }
-
-    return decoded;
-  }
-
-  // ============================================================
-  // START AUTO DRYING
-  // ============================================================
-
-  static Future<Map<String, dynamic>>
-      startAutoDrying() async {
-    return sendCommand(
-      "start_auto_drying",
-    );
-  }
-
-  // ============================================================
-  // START MANUAL DRYING
-  // ============================================================
-
-  static Future<Map<String, dynamic>>
-      startManualDrying() async {
-    return sendCommand(
-      "start_manual_drying",
-    );
-  }
-
-  // ============================================================
-  // STOP DRYING
-  // ============================================================
-
-  static Future<Map<String, dynamic>>
-      stopDrying() async {
-    return sendCommand(
-      "stop_drying",
-    );
-  }
-
-  // ============================================================
-  // HEATER
-  // ============================================================
-
-  static Future<Map<String, dynamic>>
-      heaterOn() async {
-    return sendCommand(
-      "heater_on",
-    );
-  }
-
-  static Future<Map<String, dynamic>>
-      heaterOff() async {
-    return sendCommand(
-      "heater_off",
-    );
-  }
-
-  // ============================================================
-  // EXHAUST FAN
-  // ============================================================
-
-  static Future<Map<String, dynamic>>
-      fanOn() async {
-    return sendCommand(
-      "fan_on",
-    );
-  }
-
-  static Future<Map<String, dynamic>>
-      fanOff() async {
-    return sendCommand(
-      "fan_off",
-    );
-  }
-
-  // ============================================================
-  // LIGHT
-  // ============================================================
-
-  static Future<Map<String, dynamic>>
-      lightOn() async {
-    return sendCommand(
-      "light_on",
-    );
-  }
-
-  static Future<Map<String, dynamic>>
-      lightOff() async {
-    return sendCommand(
-      "light_off",
-    );
-  }
-
-  // ============================================================
-  // TARE / RESET WEIGHT
-  // ============================================================
-
-  static Future<Map<String, dynamic>>
-      tare() async {
-    return sendCommand(
-      "tare",
-    );
+    return "Request failed (${response.statusCode})";
   }
 }

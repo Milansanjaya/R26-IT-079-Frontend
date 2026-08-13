@@ -103,7 +103,7 @@ class ProgressCard extends StatelessWidget {
           ),
 
           Text(
-            "${currentWeight.toStringAsFixed(2)} kg",
+            "${currentWeight.toStringAsFixed(3)} kg",
 
             style:
                 const TextStyle(

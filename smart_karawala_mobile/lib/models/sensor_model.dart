@@ -24,6 +24,10 @@ class SensorModel {
   final bool light;
   final bool fan;
 
+  final String? batchId;
+  final String? dryingMode;
+  final String? dryingStatus;
+
   SensorModel({
     required this.deviceId,
     required this.online,
@@ -48,6 +52,10 @@ class SensorModel {
     required this.heater,
     required this.light,
     required this.fan,
+
+    this.batchId,
+    this.dryingMode,
+    this.dryingStatus,
   });
 
   factory SensorModel.fromJson(
@@ -135,6 +143,17 @@ class SensorModel {
 
       fan:
           json["fan"] == true,
+
+      batchId:
+          json["session"] is Map
+              ? (json["session"] as Map)["batch_id"]?.toString()
+              : null,
+
+      dryingMode:
+          json["mode"]?.toString(),
+
+      dryingStatus:
+          json["drying_status"]?.toString(),
     );
   }
 
@@ -179,6 +198,10 @@ class SensorModel {
     bool? heater,
     bool? light,
     bool? fan,
+
+    String? batchId,
+    String? dryingMode,
+    String? dryingStatus,
   }) {
     return SensorModel(
       deviceId:
@@ -236,6 +259,15 @@ class SensorModel {
 
       fan:
           fan ?? this.fan,
+
+      batchId:
+          batchId ?? this.batchId,
+
+      dryingMode:
+          dryingMode ?? this.dryingMode,
+
+      dryingStatus:
+          dryingStatus ?? this.dryingStatus,
     );
   }
 }
