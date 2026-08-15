@@ -5,7 +5,7 @@ import '../../models/salting_monitor_model.dart';
 import 'salt_service.dart';
 
 class SaltingMonitorService {
-  static const String baseUrl = "http://localhost:8001/api/batches";
+
 
   static Future<SaltingMonitorModel> getMonitoring(String batchId) async {
     try {

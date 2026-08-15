@@ -7,7 +7,7 @@ import '../Waste/waste_prediction_screen.dart';
 import '../Waste/waste_traceability_screen.dart';
 import '../Salt/salt_prediction_screen.dart';
 import '../Salt/salting_monitoring_screen.dart';
-import '../drying/drying_dashboard_screen.dart';
+
 import 'admin_profile_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -213,18 +213,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       MaterialPageRoute(
                         builder: (_) => SaltingMonitoringScreen(batchId: batch.batchId),
                       ),
-                    );
-                  },
-                ),
-                _dashboardTile(
-                  icon: Icons.wb_sunny,
-                  title: 'Drying Dashboard',
-                  iconColor: Colors.purple,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const DryingDashboardScreen(),
+
                       ),
                     );
                   },
