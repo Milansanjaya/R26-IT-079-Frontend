@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/drying_model.dart';
 import '../../services/Drying/drying_service.dart';
-import '../../screens/Drying/spoilage_detail_screen.dart';
-import '../../screens/Drying/drying_time_detail_screen.dart';
+import '../../services/Drying/spoilage_detail_screen.dart';
+import '../../services/Drying/drying_time_detail_screen.dart';
 
 /// Self-contained drying dashboard for a single batch, shown inside the
 /// Batch Details page.
