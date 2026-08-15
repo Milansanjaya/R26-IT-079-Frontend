@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import "../services/storage_service.dart";
 import '../widgets/Batch/dashboard_menu_card.dart';
-import '../widgets/Batch/colors.dart';
-import './auth/login_screen.dart';
+
 import 'Waste/waste_traceability_screen.dart';
 import 'admin/admin_home_screen.dart';
 import 'admin/sales_dashboard_screen.dart';
@@ -143,9 +141,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 24),
 
-              // Search Bar & Filter layout
               Row(
                 children: [
                   Expanded(

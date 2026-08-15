@@ -34,66 +34,69 @@ class CleanedWeightCard extends StatelessWidget {
           // Left Section
           //------------------------
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 24,
+                  radius: 22,
                   backgroundColor: Colors.green,
                   child: const Icon(
                     Icons.check,
                     color: Colors.white,
-                    size: 28,
+                    size: 26,
                   ),
                 ),
 
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Cleaned Weight",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Cleaned Weight",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 6),
+                      const SizedBox(height: 6),
 
-                    Text(
-                      "${cleanedWeight.toStringAsFixed(1)} kg",
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        "${cleanedWeight.toStringAsFixed(1)} kg",
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 4),
+                      const SizedBox(height: 4),
 
-                    const Text(
-                      "From Waste Prediction",
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 12,
+                      const Text(
+                        "From Waste Prediction",
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 11,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(width: 15),
+          const SizedBox(width: 10),
 
           //------------------------
           // Right Section
           //------------------------
           Expanded(
+            flex: 2,
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               decoration: BoxDecoration(
                 color: const Color(0xffF6F9FF),
                 borderRadius: BorderRadius.circular(14),
@@ -106,14 +109,18 @@ class CleanedWeightCard extends StatelessWidget {
                       Icon(
                         Icons.receipt_long,
                         color: Color(0xff214E77),
-                        size: 18,
+                        size: 16,
                       ),
-                      SizedBox(width: 6),
-                      Text(
-                        "Batch ID",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xff214E77),
+                      SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          "Batch ID",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xff214E77),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     ],
@@ -127,23 +134,29 @@ class CleanedWeightCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
 
                   const Row(
                     children: [
                       Icon(
                         Icons.set_meal,
                         color: Color(0xff214E77),
-                        size: 18,
+                        size: 16,
                       ),
-                      SizedBox(width: 6),
-                      Text(
-                        "Fish Type",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xff214E77),
+                      SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          "Fish Type",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xff214E77),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     ],
@@ -157,6 +170,8 @@ class CleanedWeightCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ],
               ),

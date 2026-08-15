@@ -15,8 +15,17 @@ class EditBatchScreen extends StatefulWidget {
 class _EditBatchScreenState extends State<EditBatchScreen> {
   late TextEditingController fishController;
   late TextEditingController weightController;
-  late TextEditingController statusController;
+  late String selectedStatus;
   final _formKey = GlobalKey<FormState>();
+
+  final List<String> statusOptions = [
+    'In Progress',
+    'Completed',
+    'Not Started',
+    'Pending',
+    'Salting',
+    'Drying',
+  ];
 
   @override
   void initState() {
@@ -25,14 +34,16 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
     weightController = TextEditingController(
       text: widget.batch.rawWeight.toString(),
     );
-    statusController = TextEditingController(text: widget.batch.status);
+    selectedStatus = widget.batch.status;
+    if (!statusOptions.contains(selectedStatus)) {
+      statusOptions.insert(0, selectedStatus);
+    }
   }
 
   @override
   void dispose() {
     fishController.dispose();
     weightController.dispose();
-    statusController.dispose();
     super.dispose();
   }
 
@@ -163,9 +174,27 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
 
                       const SizedBox(height: 16),
 
-                      TextFormField(
-                        controller: statusController,
+                      DropdownButtonFormField<String>(
+                        value: selectedStatus,
                         decoration: _inputDecoration("Status", Icons.verified_user_outlined),
+                        dropdownColor: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        items: statusOptions.map((status) {
+                          return DropdownMenuItem<String>(
+                            value: status,
+                            child: Text(
+                              status,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              selectedStatus = newValue;
+                            });
+                          }
+                        },
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Status is required";
@@ -189,9 +218,19 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                             try {
                               await ProcessingReportService.updateBatch(
                                 batchId: widget.batch.batchId,
-                                fishType: fishController.text,
-                                rawWeight: double.parse(weightController.text),
-                                status: statusController.text,
+                                fishType: fishController.text.trim(),
+                                rawWeight: double.parse(weightController.text.trim()),
+                                status: selectedStatus,
+                              );
+
+                              final updatedReport = ProcessingReportModel(
+                                batchId: widget.batch.batchId,
+                                fishType: fishController.text.trim(),
+                                date: widget.batch.date,
+                                rawWeight: double.parse(weightController.text.trim()),
+                                predictedWaste: widget.batch.predictedWaste,
+                                wastePercentage: widget.batch.wastePercentage,
+                                status: selectedStatus,
                               );
 
                               if (!mounted) return;
@@ -203,7 +242,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                                 ),
                               );
 
-                              Navigator.pop(context, true);
+                              Navigator.pop(context, updatedReport);
                             } catch (e) {
                               ScaffoldMessenger.of(
                                 context,

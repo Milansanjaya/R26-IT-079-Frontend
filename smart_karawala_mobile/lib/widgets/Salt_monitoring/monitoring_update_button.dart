@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import '../Batch/colors.dart';
 
 class MonitoringUpdateButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
+  final bool isRefreshing;
 
   const MonitoringUpdateButton({
     super.key,
     required this.onPressed,
+    this.isRefreshing = false,
   });
 
   @override
@@ -15,11 +17,20 @@ class MonitoringUpdateButton extends StatelessWidget {
       width: double.infinity,
       height: 56,
       child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-        label: const Text(
-          "Refresh Monitoring Data",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        onPressed: isRefreshing ? null : onPressed,
+        icon: isRefreshing
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : const Icon(Icons.refresh_rounded, color: Colors.white),
+        label: Text(
+          isRefreshing ? "Refreshing..." : "Refresh Monitoring Data",
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,

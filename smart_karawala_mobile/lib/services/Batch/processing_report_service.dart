@@ -54,8 +54,8 @@ static Future<void> updateBatch({
     }),
   );
 
-  if (response.statusCode != 200) {
-    throw Exception("Failed to update batch");
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw Exception("Failed to update batch: ${response.body}");
   }
 }
 

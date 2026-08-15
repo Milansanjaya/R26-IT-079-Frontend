@@ -3,6 +3,7 @@ import '../../models/batch_model.dart';
 import '../../services/Batch/batch_service.dart';
 import '../../widgets/Batch/colors.dart';
 import 'waste_notification_screen.dart';
+import '../Salt/salt_prediction_screen.dart';
 
 class WastePredictionScreen extends StatefulWidget {
   const WastePredictionScreen({super.key});
@@ -408,7 +409,7 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Send Notification Button
+              // Salt Prediction Button (Next Step)
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -420,6 +421,37 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 0,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SaltPredictionScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.opacity_rounded, color: Colors.white),
+                  label: const Text(
+                    "Salt Prediction",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Send Notification Button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    minimumSize: const Size(0, 56),
                   ),
                   onPressed: () async {
                     final success = await BatchService.sendNotification(
@@ -434,6 +466,8 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                         MaterialPageRoute(
                           builder: (context) => WasteNotificationScreen(
                             predictedWaste: batch!.predictedWaste,
+                            batchId: batch!.batchId,
+                            wastePercentage: wastePercentage,
                           ),
                         ),
                       );
@@ -446,7 +480,7 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                       );
                     }
                   },
-                  icon: const Icon(Icons.send_rounded, color: Colors.white),
+                  icon: const Icon(Icons.send_rounded, color: AppColors.primary),
                   label: const Text(
                     "Send Notification",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
