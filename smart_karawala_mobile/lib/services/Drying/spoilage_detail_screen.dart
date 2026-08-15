@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../models/drying_model.dart';
-import '../../services/Drying/drying_service.dart';
+import 'drying_service.dart';
 import '../../widgets/Drying/factor_tile.dart';
 
 /// Explains WHY the active batch has its current spoilage risk: the headline

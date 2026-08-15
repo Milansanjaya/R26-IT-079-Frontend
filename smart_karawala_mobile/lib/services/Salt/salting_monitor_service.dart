@@ -10,7 +10,7 @@ class SaltingMonitorService {
   static Future<SaltingMonitorModel> getMonitoring(String batchId) async {
     try {
       final response = await http.get(
-        Uri.parse("$baseUrl/$batchId/monitoring"),
+        Uri.parse("${SaltService.baseUrl}/$batchId/monitoring"),
       );
 
       if (response.statusCode == 200) {

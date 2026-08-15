@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../models/drying_model.dart';
-import '../../services/Drying/drying_service.dart';
+import 'drying_service.dart';
 import '../../widgets/Drying/drying_empty_state.dart';
 import '../../widgets/Drying/drying_process_card.dart';
 

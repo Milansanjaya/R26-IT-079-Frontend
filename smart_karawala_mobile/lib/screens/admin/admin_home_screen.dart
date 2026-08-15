@@ -213,8 +213,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       MaterialPageRoute(
                         builder: (_) => SaltingMonitoringScreen(batchId: batch.batchId),
                       ),
-
-                      ),
                     );
                   },
                 ),
