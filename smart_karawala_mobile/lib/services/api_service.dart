@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Authentication service (AuthService) runs on its own port (8003).
+  // AuthService is configured to run on port 8000 in Backend/src/AuthService/.env.
   // ApiService is used exclusively for /auth/* calls.
-  static const String baseUrl = "http://localhost:8003";
+  static const String baseUrl = "http://127.0.0.1:8000";
   static const String wasteBaseUrl = "http://localhost:8001";
 
   static Future<Map<String, dynamic>> post(
