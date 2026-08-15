@@ -5,7 +5,7 @@ import '../../models/processing_report_model.dart';
 
 class ProcessingReportService {
   static const String baseUrl =
-      "http://localhost:8001/api/batches";
+      "http://localhost:8000/api/batches";
 
   static Future<List<ProcessingReportModel>> getReports() async {
     final response = await http.get(

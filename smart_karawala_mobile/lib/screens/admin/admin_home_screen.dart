@@ -6,6 +6,7 @@ import '../Add_Batch/add_new_batch_screen.dart';
 import '../Waste/waste_prediction_screen.dart';
 import '../Salt/salt_prediction_screen.dart';
 import '../Salt/salting_monitoring_screen.dart';
+import '../Drying/drying_hub_screen.dart';
 import '../../services/Salt/salt_service.dart';
 import '../Waste/waste_traceability_screen.dart';
 import '../admin_dashboard_screen.dart';
@@ -224,9 +225,19 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         title: "Salt Monitoring",
                       ),
                     ),
-                    const DashboardCard(
-                      icon: Icons.wb_sunny_outlined,
-                      title: "Drying",
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DryingHubScreen(),
+                          ),
+                        );
+                      },
+                      child: const DashboardCard(
+                        icon: Icons.wb_sunny_outlined,
+                        title: "Drying",
+                      ),
                     ),
                     const DashboardCard(
                       icon: Icons.tune_rounded,

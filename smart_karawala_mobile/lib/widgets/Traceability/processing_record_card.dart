@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/batch_stage.dart';
+import '../Batch/batch_stage_chip.dart';
 
 class ProcessingRecordCard extends StatelessWidget {
   final String batchId;
@@ -62,28 +64,11 @@ class ProcessingRecordCard extends StatelessWidget {
 
           Expanded(
             flex: 3,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: status.toLowerCase() == "completed"
-                    ? Colors.green.shade50
-                    : status.toLowerCase().contains("progress")
-                    ? Colors.orange.shade50
-                    : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                status,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: status.toLowerCase() == "completed"
-                      ? Colors.green
-                      : status.toLowerCase().contains("progress")
-                      ? Colors.orange
-                      : Colors.grey,
-                ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: BatchStageChip(
+                stage: BatchStage.fromStatusString(status),
+                compact: true,
               ),
             ),
           ),

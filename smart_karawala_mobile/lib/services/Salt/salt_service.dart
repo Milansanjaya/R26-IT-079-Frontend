@@ -5,7 +5,7 @@ import '../../models/batch_model.dart';
 import '../../models/salt_prediction_model.dart';
 
 class SaltService {
-  static const String baseUrl = "http://localhost:8001/api/batches";
+  static const String baseUrl = "http://localhost:8000/api/batches";
 
   /// Get latest batch
   static Future<BatchModel> getLatestBatch() async {
