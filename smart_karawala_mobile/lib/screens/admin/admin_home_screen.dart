@@ -276,29 +276,29 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       );
   }
 
+  Widget _buildBody(BuildContext context) {
+    switch (_currentIndex) {
+      case 0:
+        return _buildHomeBody(context);
+      case 1:
+        return const AdminProfileScreen();
+      default:
+        return _buildHomeBody(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: _currentIndex == 0 ? _buildHomeBody(context) : const AdminProfileScreen(),
-      bottomNavigationBar: BottomNavigationBar(
+      body: _buildBody(context),
+      bottomNavigationBar: AdminBottomNav(
         currentIndex: _currentIndex,
-        selectedItemColor: Colors.blue[800],
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
       ),
     );
   }

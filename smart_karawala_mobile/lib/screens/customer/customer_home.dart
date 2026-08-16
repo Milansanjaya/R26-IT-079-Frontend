@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_karawala_mobile/screens/customer/more_screen.dart';
 import 'package:smart_karawala_mobile/screens/customer/profile_screen.dart';
+import '../../widgets/customer_bottom_nav.dart';
 import 'categories_screen.dart';
 
 
@@ -115,7 +116,7 @@ class _CustomerHomeState extends State<CustomerHome> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: CustomerBottomNav(
         currentIndex: currentIndex,
         onTap: (index) {
           if (index == 3) {
@@ -138,21 +139,6 @@ class _CustomerHomeState extends State<CustomerHome> {
             currentIndex = index;
           });
         },
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.black54,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: "Categories",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
       ),
     );
   }
