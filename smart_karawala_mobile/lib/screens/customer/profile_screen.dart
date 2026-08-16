@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/language_selector_sheet.dart';
 import '../auth/login_screen.dart';
 import 'customer_home.dart';
 
@@ -211,7 +214,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             settingTile(
               Icons.lock_outline,
-              "Privacy Settings",
+              context.tr('privacy_settings'),
               "Make your account private and control visibility",
               onTap: () {
                 _showSnackBar(context, "Privacy settings coming soon");
@@ -219,7 +222,32 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 25),
 
-            /// 4. Theme Section
+            /// 4. Language Section
+            Text(
+              context.tr('language'),
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
+            ),
+            const SizedBox(height: 15),
+            Consumer<LanguageProvider>(
+              builder: (context, langProv, child) {
+                final currentLang = langProv.currentLanguage;
+                return settingTile(
+                  Icons.language_rounded,
+                  context.tr('select_language'),
+                  "${currentLang.nativeName} (${currentLang.englishName})",
+                  onTap: () {
+                    LanguageSelectorSheet.show(context);
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 25),
+
+            /// 5. Theme Section
             const Text(
               "Adjust the theme to your preferences",
               style: TextStyle(

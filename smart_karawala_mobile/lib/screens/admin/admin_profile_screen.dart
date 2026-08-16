@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/localization/app_localizations.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/Batch/colors.dart';
 import '../../services/storage_service.dart';
+import '../../widgets/language_selector_sheet.dart';
 import '../auth/login_screen.dart';
 
 class AdminProfileScreen extends StatefulWidget {
@@ -206,11 +210,44 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               ),
               child: Column(
                 children: [
-                  menuOption(Icons.person_outline_rounded, "Edit Personal Information", () {}),
-                  menuOption(Icons.lock_outline_rounded, "Security Settings", () {}),
+                  menuOption(
+                    Icons.person_outline_rounded,
+                    context.tr('edit_personal_info'),
+                    () {},
+                  ),
+                  menuOption(
+                    Icons.lock_outline_rounded,
+                    context.tr('security_settings'),
+                    () {},
+                  ),
+                  Consumer<LanguageProvider>(
+                    builder: (context, langProv, child) {
+                      final currentLang = langProv.currentLanguage;
+                      return menuOption(
+                        Icons.language_rounded,
+                        context.tr('language'),
+                        () => LanguageSelectorSheet.show(context),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              currentLang.nativeName,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.chevron_right, color: Colors.grey),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                   menuOption(
                     Icons.dark_mode_outlined,
-                    "Dark Mode",
+                    context.tr('dark_mode'),
                     () {},
                     trailing: Switch.adaptive(
                       value: darkMode,
@@ -222,7 +259,11 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                       },
                     ),
                   ),
-                  menuOption(Icons.help_outline_rounded, "Help & Support", () {}),
+                  menuOption(
+                    Icons.help_outline_rounded,
+                    context.tr('help_and_support'),
+                    () {},
+                  ),
                   const Divider(height: 16, color: Color(0xFFF1F3F5)),
                   ListTile(
                     leading: Container(
@@ -233,9 +274,9 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                       ),
                       child: const Icon(Icons.logout_rounded, color: Colors.red, size: 20),
                     ),
-                    title: const Text(
-                      "Log Out",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.red),
+                    title: Text(
+                      context.tr('log_out'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.red),
                     ),
                     trailing: const Icon(Icons.chevron_right, color: Colors.red),
                     onTap: () async {
@@ -252,10 +293,10 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            const Center(
+            Center(
               child: Text(
-                "Powered by Smart Karawala",
-                style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
+                context.tr('powered_by'),
+                style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
               ),
             ),
             const SizedBox(height: 10),

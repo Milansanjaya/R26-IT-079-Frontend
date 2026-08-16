@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_images.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_logo.dart';
 import '../../widgets/auth/auth_textfield.dart';
+import '../../widgets/language_switcher_button.dart';
 import 'otp_verification_screen.dart';
 import '../../services/auth_service.dart';
 
@@ -65,16 +67,22 @@ class _SignupScreenState extends State<SignupScreen> {
 
                   Column(
                     children: [
-                      const SizedBox(height: 10),
+                      /// Top Language Switcher
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: const LanguageSwitcherButton(isCompact: true),
+                      ),
+
+                      const SizedBox(height: 4),
 
                       const AuthLogo(),
 
                       const SizedBox(height: 10),
 
-                      const Text(
-                        "SIGN UP",
-                        style: TextStyle(
-                          fontSize: 28,
+                      Text(
+                        context.tr('sign_up').toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: Color(0xff1E4E7B),
                         ),
@@ -84,28 +92,28 @@ class _SignupScreenState extends State<SignupScreen> {
 
                       AuthTextField(
                         controller: fullnameController,
-                        hint: "Full Name",
+                        hint: context.tr('full_name'),
                       ),
 
                       const SizedBox(height: 15),
 
                       AuthTextField(
                         controller: emailController,
-                        hint: "Email",
+                        hint: context.tr('email'),
                       ),
 
                       const SizedBox(height: 15),
 
                       AuthTextField(
                         controller: mobileController,
-                        hint: "Mobile Number",
+                        hint: context.tr('phone_number'),
                       ),
 
                       const SizedBox(height: 15),
 
                       AuthTextField(
                         controller: passwordController,
-                        hint: "Password",
+                        hint: context.tr('password'),
                         isPassword: true,
                       ),
 
@@ -113,14 +121,14 @@ class _SignupScreenState extends State<SignupScreen> {
 
                       AuthTextField(
                         controller: confirmPasswordController,
-                        hint: "Confirm Password",
+                        hint: context.tr('confirm_password'),
                         isPassword: true,
                       ),
 
                       const SizedBox(height: 25),
 
                       SizedBox(
-                        width: 170,
+                        width: 180,
                         height: 45,
                         child: ElevatedButton(
                           onPressed: () async {
@@ -194,10 +202,11 @@ class _SignupScreenState extends State<SignupScreen> {
                             backgroundColor: const Color(0xff0A5B8E),
                             shape: const StadiumBorder(),
                           ),
-                          child: const Text(
-                            "Create Account",
-                            style: TextStyle(
+                          child: Text(
+                            context.tr('sign_up'),
+                            style: const TextStyle(
                               color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -208,9 +217,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Already have an account ? ",
-                            style: TextStyle(
+                          Text(
+                            "${context.tr('already_have_account')} ",
+                            style: const TextStyle(
                               color: Color(0xff315B7E),
                             ),
                           ),
@@ -218,9 +227,9 @@ class _SignupScreenState extends State<SignupScreen> {
                             onTap: () {
                               Navigator.pop(context);
                             },
-                            child: const Text(
-                              "Sign In",
-                              style: TextStyle(
+                            child: Text(
+                              context.tr('sign_in'),
+                              style: const TextStyle(
                                 color: Color(0xff0A5B8E),
                                 fontWeight: FontWeight.bold,
                               ),
