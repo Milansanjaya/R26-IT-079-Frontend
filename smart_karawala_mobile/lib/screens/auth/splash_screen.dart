@@ -37,11 +37,10 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       );
     } else {
-      // Temporary: go to Customer until /auth/me is connected.
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const CustomerHome(),
+          builder: (_) => const AdminHomeScreen(),
         ),
       );
     }

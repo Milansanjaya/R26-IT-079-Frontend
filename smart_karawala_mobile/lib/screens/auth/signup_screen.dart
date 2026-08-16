@@ -10,6 +10,7 @@ import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_textfield.dart';
 import '../../widgets/auth/google_sign_in_button.dart';
 import '../../widgets/language_switcher_button.dart';
+import '../admin/admin_home_screen.dart';
 import '../customer/customer_home.dart';
 import 'login_screen.dart';
 import 'otp_verification_screen.dart';
@@ -217,7 +218,7 @@ class _SignupScreenState extends State<SignupScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => const CustomerHome(),
+        builder: (_) => const AdminHomeScreen(),
       ),
     );
   }
