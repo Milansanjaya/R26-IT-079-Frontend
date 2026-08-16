@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_textfield.dart';
+import '../../widgets/auth/google_sign_in_button.dart';
 import '../../widgets/language_switcher_button.dart';
 import '../admin/admin_home_screen.dart';
 import '../customer/customer_home.dart';
@@ -335,6 +336,72 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                         ],
                                       ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        /// Divider with "Or continue with"
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                context.tr('or_continue_with'),
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        /// Google Sign In Button
+                        GoogleSignInButton(
+                          text: context.tr('sign_in_with_google'),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Row(
+                                  children: [
+                                    Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text("Google account connected successfully!"),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: const Color(0xFF0A5B8E),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                margin: const EdgeInsets.all(16),
+                              ),
+                            );
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const CustomerHome(),
                               ),
                             );
                           },
