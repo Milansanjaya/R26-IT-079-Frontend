@@ -8,6 +8,7 @@ import '../Waste/waste_traceability_screen.dart';
 import '../Salt/salt_prediction_screen.dart';
 import '../Salt/salting_monitoring_screen.dart';
 import '../Drying/drying_dashboard_screen.dart';
+import '../Batch_admin/batch_records_dashboard_screen.dart';
 
 import 'admin_profile_screen.dart';
 
@@ -226,6 +227,19 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const DryingDashboardScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _dashboardTile(
+                  icon: Icons.timer_outlined,
+                  title: 'Time Prediction',
+                  iconColor: Colors.deepPurple,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BatchRecordsDashboardScreen(),
                       ),
                     );
                   },

@@ -205,8 +205,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
                       const SizedBox(height: 18),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Wrap(
+                        alignment: WrapAlignment.center,
                         children: [
                           const Text(
                             "Already have an account ? ",

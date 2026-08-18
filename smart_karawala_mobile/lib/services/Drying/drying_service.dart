@@ -4,17 +4,17 @@ import 'package:http/http.dart' as http;
 import '../../models/drying_model.dart';
 
 /// HTTP client for the Drying integration routes exposed by the
-/// TimeAndSpoilagePredictionService (`/api/drying/*`, port 8001).
+/// TimeAndSpoilagePredictionService (`/api/drying/*`, port 8003).
 ///
 /// Only ONE batch is dried at a time, so the "active" endpoints do not need a
 /// batchId — the backend tracks the current active drying batch internally.
 class DryingService {
-  static const String baseUrl = "http://localhost:8001/api/drying";
+  static const String baseUrl = "http://localhost:8003/api/drying";
 
   // Jayani's batch service owns the batch list (used to find the batch that
   // was just placed in the oven). Kept here so the Drying module is
   // self-contained and doesn't depend on other feature services.
-  static const String batchListUrl = "http://localhost:8000/api/batches";
+  static const String batchListUrl = "http://localhost:8001/api/batches";
 
   static const Duration _timeout = Duration(seconds: 15);
 

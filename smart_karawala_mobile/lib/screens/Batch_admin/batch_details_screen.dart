@@ -5,6 +5,8 @@ import '../../widgets/Batch/colors.dart';
 import '../../widgets/Batch/batch_stage_chip.dart';
 import '../../widgets/Drying/drying_process_card.dart';
 import '../../core/batch_stage.dart';
+import '../../services/Drying/drying_service.dart';
+import '../drying/time_prediction_screen.dart';
 
 class BatchDetailsScreen extends StatelessWidget {
   final ProcessingReportModel batch;
@@ -355,6 +357,58 @@ class BatchDetailsScreen extends StatelessWidget {
 
               // 6. Drying Process — live drying dashboard for this batch.
               DryingProcessCard(batchId: batch.batchId),
+
+              const SizedBox(height: 4),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final saltedCompleted =
+                        await DryingService.isSaltingCompleted(batch.batchId);
+                    if (!context.mounted) return;
+
+                    if (!saltedCompleted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Complete the salting process before predicting drying time.',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    final cleanedWeight =
+                        (batch.rawWeight - batch.predictedWaste).clamp(0.0, double.infinity);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TimePredictionScreen(
+                          batchId: batch.batchId,
+                          fishType: batch.fishType,
+                          initialWeightKg: cleanedWeight,
+                          saltedCompleted: true,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.timer_outlined),
+                  label: const Text(
+                    'Time Prediction Dashboard',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 4),
 
