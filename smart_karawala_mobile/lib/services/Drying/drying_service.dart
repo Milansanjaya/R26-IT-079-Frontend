@@ -63,12 +63,26 @@ class DryingService {
   }
 
   /// Start drying a batch — snapshots it as the single active drying batch.
-  static Future<ActiveDryingBatch> startDrying(String batchId) async {
+  ///
+  /// [initialTemperatureC] / [initialTotalHours] are the recommended
+  /// temperature and total drying time from the pre-drying prediction
+  /// (TimePredictionService.predictInitial), if that step ran first. They
+  /// seed the countdown shown before live sensor data can produce a
+  /// meaningful re-estimate.
+  static Future<ActiveDryingBatch> startDrying(
+    String batchId, {
+    double? initialTemperatureC,
+    double? initialTotalHours,
+  }) async {
     final response = await http
         .post(
           Uri.parse("$baseUrl/start"),
           headers: {"Content-Type": "application/json"},
-          body: jsonEncode({"batchId": batchId}),
+          body: jsonEncode({
+            "batchId": batchId,
+            if (initialTemperatureC != null) "initialTemperatureC": initialTemperatureC,
+            if (initialTotalHours != null) "initialTotalHours": initialTotalHours,
+          }),
         )
         .timeout(_timeout);
 

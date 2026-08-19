@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/salting_monitor_model.dart';
 import '../../services/Salt/salting_monitor_service.dart';
 import '../../services/Salt/salting_service.dart';
+import 'salting_completed_screen.dart';
 import '../../widgets/Batch/colors.dart';
 import '../../widgets/Salt_monitoring/monitoring_header_card.dart';
 import '../../widgets/Salt_monitoring/monitoring_progress_card.dart';
@@ -11,7 +12,6 @@ import '../../widgets/Salt_monitoring/monitoring_status_card.dart';
 import '../../widgets/Salt_monitoring/monitoring_time_card.dart';
 import '../../widgets/Salt_monitoring/monitoring_update_button.dart';
 import '../../widgets/Salt_monitoring/monitoring_weight_card.dart';
-import '../drying/time_prediction_screen.dart';
 
 class SaltingMonitoringScreen extends StatefulWidget {
   final String batchId;
@@ -134,10 +134,16 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
       await loadMonitoring();
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Salting marked as completed'),
-          backgroundColor: Colors.green,
+
+      final m = monitor;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SaltingCompletedScreen(
+            batchId: widget.batchId,
+            fishType: m?.fishType ?? '',
+            currentWeight: m?.currentWeight ?? 0.0,
+          ),
         ),
       );
     } catch (e) {
@@ -282,11 +288,10 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => TimePredictionScreen(
+                        builder: (_) => SaltingCompletedScreen(
                           batchId: m.batchId,
                           fishType: m.fishType,
-                          initialWeightKg: m.currentWeight,
-                          saltedCompleted: true,
+                          currentWeight: m.currentWeight,
                         ),
                       ),
                     );

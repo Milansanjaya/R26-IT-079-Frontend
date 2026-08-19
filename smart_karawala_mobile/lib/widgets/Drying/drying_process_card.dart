@@ -7,6 +7,11 @@ import '../../services/Drying/drying_service.dart';
 import '../../services/Drying/spoilage_detail_screen.dart';
 import '../../services/Drying/drying_time_detail_screen.dart';
 
+/// How often the drying card re-fetches live IoT sensor data and re-predicts
+/// drying time / spoilage risk. Change this single value to adjust the
+/// polling rate app-wide.
+const Duration kDryingSensorRefreshInterval = Duration(seconds: 10);
+
 /// Self-contained drying dashboard for a single batch, shown inside the
 /// Batch Details page.
 ///
@@ -30,9 +35,6 @@ class DryingProcessCard extends StatefulWidget {
 }
 
 class _DryingProcessCardState extends State<DryingProcessCard> {
-  // Re-check the IoT sensors and re-predict every 10 minutes.
-  static const Duration _refreshInterval = Duration(minutes: 10);
-
   Timer? _tickTimer; // per-second countdown
   Timer? _refreshTimer; // periodic sensor re-check
 
@@ -133,7 +135,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     });
 
     // Periodic sensor re-check + re-sync.
-    _refreshTimer = Timer.periodic(_refreshInterval, (_) {
+    _refreshTimer = Timer.periodic(kDryingSensorRefreshInterval, (_) {
       _refreshPredictions();
     });
   }
@@ -664,7 +666,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
             size: 13, color: Colors.grey.shade500),
         const SizedBox(width: 6),
         Text(
-          "Auto-updating from IoT sensors every 10 min",
+          "Auto-updating from IoT sensors every ${_formatInterval(kDryingSensorRefreshInterval)}",
           style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
         ),
       ],
@@ -705,6 +707,15 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     return "${h.toString().padLeft(2, '0')}:"
         "${m.toString().padLeft(2, '0')}:"
         "${s.toString().padLeft(2, '0')}";
+  }
+
+  String _formatInterval(Duration d) {
+    if (d.inMinutes >= 1 && d.inSeconds % 60 == 0) {
+      final m = d.inMinutes;
+      return "$m min${m == 1 ? '' : 's'}";
+    }
+    final s = d.inSeconds;
+    return "$s sec${s == 1 ? '' : 's'}";
   }
 
   String _formatElapsed(double hours) {

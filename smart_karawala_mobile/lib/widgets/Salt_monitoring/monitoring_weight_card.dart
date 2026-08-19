@@ -25,24 +25,26 @@ class MonitoringWeightCard extends StatelessWidget {
 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
 
             const Icon(
               Icons.scale,
-              size: 40,
+              size: 32,
               color: Colors.orange,
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
 
             const Text(
               "Weight Loss",
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
 
             Text(
               "${weightLoss.toStringAsFixed(1)} kg",

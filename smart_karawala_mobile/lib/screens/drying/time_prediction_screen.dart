@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../services/Drying/drying_service.dart';
+import '../../services/Drying/drying_hub_screen.dart';
 import '../../services/Drying/time_prediction_service.dart';
 import '../../services/iot_service.dart';
 
@@ -29,6 +31,7 @@ class TimePredictionScreen extends StatefulWidget {
 class _TimePredictionScreenState extends State<TimePredictionScreen> {
   bool _loading = false;
   bool _predicted = false;
+  bool _startingDrying = false;
   double _recommendedTemperature = 0;
   double _estimatedHours = 0;
   String? _error;
@@ -98,6 +101,38 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
       if (mounted) {
         setState(() {
           _loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _startDrying() async {
+    setState(() {
+      _startingDrying = true;
+      _error = null;
+    });
+
+    try {
+      await DryingService.startDrying(
+        widget.batchId,
+        initialTemperatureC: _recommendedTemperature,
+        initialTotalHours: _estimatedHours,
+      );
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const DryingHubScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString().replaceFirst('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _startingDrying = false;
         });
       }
     }
@@ -306,6 +341,27 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
                         ],
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _startingDrying ? null : _startDrying,
+                    icon: _startingDrying
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.local_fire_department_outlined),
+                    label: Text(_startingDrying ? 'Starting...' : 'Start Drying Process'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF34C759),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(0, 56),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
                   ),
                 ),
               ],
