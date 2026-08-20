@@ -448,7 +448,11 @@ class _SignupScreenState extends State<SignupScreen> {
 
                         const SizedBox(height: 22),
 
-
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Already have an account? ",
                               style: TextStyle(
                                 color: Color(0xff4A6B8A),
                                 fontSize: 14,

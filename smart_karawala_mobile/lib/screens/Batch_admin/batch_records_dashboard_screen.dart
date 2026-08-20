@@ -287,7 +287,7 @@ class _BatchRecordsDashboardScreenState
                       icon: Icons.pie_chart_outline_rounded,
                       iconColor: Colors.orange,
                       title: "Avg. Waste (%)",
-                      value: "${(dashboard?.avgWastePercentage ?? 18.4).toStringAsFixed(1)}%",
+                      value: "${(dashboard?.averageWastePercentage ?? 18.4).toStringAsFixed(1)}%",
                       subtitle: "This Month",
                     ),
                     _buildMetricCard(
