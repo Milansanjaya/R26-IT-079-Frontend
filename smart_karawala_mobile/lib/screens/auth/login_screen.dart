@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_images.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/storage_service.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_textfield.dart';
@@ -47,6 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (success) {
         if (auth.isAdmin) {
+          await StorageService.saveRole("admin");
+          if (!mounted) return;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -54,6 +57,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         } else {
+          await StorageService.saveRole("customer");
+          if (!mounted) return;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
