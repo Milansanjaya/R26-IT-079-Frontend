@@ -164,7 +164,7 @@ class BatchCreatedSuccessScreen extends StatelessWidget {
                 ElevatedButton.icon(
                   icon: const Icon(Icons.auto_delete_outlined, color: Colors.white),
                   label: const Text(
-                    "Waste Prediction",
+                    "Next Step: Waste Prediction",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(

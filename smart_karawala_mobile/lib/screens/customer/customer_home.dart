@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_karawala_mobile/screens/customer/more_screen.dart';
 import 'package:smart_karawala_mobile/screens/customer/profile_screen.dart';
+import '../../widgets/customer_bottom_nav.dart';
 import 'categories_screen.dart';
 
 
@@ -13,6 +14,9 @@ class CustomerHome extends StatefulWidget {
 
 class _CustomerHomeState extends State<CustomerHome> {
   int currentIndex = 0;
+  final TextEditingController _customerSearchController = TextEditingController();
+  String _customerSearch = "";
+
   final List<Map<String, dynamic>> products = [
     {
       "name": "Karawala",
@@ -39,6 +43,12 @@ class _CustomerHomeState extends State<CustomerHome> {
       "image": "assets/images/kelawalla.webp",
     },
   ];
+
+  @override
+  void dispose() {
+    _customerSearchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +125,7 @@ class _CustomerHomeState extends State<CustomerHome> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: CustomerBottomNav(
         currentIndex: currentIndex,
         onTap: (index) {
           if (index == 3) {
@@ -138,21 +148,6 @@ class _CustomerHomeState extends State<CustomerHome> {
             currentIndex = index;
           });
         },
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.black54,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: "Categories",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
       ),
     );
   }
@@ -184,9 +179,26 @@ class _CustomerHomeState extends State<CustomerHome> {
             children: [
               Expanded(
                 child: TextField(
+                  controller: _customerSearchController,
+                  onChanged: (val) {
+                    setState(() {
+                      _customerSearch = val;
+                    });
+                  },
                   decoration: InputDecoration(
-                    hintText: "Search dry fish...",
+                    hintText: "Search dry fish products...",
                     prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _customerSearch.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: () {
+                              _customerSearchController.clear();
+                              setState(() {
+                                _customerSearch = "";
+                              });
+                            },
+                          )
+                        : null,
                     filled: true,
                     fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(
@@ -276,18 +288,46 @@ class _CustomerHomeState extends State<CustomerHome> {
           ),
           const SizedBox(height: 18),
 
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: products.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: .62,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
-            ),
-            itemBuilder: (_, index) {
-              return productCard(products[index]);
+          Builder(
+            builder: (context) {
+              final filtered = products.where((p) {
+                final name = (p["name"] as String).toLowerCase();
+                final query = _customerSearch.trim().toLowerCase();
+                return query.isEmpty || name.contains(query);
+              }).toList();
+
+              if (filtered.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.search_off, size: 48, color: Colors.grey.shade300),
+                        const SizedBox(height: 8),
+                        Text(
+                          "No dry fish found for '$_customerSearch'",
+                          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: filtered.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: .62,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                ),
+                itemBuilder: (_, index) {
+                  return productCard(filtered[index]);
+                },
+              );
             },
           ),
         ],

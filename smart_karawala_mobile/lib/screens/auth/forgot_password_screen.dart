@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../core/localization/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_logo.dart';
 import '../../widgets/auth/auth_textfield.dart';
+import '../../widgets/language_switcher_button.dart';
 import 'reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -30,8 +32,8 @@ class _ForgotPasswordScreenState
   Future<void> sendResetOTP() async {
     if (emailController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter your email"),
+        SnackBar(
+          content: Text(context.tr('enter_email')),
         ),
       );
       return;
@@ -51,7 +53,7 @@ class _ForgotPasswordScreenState
       if (response["success"] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response["message"]),
+            content: Text(response["message"] ?? context.tr('success')),
             backgroundColor: Colors.green,
           ),
         );
@@ -106,35 +108,51 @@ class _ForgotPasswordScreenState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  /// Top Language Switcher
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: const LanguageSwitcherButton(isCompact: true),
+                  ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 4),
 
                   const AuthLogo(),
 
                   const SizedBox(height: 20),
 
-                  const Text(
-                    "Forgot\nPassword",
+                  Text(
+                    context.tr('forgot_password_title'),
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 30,
+                    style: const TextStyle(
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Color(0xff1E4E7B),
                     ),
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 10),
+
+                  Text(
+                    context.tr('forgot_password_desc'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xff5A7C99),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
 
                   AuthTextField(
                     controller: emailController,
-                    hint: "Email Address",
+                    hint: context.tr('email'),
                     keyboardType: TextInputType.emailAddress,
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 28),
 
                   SizedBox(
-                    width: 170,
+                    width: 180,
                     height: 45,
                     child: ElevatedButton(
                       onPressed:
@@ -155,10 +173,11 @@ class _ForgotPasswordScreenState
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              "Send Reset OTP",
-                              style: TextStyle(
+                          : Text(
+                              context.tr('send_otp'),
+                              style: const TextStyle(
                                 color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                     ),
@@ -170,8 +189,12 @@ class _ForgotPasswordScreenState
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text(
-                      "Back to Login",
+                    child: Text(
+                      context.tr('continue_to_login'),
+                      style: const TextStyle(
+                        color: Color(0xff0A5B8E),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
 

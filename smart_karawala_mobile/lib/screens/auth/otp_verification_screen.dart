@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/localization/app_localizations.dart';
+import '../../widgets/language_switcher_button.dart';
 import 'account_verified_screen.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
@@ -54,17 +56,22 @@ class _OtpVerificationScreenState
             child: AuthCard(
               child: Column(
                 children: [
+                  /// Top Language Switcher
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: const LanguageSwitcherButton(isCompact: true),
+                  ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 4),
 
                   const AuthLogo(),
 
                   const SizedBox(height: 20),
 
-                  const Text(
-                    "VERIFY ACCOUNT",
-                    style: TextStyle(
-                      fontSize: 28,
+                  Text(
+                    context.tr('otp_verification').toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Color(0xff1E4E7B),
                     ),
@@ -73,7 +80,7 @@ class _OtpVerificationScreenState
                   const SizedBox(height: 15),
 
                   Text(
-                    "Enter the verification code sent to",
+                    context.tr('otp_sent_to'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.grey.shade700,
@@ -105,12 +112,10 @@ class _OtpVerificationScreenState
                           keyboardType:
                               TextInputType.number,
                           maxLength: 1,
-
                           decoration:
                               const InputDecoration(
                             counterText: "",
                           ),
-
                           onChanged: (value) {
                             if (value.isNotEmpty &&
                                 index < 5) {
@@ -137,13 +142,20 @@ class _OtpVerificationScreenState
                     child: ElevatedButton(
                       onPressed:
                           loading ? null : verifyOTP,
-
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff0A5B8E),
+                        shape: const StadiumBorder(),
+                      ),
                       child: loading
                           ? const CircularProgressIndicator(
                               color: Colors.white,
                             )
-                          : const Text(
-                              "Verify",
+                          : Text(
+                              context.tr('verify_otp'),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                     ),
                   ),
@@ -152,8 +164,12 @@ class _OtpVerificationScreenState
 
                   TextButton(
                     onPressed: resendOTP,
-                    child: const Text(
-                      "Resend OTP",
+                    child: Text(
+                      context.tr('resend_code'),
+                      style: const TextStyle(
+                        color: Color(0xff0A5B8E),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
 

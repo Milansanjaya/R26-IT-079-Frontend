@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class AdminBottomNav extends StatelessWidget {
+class CustomerBottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const AdminBottomNav({
+  const CustomerBottomNav({
     super.key,
     required this.currentIndex,
     required this.onTap,
@@ -35,7 +35,7 @@ class AdminBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -47,6 +47,18 @@ class AdminBottomNav extends StatelessWidget {
               ),
               _buildNavItem(
                 index: 1,
+                icon: Icons.grid_view_rounded,
+                unselectedIcon: Icons.grid_view_outlined,
+                label: "Categories",
+              ),
+              _buildNavItem(
+                index: 2,
+                icon: Icons.shopping_bag_rounded,
+                unselectedIcon: Icons.shopping_bag_outlined,
+                label: "Orders",
+              ),
+              _buildNavItem(
+                index: 3,
                 icon: Icons.person_rounded,
                 unselectedIcon: Icons.person_outline_rounded,
                 label: "Profile",
@@ -68,21 +80,21 @@ class AdminBottomNav extends StatelessWidget {
 
     return InkWell(
       onTap: () => onTap(index),
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
         padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 24 : 20,
-          vertical: 8,
+          horizontal: isSelected ? 16 : 12,
+          vertical: 6,
         ),
         decoration: BoxDecoration(
           color: isSelected
               ? const Color(0xff0A5B8E).withOpacity(0.1)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedScale(
@@ -96,11 +108,11 @@ class AdminBottomNav extends StatelessWidget {
                 size: 24,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
                     ? const Color(0xff0A5B8E)

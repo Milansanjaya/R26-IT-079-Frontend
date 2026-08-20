@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_images.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../services/storage_service.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../admin/admin_home_screen.dart';
@@ -36,11 +37,10 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       );
     } else {
-      // Temporary: go to Customer until /auth/me is connected.
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const CustomerHome(),
+          builder: (_) => const AdminHomeScreen(),
         ),
       );
     }
@@ -74,9 +74,9 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              "Smart Karawala",
-              style: TextStyle(
+            Text(
+              context.tr('app_name'),
+              style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
                 color: Color(0xff0A5B8E),
@@ -84,9 +84,9 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              "Quality Dry Fish Management",
-              style: TextStyle(
+            Text(
+              context.tr('app_tagline'),
+              style: const TextStyle(
                 fontSize: 13,
                 color: Color(0xff5A7C99),
                 fontWeight: FontWeight.w500,

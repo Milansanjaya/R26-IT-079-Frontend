@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/Batch/colors.dart';
 import '../Add_company/add_company_screen.dart';
+import '../Salt/salt_prediction_screen.dart';
 
 class WasteNotificationScreen extends StatefulWidget {
   final double predictedWaste;
@@ -591,6 +592,36 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.button,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Next Step: Salt Prediction Button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SaltPredictionScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                  label: const Text(
+                    "Next Step: Salt Prediction",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),

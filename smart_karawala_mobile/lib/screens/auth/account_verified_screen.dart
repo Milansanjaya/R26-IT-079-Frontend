@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../core/localization/app_localizations.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_logo.dart';
+import '../../widgets/language_switcher_button.dart';
 
 class AccountVerifiedScreen extends StatelessWidget {
   const AccountVerifiedScreen({super.key});
@@ -20,8 +22,13 @@ class AccountVerifiedScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  /// Top Language Switcher
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: const LanguageSwitcherButton(isCompact: true),
+                  ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 4),
 
                   const AuthLogo(),
 
@@ -34,24 +41,23 @@ class AccountVerifiedScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
-                      children: const [
-
+                      children: [
                         Text(
-                          "Account Verified\nSuccessfully",
+                          context.tr('account_verified'),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Color(0xff28406B),
                           ),
                         ),
 
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
 
                         Text(
-                          "You have been successfully registered with Smart Karawala.\nPlease log in to explore our fresh dried fish selection.",
+                          context.tr('account_verified_desc'),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black87,
                           ),
@@ -63,7 +69,7 @@ class AccountVerifiedScreen extends StatelessWidget {
                   const SizedBox(height: 40),
 
                   SizedBox(
-                    width: 120,
+                    width: 140,
                     height: 45,
                     child: ElevatedButton(
                       onPressed: () {
@@ -77,10 +83,11 @@ class AccountVerifiedScreen extends StatelessWidget {
                         backgroundColor: const Color(0xff0A5B8E),
                         shape: const StadiumBorder(),
                       ),
-                      child: const Text(
-                        "Log in",
-                        style: TextStyle(
+                      child: Text(
+                        context.tr('sign_in'),
+                        style: const TextStyle(
                           color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),

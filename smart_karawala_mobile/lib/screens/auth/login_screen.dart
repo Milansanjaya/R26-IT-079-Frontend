@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_images.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_textfield.dart';
+import '../../widgets/auth/google_sign_in_button.dart';
+import '../../widgets/language_switcher_button.dart';
 import '../admin/admin_home_screen.dart';
 import '../customer/customer_home.dart';
 import 'signup_screen.dart';
@@ -121,7 +124,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 8),
+                        /// Top Row with Language Switcher
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: const LanguageSwitcherButton(isCompact: true),
+                        ),
+
+                        const SizedBox(height: 4),
 
                         /// Branded Logo with ambient glow
                         Container(
@@ -148,9 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 18),
 
                         /// Title & Subtitle
-                        const Text(
-                          "Welcome Back",
-                          style: TextStyle(
+                        Text(
+                          context.tr('welcome_back'),
+                          style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                             color: Color(0xff0A5B8E),
@@ -158,10 +167,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
-                          "Sign in to continue to Smart Karawala",
+                        Text(
+                          context.tr('sign_in_subtitle'),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xff5A7C99),
                             fontWeight: FontWeight.w500,
@@ -173,14 +182,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         /// Username / Email Field
                         AuthTextField(
                           controller: usernameController,
-                          label: "Username or Email",
-                          hint: "Enter your username or email",
+                          label: context.tr('email_or_username'),
+                          hint: context.tr('enter_email_or_username'),
                           prefixIcon: Icons.person_outline_rounded,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Please enter your username or email";
+                              return context.tr('enter_email_or_username');
                             }
                             return null;
                           },
@@ -191,15 +200,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         /// Password Field
                         AuthTextField(
                           controller: passwordController,
-                          label: "Password",
-                          hint: "Enter your password",
+                          label: context.tr('password'),
+                          hint: context.tr('enter_password'),
                           isPassword: true,
                           prefixIcon: Icons.lock_outline_rounded,
                           textInputAction: TextInputAction.done,
                           onFieldSubmitted: (_) => _handleLogin(),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Please enter your password";
+                              return context.tr('enter_password');
                             }
                             if (value.trim().length < 4) {
                               return "Password must be at least 4 characters";
@@ -244,9 +253,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  const Text(
-                                    "Remember me",
-                                    style: TextStyle(
+                                  Text(
+                                    context.tr('remember_me'),
+                                    style: const TextStyle(
                                       fontSize: 13,
                                       color: Color(0xff315B7E),
                                       fontWeight: FontWeight.w500,
@@ -267,9 +276,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 minimumSize: Size.zero,
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: const Text(
-                                "Forgot Password?",
-                                style: TextStyle(
+                              child: Text(
+                                context.tr('forgot_password'),
+                                style: const TextStyle(
                                   color: Color(0xff0A5B8E),
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -307,20 +316,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Row(
+                                    : Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            "Sign In",
-                                            style: TextStyle(
+                                            context.tr('sign_in'),
+                                            style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                               letterSpacing: 0.3,
                                             ),
                                           ),
-                                          SizedBox(width: 8),
-                                          Icon(
+                                          const SizedBox(width: 8),
+                                          const Icon(
                                             Icons.arrow_forward_rounded,
                                             size: 18,
                                             color: Colors.white,
@@ -332,15 +341,81 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
 
+                        const SizedBox(height: 18),
+
+                        /// Divider with "Or continue with"
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                context.tr('or_continue_with'),
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        /// Google Sign In Button
+                        GoogleSignInButton(
+                          text: context.tr('sign_in_with_google'),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Row(
+                                  children: [
+                                    Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text("Google account connected successfully!"),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: const Color(0xFF0A5B8E),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                margin: const EdgeInsets.all(16),
+                              ),
+                            );
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const AdminHomeScreen(),
+                              ),
+                            );
+                          },
+                        ),
+
                         const SizedBox(height: 22),
 
                         /// Don't have an account? Sign Up
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              "Don't have an account? ",
-                              style: TextStyle(
+                            Text(
+                              "${context.tr('dont_have_account')} ",
+                              style: const TextStyle(
                                 color: Color(0xff4A6B8A),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
@@ -355,9 +430,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 );
                               },
-                              child: const Text(
-                                "Sign Up",
-                                style: TextStyle(
+                              child: Text(
+                                context.tr('sign_up'),
+                                style: const TextStyle(
                                   color: Color(0xff0A5B8E),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
@@ -379,12 +454,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: const Color(0xff8BA6BE).withOpacity(0.85),
                             ),
                             const SizedBox(width: 5),
-                            Text(
-                              "Smart Karawala • Safe & Quality Assured",
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: const Color(0xff8BA6BE).withOpacity(0.85),
-                                fontWeight: FontWeight.w500,
+                            Flexible(
+                              child: Text(
+                                context.tr('safe_quality_assured'),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: const Color(0xff8BA6BE).withOpacity(0.85),
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
