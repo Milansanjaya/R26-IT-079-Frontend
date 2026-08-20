@@ -36,12 +36,12 @@ class SaltService {
   /// Calculates recommended salting duration (in hours) based on cleaned weight (kg) & fishType.
   static int calculateRecommendedDuration(double cleanedWeight, [String? fishType]) {
     final type = fishType?.trim() ?? "";
-    if (type == "Thalapath" || type == "Thora" || type == "Mora") {
+    if (type == "Thalapath" || type == "Thora" || type == "Mora" || type == "Paraw" || type == "Balaya") {
       if (cleanedWeight <= 0.5) return 8;
       if (cleanedWeight <= 1.5) return 12;
       if (cleanedWeight <= 3.0) return 18;
       return 24;
-    } else if (type == "Salaya" || type == "Kumbalawa" || type == "Sprats" || type == "Sardine" || type == "Anchovy") {
+    } else if (type == "Salaya" || type == "Kumbalawa" || type == "Kelawalla" || type == "Linna" || type == "Hurulla" || type == "Sprats" || type == "Sardine" || type == "Anchovy") {
       if (cleanedWeight <= 0.5) return 4;
       if (cleanedWeight <= 1.5) return 6;
       if (cleanedWeight <= 3.0) return 8;
