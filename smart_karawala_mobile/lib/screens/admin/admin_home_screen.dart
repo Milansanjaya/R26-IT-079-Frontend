@@ -58,20 +58,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   List<DashboardItem> _getDashboardItems(BuildContext context) {
     return [
       DashboardItem(
-        title: 'Admin Dashboard',
-        category: 'Admin',
-        icon: Icons.manage_accounts,
-        iconColor: Colors.deepPurple,
-        onTap: (ctx) {
-          Navigator.push(
-            ctx,
-            MaterialPageRoute(
-              builder: (_) => const AdminDashboardScreen(),
-            ),
-          );
-        },
-      ),
-      DashboardItem(
         title: 'Add New Batch',
         category: 'Batch',
         icon: Icons.add_circle_outline,
@@ -154,6 +140,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ctx,
             MaterialPageRoute(
               builder: (_) => const DryingDashboardScreen(),
+            ),
+          );
+        },
+      ),
+      DashboardItem(
+        title: 'Admin Dashboard',
+        category: 'Admin',
+        icon: Icons.manage_accounts,
+        iconColor: Colors.deepPurple,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const AdminDashboardScreen(),
             ),
           );
         },

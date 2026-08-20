@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/Batch/colors.dart';
+import 'add_product_screen.dart';
+import 'sales_dashboard_screen.dart';
 
 class ManageOrdersScreen extends StatefulWidget {
   const ManageOrdersScreen({super.key});
@@ -9,6 +11,7 @@ class ManageOrdersScreen extends StatefulWidget {
 }
 
 class _ManageOrdersScreenState extends State<ManageOrdersScreen> {
+  int _currentIndex = 2;
   String selectedFilter = "All";
   String searchQuery = "";
 
@@ -20,35 +23,44 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen> {
       "date": "May 12, 2025 • 02:30 PM",
       "status": "Delivered",
       "total": "\$250.00",
-      "color": Colors.green,
+      "customer": "Kamal Perera",
+      "items": "2x Dry Mora (1kg), 1x Salted Balaya (500g)",
+      "address": "No. 45, Galle Road, Colombo 03",
     },
     {
       "id": "ORD-2025-002",
       "date": "May 12, 2025 • 11:15 AM",
       "status": "Processing",
-      "color": Colors.blue,
       "total": "\$180.00",
+      "customer": "Nimal Fernando",
+      "items": "3x Balaya (1kg)",
+      "address": "Main Street, Negombo",
     },
     {
       "id": "ORD-2025-003",
       "date": "May 11, 2025 • 09:45 PM",
       "status": "Pending",
-      "color": Colors.orange,
       "total": "\$320.00",
+      "customer": "Sunil Silva",
+      "items": "2x Salmon Dry (1kg), 2x Dry Katta (1kg)",
+      "address": "Beach Road, Matara",
     },
     {
       "id": "ORD-2025-004",
       "date": "May 10, 2025 • 05:20 PM",
       "status": "Shipped",
-      "color": Colors.purple,
       "total": "\$420.00",
+      "customer": "Anura Wickrama",
+      "items": "4x Kelawalla Skipjack (1kg)",
+      "address": "Harbour Road, Trincomalee",
     },
   ];
 
   List<Map<String, dynamic>> get filteredOrders {
     return allOrders.where((order) {
       final matchesFilter = selectedFilter == "All" || order["status"] == selectedFilter;
-      final matchesSearch = order["id"].toString().toLowerCase().contains(searchQuery.toLowerCase());
+      final matchesSearch = order["id"].toString().toLowerCase().contains(searchQuery.toLowerCase()) ||
+          order["customer"].toString().toLowerCase().contains(searchQuery.toLowerCase());
       return matchesFilter && matchesSearch;
     }).toList();
   }
@@ -83,6 +95,165 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen> {
     }
   }
 
+  void _showOrderDetailsModal(Map<String, dynamic> order) {
+    String currentStatus = order["status"];
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        order["id"],
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    order["date"],
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 12),
+
+                  _detailRow("Customer", order["customer"]),
+                  const SizedBox(height: 8),
+                  _detailRow("Delivery Address", order["address"]),
+                  const SizedBox(height: 8),
+                  _detailRow("Items", order["items"]),
+                  const SizedBox(height: 8),
+                  _detailRow("Total Amount", order["total"], isBold: true),
+
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Update Order Status",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: currentStatus,
+                        isExpanded: true,
+                        items: filters
+                            .where((f) => f != "All")
+                            .map((st) => DropdownMenuItem(
+                                  value: st,
+                                  child: Text(
+                                    st,
+                                    style: TextStyle(
+                                      color: _getStatusTextColor(st),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                        onChanged: (newStatus) {
+                          if (newStatus != null) {
+                            setModalState(() {
+                              currentStatus = newStatus;
+                            });
+                            setState(() {
+                              order["status"] = newStatus;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Order ${order["id"]} status updated to '$currentStatus'"),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Save Changes",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _detailRow(String label, String value, {bool isBold = false}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 120,
+          child: Text(
+            label,
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+              fontSize: 13,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +263,11 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen> {
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.primary, size: 24),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
         ),
         title: const Text(
           "Manage Orders",
@@ -280,7 +455,7 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () => _showOrderDetailsModal(order),
                                   child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
@@ -299,6 +474,47 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen> {
                       );
                     },
                   ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const SalesDashboardScreen()),
+            );
+          } else if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const AddProductScreen()),
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_rounded),
+            label: "Dashboard",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_box_outlined),
+            label: "Add Product",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment_outlined),
+            label: "Manage Orders",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.trending_up_rounded),
+            label: "Sales Analytics",
           ),
         ],
       ),
