@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../screens/admin/admin_home_screen.dart';
+
 
 import '../../core/constants/app_colors.dart';
 import '../../models/drying_model.dart';
@@ -97,7 +99,17 @@ class _DryingHubScreenState extends State<DryingHubScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Image.asset('assets/images/logo.png', height: 55),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AdminHomeScreen(),
+                ),
+              );
+            },
+            child: Image.asset('assets/images/logo.png', height: 55),
+          ),
           const SizedBox(width: 16),
         ],
       ),

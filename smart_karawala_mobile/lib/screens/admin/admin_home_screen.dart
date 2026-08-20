@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../services/Salt/salt_service.dart';
@@ -11,6 +11,22 @@ import '../Drying/drying_dashboard_screen.dart';
 
 import 'admin_profile_screen.dart';
 
+class DashboardItem {
+  final String title;
+  final String category;
+  final IconData icon;
+  final Color iconColor;
+  final void Function(BuildContext context) onTap;
+
+  const DashboardItem({
+    required this.title,
+    required this.category,
+    required this.icon,
+    required this.iconColor,
+    required this.onTap,
+  });
+}
+
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
 
@@ -20,15 +36,185 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   int _currentIndex = 0;
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedCategory = 'All';
 
-  Widget _dashboardTile({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    Color? iconColor,
-  }) {
+  final List<String> _categories = [
+    'All',
+    'Batch',
+    'Waste',
+    'Salt',
+    'Drying',
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<DashboardItem> _getDashboardItems(BuildContext context) {
+    return [
+      DashboardItem(
+        title: 'Add New Batch',
+        category: 'Batch',
+        icon: Icons.add_circle_outline,
+        iconColor: Colors.blue,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const AddNewBatchScreen(),
+            ),
+          );
+        },
+      ),
+      DashboardItem(
+        title: 'Waste Prediction',
+        category: 'Waste',
+        icon: Icons.bar_chart,
+        iconColor: Colors.teal,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const WastePredictionScreen(),
+            ),
+          );
+        },
+      ),
+      DashboardItem(
+        title: 'Salt Prediction',
+        category: 'Salt',
+        icon: Icons.grain,
+        iconColor: Colors.orange,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const SaltPredictionScreen(),
+            ),
+          );
+        },
+      ),
+      DashboardItem(
+        title: 'Waste & Traceability',
+        category: 'Waste',
+        icon: Icons.assignment,
+        iconColor: Colors.green,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const WasteTraceabilityScreen(),
+            ),
+          );
+        },
+      ),
+      DashboardItem(
+        title: 'Salt Monitoring',
+        category: 'Salt',
+        icon: Icons.water_drop,
+        iconColor: Colors.indigo,
+        onTap: (ctx) async {
+          final batch = await SaltService.getLatestBatch();
+          if (!mounted) return;
+
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => SaltingMonitoringScreen(batchId: batch.batchId),
+            ),
+          );
+        },
+      ),
+      DashboardItem(
+        title: 'Drying Dashboard',
+        category: 'Drying',
+        icon: Icons.wb_sunny,
+        iconColor: Colors.pinkAccent,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const DryingDashboardScreen(),
+            ),
+          );
+        },
+      ),
+    ];
+  }
+
+  void _showFilterModal() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Filter Panels',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _categories.map((cat) {
+                      final isSelected = _selectedCategory == cat;
+                      return FilterChip(
+                        selected: isSelected,
+                        label: Text(cat),
+                        selectedColor: AppColors.primary.withOpacity(0.2),
+                        checkmarkColor: AppColors.primary,
+                        labelStyle: TextStyle(
+                          color: isSelected ? AppColors.primary : Colors.black87,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedCategory = cat;
+                          });
+                          setModalState(() {});
+                          Navigator.pop(ctx);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _dashboardTile(DashboardItem item, BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => item.onTap(context),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -46,10 +232,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 30, color: iconColor ?? AppColors.primary),
+            Icon(item.icon, size: 30, color: item.iconColor),
             const SizedBox(height: 10),
             Text(
-              title,
+              item.title,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,
@@ -64,6 +250,18 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildHomeBody(BuildContext context) {
+    final query = _searchController.text.trim().toLowerCase();
+    final allItems = _getDashboardItems(context);
+
+    final filteredItems = allItems.where((item) {
+      final matchesCategory =
+          _selectedCategory == 'All' || item.category == _selectedCategory;
+      final matchesQuery = query.isEmpty ||
+          item.title.toLowerCase().contains(query) ||
+          item.category.toLowerCase().contains(query);
+      return matchesCategory && matchesQuery;
+    }).toList();
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -95,7 +293,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     ),
                   ],
                 ),
-                Image.asset('assets/images/logo.png', height: 56),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AdminHomeScreen(),
+                      ),
+                    );
+                  },
+                  child: Image.asset('assets/images/logo.png', height: 56),
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -103,135 +311,159 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.border),
                     ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.search, color: AppColors.hint),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text('Search'),
-                        ),
-                      ],
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: 'Search panels...',
+                        hintStyle: const TextStyle(color: AppColors.hint, fontSize: 14),
+                        prefixIcon: const Icon(Icons.search, color: AppColors.hint),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18, color: AppColors.hint),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {});
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                InkWell(
+                  onTap: _showFilterModal,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: _selectedCategory != 'All'
+                          ? AppColors.primary.withOpacity(0.1)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _selectedCategory != 'All'
+                            ? AppColors.primary
+                            : AppColors.border,
+                      ),
+                    ),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(
+                          Icons.tune,
+                          color: _selectedCategory != 'All'
+                              ? AppColors.primary
+                              : AppColors.primary,
+                        ),
+                        if (_selectedCategory != 'All')
+                          Positioned(
+                            right: -2,
+                            top: -2,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                  child: const Icon(Icons.tune, color: AppColors.primary),
                 ),
               ],
             ),
-            const SizedBox(height: 28),
-            const Text(
-              'Dashboard Panels',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+            if (_selectedCategory != 'All' || _searchController.text.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  if (_selectedCategory != 'All')
+                    Chip(
+                      label: Text('Category: $_selectedCategory'),
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      onDeleted: () {
+                        setState(() {
+                          _selectedCategory = 'All';
+                        });
+                      },
+                    ),
+                  if (_searchController.text.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Chip(
+                      label: Text('"${_searchController.text}"'),
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      onDeleted: () {
+                        setState(() {
+                          _searchController.clear();
+                        });
+                      },
+                    ),
+                  ],
+                ],
               ),
+            ],
+            const SizedBox(height: 28),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Dashboard Panels',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Text(
+                  '${filteredItems.length} items',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            GridView.count(
-              crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _dashboardTile(
-                  icon: Icons.add_circle_outline,
-                  title: 'Add New Batch',
-                  iconColor: Colors.blue,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddNewBatchScreen(),
+            if (filteredItems.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.search_off, size: 48, color: Colors.grey.shade400),
+                      const SizedBox(height: 12),
+                      Text(
+                        'No matching dashboard panels found',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
-                _dashboardTile(
-                  icon: Icons.bar_chart,
-                  title: 'Waste Prediction',
-                  iconColor: Colors.teal,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const WastePredictionScreen(),
-                      ),
-                    );
-                  },
-                ),
-                _dashboardTile(
-                  icon: Icons.grain,
-                  title: 'Salt Prediction',
-                  iconColor: Colors.orange,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SaltPredictionScreen(),
-                      ),
-                    );
-                  },
-                ),
-                _dashboardTile(
-                  icon: Icons.assignment,
-                  title: 'Waste & Traceability',
-                  iconColor: Colors.green,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const WasteTraceabilityScreen(),
-                      ),
-                    );
-                  },
-                ),
-                _dashboardTile(
-                  icon: Icons.water_drop,
-                  title: 'Salt Monitoring',
-                  iconColor: Colors.indigo,
-                  onTap: () async {
-                    final batch = await SaltService.getLatestBatch();
-                    if (!mounted) return;
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SaltingMonitoringScreen(batchId: batch.batchId),
-                      ),
-                    );
-                  },
-                ),
-                _dashboardTile(
-                  icon: Icons.wb_sunny,
-                  title: 'Drying Dashboard',
-                  iconColor: Colors.pinkAccent,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const DryingDashboardScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+              )
+            else
+              GridView.count(
+                crossAxisCount: 3,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: filteredItems
+                    .map((item) => _dashboardTile(item, context))
+                    .toList(),
+              ),
           ],
         ),
       ),

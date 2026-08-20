@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/processing_report_model.dart';
+import '../admin/admin_home_screen.dart';
 import '../../services/Batch/processing_report_service.dart';
 import '../../widgets/Batch/colors.dart';
 import '../../widgets/Traceability/report_filter_section.dart';
@@ -101,7 +102,17 @@ class _ProcessingReportsScreenState extends State<ProcessingReportsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Image.asset('assets/images/logo.png', height: 55),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AdminHomeScreen(),
+                ),
+              );
+            },
+            child: Image.asset('assets/images/logo.png', height: 55),
+          ),
           const SizedBox(width: 16),
         ],
       ),

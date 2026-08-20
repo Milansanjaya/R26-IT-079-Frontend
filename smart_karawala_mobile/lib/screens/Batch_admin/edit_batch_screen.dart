@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/processing_report_model.dart';
 import '../../services/Batch/processing_report_service.dart';
 import '../../widgets/Batch/colors.dart';
+import '../admin/admin_home_screen.dart';
 
 class EditBatchScreen extends StatefulWidget {
   final ProcessingReportModel batch;
@@ -110,7 +111,17 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),

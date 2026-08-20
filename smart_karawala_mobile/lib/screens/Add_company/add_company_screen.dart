@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/Batch/colors.dart';
 import 'company_added_success_screen.dart';
 import 'package:flutter/services.dart';
+import '../admin/admin_home_screen.dart';
 
 class AddCompanyScreen extends StatefulWidget {
   const AddCompanyScreen({super.key});
@@ -206,7 +207,17 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),

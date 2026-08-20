@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../admin/admin_home_screen.dart';
 import '../../models/salting_monitor_model.dart';
 import '../../services/Salt/salting_monitor_service.dart';
 import '../../widgets/Batch/colors.dart';
@@ -130,7 +131,17 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Image.asset('assets/images/logo.png', height: 55),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AdminHomeScreen(),
+                ),
+              );
+            },
+            child: Image.asset('assets/images/logo.png', height: 55),
+          ),
           const SizedBox(width: 16),
         ],
       ),

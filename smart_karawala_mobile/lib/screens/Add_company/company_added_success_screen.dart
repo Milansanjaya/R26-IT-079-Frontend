@@ -104,7 +104,17 @@ class CompanyAddedSuccessScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
               const SizedBox(height: 32),

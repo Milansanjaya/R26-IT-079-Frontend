@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/Batch/colors.dart';
 import '../Add_company/add_company_screen.dart';
+import '../admin/admin_home_screen.dart';
 
 class WasteNotificationScreen extends StatefulWidget {
   final double predictedWaste;
@@ -221,7 +222,17 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),

@@ -124,10 +124,12 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
   }
 
   Future<void> pickDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2024),
+      initialDate: selectedDate ?? today,
+      firstDate: today,
       lastDate: DateTime(2035),
     );
 
@@ -208,7 +210,17 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
                       child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
 
