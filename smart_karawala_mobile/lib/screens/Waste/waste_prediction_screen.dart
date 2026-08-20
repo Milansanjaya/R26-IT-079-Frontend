@@ -295,7 +295,7 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "${batch!.predictedWaste}",
+                                  batch!.predictedWaste.toStringAsFixed(3),
                                   style: const TextStyle(
                                     fontSize: 26,
                                     fontWeight: FontWeight.bold,
@@ -352,7 +352,7 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              "${batch!.predictedWaste} kg",
+                              "${batch!.predictedWaste.toStringAsFixed(3)} kg",
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
