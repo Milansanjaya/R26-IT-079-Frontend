@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../admin/admin_home_screen.dart';
 import '../../models/salting_monitor_model.dart';
 import '../../services/Salt/salting_monitor_service.dart';
+import '../../services/Salt/salting_service.dart';
+import 'salting_completed_screen.dart';
 import '../../widgets/Batch/colors.dart';
 import '../../widgets/Salt_monitoring/monitoring_header_card.dart';
 import '../../widgets/Salt_monitoring/monitoring_progress_card.dart';
@@ -29,6 +31,7 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
   SaltingMonitorModel? monitor;
   bool loading = true;
   bool isRefreshing = false;
+  bool isCompleting = false;
   Timer? timer;
 
   @override
@@ -95,6 +98,68 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
             backgroundColor: Colors.red,
           ),
         );
+      }
+    }
+  }
+
+  Future<void> _completeSaltingNow() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Finish Salting Now?'),
+        content: const Text(
+          'This will mark the salting process as completed immediately, '
+          'even if the recommended duration has not fully elapsed. Continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Finish Now'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      isCompleting = true;
+    });
+
+    try {
+      await SaltingService.completeSalting(widget.batchId);
+      await loadMonitoring();
+
+      if (!mounted) return;
+
+      final m = monitor;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SaltingCompletedScreen(
+            batchId: widget.batchId,
+            fishType: m?.fishType ?? '',
+            currentWeight: m?.currentWeight ?? 0.0,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isCompleting = false;
+        });
       }
     }
   }
@@ -193,6 +258,70 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
             MonitoringRecommendationCard(
               status: m.status,
             ),
+
+            const SizedBox(height: 20),
+
+            if (m.status.toLowerCase() != 'completed')
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: isCompleting ? null : _completeSaltingNow,
+                  icon: isCompleting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.check_circle_outline),
+                  label: Text(
+                    isCompleting ? 'Finishing...' : 'Finish Salting Now',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF0A5B8E),
+                    side: const BorderSide(color: Color(0xFF0A5B8E)),
+                    minimumSize: const Size(0, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+
+            if (m.status.toLowerCase() != 'completed')
+              const SizedBox(height: 16),
+
+            if (m.status.toLowerCase() == 'completed')
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SaltingCompletedScreen(
+                          batchId: m.batchId,
+                          fishType: m.fishType,
+                          currentWeight: m.currentWeight,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.timer_outlined),
+                  label: const Text(
+                    'Predict Time & Temperature',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0A5B8E),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
 
             const SizedBox(height: 24),
 

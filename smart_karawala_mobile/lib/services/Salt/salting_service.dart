@@ -16,4 +16,20 @@ class SaltingService {
 
     throw Exception("Failed to start salting");
   }
+
+  static Future<bool> completeSalting(String batchId) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/$batchId/complete-salting"),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+
+    final decoded = jsonDecode(response.body);
+    final detail = decoded is Map<String, dynamic>
+        ? (decoded['detail'] ?? 'Failed to complete salting')
+        : 'Failed to complete salting';
+    throw Exception(detail.toString());
+  }
 }

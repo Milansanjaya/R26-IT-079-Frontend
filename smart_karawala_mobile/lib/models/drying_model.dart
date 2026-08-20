@@ -55,12 +55,20 @@ class ActiveDryingBatch {
   final String? dryingStartedAt;
   final double elapsedDryingHours;
 
+  /// Recommended temperature and total drying time from the pre-drying
+  /// prediction (POST /api/predict/initial), if that step was run before
+  /// starting. Null if drying was started without a prior prediction.
+  final double? initialTemperatureC;
+  final double? initialTotalHours;
+
   ActiveDryingBatch({
     required this.batchId,
     required this.fishType,
     required this.initialWeightKg,
     required this.dryingStartedAt,
     required this.elapsedDryingHours,
+    this.initialTemperatureC,
+    this.initialTotalHours,
   });
 
   factory ActiveDryingBatch.fromJson(Map<String, dynamic> json) {
@@ -70,6 +78,12 @@ class ActiveDryingBatch {
       initialWeightKg: _toDouble(json["initialWeightKg"]),
       dryingStartedAt: json["dryingStartedAt"]?.toString(),
       elapsedDryingHours: _toDouble(json["elapsedDryingHours"]),
+      initialTemperatureC: json["initialTemperatureC"] == null
+          ? null
+          : _toDouble(json["initialTemperatureC"]),
+      initialTotalHours: json["initialTotalHours"] == null
+          ? null
+          : _toDouble(json["initialTotalHours"]),
     );
   }
 }
