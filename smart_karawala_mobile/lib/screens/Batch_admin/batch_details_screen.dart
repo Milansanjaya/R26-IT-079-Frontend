@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../models/processing_report_model.dart';
 import '../../services/Batch/pdf_service.dart';
 import '../../widgets/Batch/colors.dart';
+import '../../widgets/Batch/batch_stage_chip.dart';
+import '../../widgets/Drying/drying_process_card.dart';
+import '../../core/batch_stage.dart';
 
 class BatchDetailsScreen extends StatelessWidget {
   final ProcessingReportModel batch;
@@ -117,27 +120,8 @@ class BatchDetailsScreen extends StatelessWidget {
                             style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: batch.status.toLowerCase().contains("completed")
-                                  ? const Color(0xFFE8F5E9)
-                                  : const Color(0xFFFFF3E0),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              batch.status,
-                              style: TextStyle(
-                                color: batch.status.toLowerCase().contains("completed")
-                                    ? Colors.green.shade800
-                                    : Colors.orange.shade800,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
+                          BatchStageChip(
+                            stage: BatchStage.fromStatusString(batch.status),
                           ),
                         ],
                       ),
@@ -369,7 +353,10 @@ class BatchDetailsScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              // 6. Drying Process — live drying dashboard for this batch.
+              DryingProcessCard(batchId: batch.batchId),
+
+              const SizedBox(height: 4),
 
               // Buttons
               Row(

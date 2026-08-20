@@ -5,12 +5,12 @@ import '../../models/salting_monitor_model.dart';
 import 'salt_service.dart';
 
 class SaltingMonitorService {
-  static const String baseUrl = "http://localhost:8001/api/batches";
+
 
   static Future<SaltingMonitorModel> getMonitoring(String batchId) async {
     try {
       final response = await http.get(
-        Uri.parse("$baseUrl/$batchId/monitoring"),
+        Uri.parse("${SaltService.baseUrl}/$batchId/monitoring"),
       );
 
       if (response.statusCode == 200) {
