@@ -180,8 +180,8 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                           if (parsed == null) {
                             return "Enter a valid number";
                           }
-                          if (parsed < 0 || parsed > 4.5) {
-                            return "Raw weight must be between 0 and 4.5 kg (4kg 500g)";
+                          if (parsed <= 0 || parsed > 4.5) {
+                            return "Raw weight must be greater than 0 and up to 4.5 kg (4kg 500g)";
                           }
                           return null;
                         },

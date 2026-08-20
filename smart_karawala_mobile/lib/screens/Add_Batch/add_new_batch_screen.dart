@@ -47,13 +47,13 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     }
 
     final double? parsedWeight = double.tryParse(weightController.text);
-    if (parsedWeight == null || parsedWeight < 0 || parsedWeight > 4.5) {
+    if (parsedWeight == null || parsedWeight <= 0 || parsedWeight > 4.5) {
       setState(() {
-        weightError = "Weight must be between 0 and 4.5 kg (4kg 500g)";
+        weightError = "Weight must be greater than 0 and up to 4.5 kg (4kg 500g)";
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Raw Fish Weight must be between 0 and 4.5 kg (4kg 500g)"),
+          content: Text("Raw Fish Weight must be greater than 0 and up to 4.5 kg (4kg 500g)"),
         ),
       );
       return;
@@ -516,9 +516,9 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
           return;
         }
         final double? parsed = double.tryParse(val);
-        if (parsed == null || parsed < 0 || parsed > 4.5) {
+        if (parsed == null || parsed <= 0 || parsed > 4.5) {
           setState(() {
-            weightError = "Weight must be between 0 and 4.5 kg (4kg 500g)";
+            weightError = "Weight must be greater than 0 and up to 4.5 kg (4kg 500g)";
           });
         } else {
           setState(() {

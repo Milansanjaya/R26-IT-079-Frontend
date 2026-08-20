@@ -110,13 +110,19 @@ class SensorModel {
       // Initial fish weight
       initialWeight:
           _toDouble(
-            json["initial_weight"],
+            json["initial_weight"] ??
+                (json["session"] is Map
+                    ? (json["session"] as Map)["initial_weight_kg"]
+                    : null),
           ),
 
       // Target/final fish weight
       targetWeight:
           _toDouble(
-            json["target_weight"],
+            json["target_weight"] ??
+                (json["session"] is Map
+                    ? (json["session"] as Map)["completion_weight_kg"]
+                    : null),
           ),
 
       // Drying progress calculated by backend

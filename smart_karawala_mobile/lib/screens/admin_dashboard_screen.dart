@@ -15,195 +15,112 @@ class AdminDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header navigation row
+              // Header navigation row with menu icon on left and logo on right
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AdminHomeScreen(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      } else {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminHomeScreen(),
                           ),
-                        ],
+                        );
+                      }
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.menu,
+                        size: 28,
+                        color: Color(0xff103F73),
                       ),
-                      child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AdminHomeScreen(),
-                        ),
-                      );
-                    },
-                    child: Image.asset('assets/images/logo.png', height: 70),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      await StorageService.clearToken();
-
-                      if (!context.mounted) return;
-
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const LoginScreen(),
-                        ),
-                        (route) => false,
-                      );
-                    },
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.logout_rounded, size: 18, color: Colors.red),
-                    ),
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 60,
                   ),
                 ],
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Greeting & Profile layout
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Welcome Back,",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        "Sanjaya",
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    height: 52,
-                    width: 52,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "S",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              // Greeting title matching screenshot
+              const Text(
+                "Hi ,Sanjaya",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff103F73),
+                ),
               ),
 
+              const SizedBox(height: 16),
 
+              // Search & Filter Row
               Row(
                 children: [
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                        color: const Color(0xffF4F6F8),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: "Search reports and records...",
-                          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                          prefixIcon: const Icon(Icons.search, color: AppColors.primary, size: 22),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none,
+                          hintText: "Search dry fish...",
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade500,
+                            fontSize: 14,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Colors.black87,
+                            size: 22,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    height: 48,
+                    width: 48,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1,
+                      ),
                     ),
-                    child: const Icon(Icons.tune, color: AppColors.primary),
+                    child: const Icon(
+                      Icons.tune,
+                      color: Colors.black87,
+                      size: 22,
+                    ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
               // Dashboard items
               DashboardMenuCard(
@@ -227,8 +144,9 @@ class AdminDashboardScreen extends StatelessWidget {
                 icon: Icons.assignment_outlined,
                 iconColor: Colors.green,
                 backgroundColor: const Color(0xffEFFAF1),
-                title: "Batch Records",
-                subtitle: "View and manage all dry fish batches and records.",
+                title: "Batch Records Dashboard",
+                subtitle:
+                    "View and manage all dry fish batches and their records.",
                 onTap: () {
                   Navigator.push(
                     context,
@@ -243,7 +161,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 icon: Icons.pie_chart_outline_rounded,
                 iconColor: Colors.orange,
                 backgroundColor: const Color(0xffFFF6EC),
-                title: "Verification",
+                title: "Verification Dashboard",
                 subtitle:
                     "Review verification status and ensure quality compliance.",
                 onTap: () {
@@ -256,16 +174,6 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 16),
-
-              const Center(
-                child: Text(
-                  "Powered by Smart Karawala",
-                  style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
-                ),
-              ),
-              const SizedBox(height: 10),
             ],
           ),
         ),

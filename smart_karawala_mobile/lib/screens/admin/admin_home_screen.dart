@@ -9,8 +9,7 @@ import '../Salt/salt_prediction_screen.dart';
 import '../Salt/salting_monitoring_screen.dart';
 import '../Drying/drying_dashboard_screen.dart';
 import '../Batch_admin/batch_records_dashboard_screen.dart';
-
-
+import '../admin_dashboard_screen.dart';
 import 'admin_profile_screen.dart';
 
 class DashboardItem {
@@ -58,20 +57,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   List<DashboardItem> _getDashboardItems(BuildContext context) {
     return [
-      DashboardItem(
-        title: 'Admin Dashboard',
-        category: 'Admin',
-        icon: Icons.manage_accounts,
-        iconColor: Colors.deepPurple,
-        onTap: (ctx) {
-          Navigator.push(
-            ctx,
-            MaterialPageRoute(
-              builder: (_) => const AdminDashboardScreen(),
-            ),
-          );
-        },
-      ),
       DashboardItem(
         title: 'Add New Batch',
         category: 'Batch',
@@ -169,6 +154,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ctx,
             MaterialPageRoute(
               builder: (_) => const BatchRecordsDashboardScreen(),
+            ),
+          );
+        },
+      ),
+      DashboardItem(
+        title: 'Admin Dashboard',
+        category: 'Admin',
+        icon: Icons.manage_accounts,
+        iconColor: Colors.deepPurple,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const AdminDashboardScreen(),
             ),
           );
         },
@@ -461,19 +460,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     fontSize: 12,
                     color: Colors.grey.shade600,
                   ),
-                ),
-                _dashboardTile(
-                  icon: Icons.timer_outlined,
-                  title: 'Time Prediction',
-                  iconColor: Colors.deepPurple,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const BatchRecordsDashboardScreen(),
-                      ),
-                    );
-                  },
                 ),
               ],
             ),

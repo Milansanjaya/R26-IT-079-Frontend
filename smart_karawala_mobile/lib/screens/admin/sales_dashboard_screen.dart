@@ -119,9 +119,11 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: const Icon(Icons.menu, color: Colors.black87),
           onPressed: () {
-            Navigator.pop(context);
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
           },
         ),
         actions: [
@@ -144,7 +146,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                   ),
                   constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                   child: const Text(
-                    "3",
+                    "2",
                     style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
@@ -242,14 +244,15 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                     physics: const BouncingScrollPhysics(),
                     child: Row(
                       children: stats.map((st) {
+                        final bool isPositive = st["isPositive"] as bool;
                         return Container(
-                          width: 110,
+                          width: 115,
                           margin: const EdgeInsets.only(right: 12),
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                            border: Border.all(color: Colors.grey.shade200, width: 1),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.01),
@@ -271,12 +274,19 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.primary),
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                st["trend"],
-                                style: TextStyle(
-                                  color: st["isPositive"] ? Colors.green : Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: isPositive ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  st["trend"],
+                                  style: TextStyle(
+                                    color: isPositive ? Colors.green.shade700 : Colors.red.shade700,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
                                 ),
                               ),
                             ],

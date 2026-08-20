@@ -5,6 +5,9 @@ import '../../widgets/Batch/colors.dart';
 import '../../widgets/Batch/batch_stage_chip.dart';
 import '../../widgets/Drying/drying_process_card.dart';
 import '../../core/batch_stage.dart';
+import '../../services/Drying/drying_service.dart';
+import '../admin/admin_home_screen.dart';
+import '../Drying/time_prediction_screen.dart';
 
 
 class BatchDetailsScreen extends StatelessWidget {
@@ -55,7 +58,7 @@ class BatchDetailsScreen extends StatelessWidget {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const AdminHomeScreen(),
+                          builder: (_) => AdminHomeScreen(),
                         ),
                       );
                     },

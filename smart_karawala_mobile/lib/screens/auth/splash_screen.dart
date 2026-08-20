@@ -25,6 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     final token = await StorageService.getToken();
+    final role = await StorageService.getRole();
 
     if (!mounted) return;
 
@@ -35,8 +36,14 @@ class _SplashScreenState extends State<SplashScreen> {
           builder: (_) => const WelcomeScreen(),
         ),
       );
+    } else if (role == 'admin') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AdminHomeScreen(),
+        ),
+      );
     } else {
-      // Temporary: go to Customer until /auth/me is connected.
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

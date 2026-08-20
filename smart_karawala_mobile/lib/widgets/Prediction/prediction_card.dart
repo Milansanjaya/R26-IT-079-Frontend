@@ -73,7 +73,7 @@ class PredictionCard extends StatelessWidget {
                       children: [
 
                         Text(
-                          "${batch.predictedWaste}",
+                          batch.predictedWaste.toStringAsFixed(3),
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -106,7 +106,7 @@ class PredictionCard extends StatelessWidget {
                     _box(
                       Icons.delete,
                       "Predicted Waste",
-                      "${batch.predictedWaste} kg",
+                      "${batch.predictedWaste.toStringAsFixed(3)} kg",
                       "${wastePercent.toStringAsFixed(1)}%",
                     ),
 
@@ -115,7 +115,7 @@ class PredictionCard extends StatelessWidget {
                     _box(
                       Icons.set_meal,
                       "Cleaned Weight",
-                      "${batch.cleanedWeight} kg",
+                      "${batch.cleanedWeight.toStringAsFixed(3)} kg",
                       "${cleanedPercent.toStringAsFixed(1)}%",
                     ),
 

@@ -25,8 +25,11 @@ class SaltingMonitorModel {
   });
 
   factory SaltingMonitorModel.fromJson(Map<String, dynamic> json) {
+    final fishType = json["fishType"] ?? "";
     final cleanedWeight = (json["cleanedWeight"] as num?)?.toDouble() ?? 85.0;
-    final totalHours = SaltService.calculateRecommendedDuration(cleanedWeight).toDouble();
+    final totalHours = (json["saltingDurationHours"] as num?)?.toDouble() ??
+        (json["recommendedDuration"] as num?)?.toDouble() ??
+        SaltService.calculateRecommendedDuration(cleanedWeight, fishType).toDouble();
 
     double remaining = (json["remainingHours"] as num?)?.toDouble() ?? totalHours;
     if (remaining > totalHours) {

@@ -46,6 +46,8 @@ class AuthProvider extends ChangeNotifier {
         response["user"],
       );
 
+      await StorageService.saveRole(_user?.role ?? "customer");
+
       _loading = false;
       notifyListeners();
 
@@ -67,6 +69,7 @@ class AuthProvider extends ChangeNotifier {
       if (response["access_token"] != null) {
         await StorageService.saveToken(response["access_token"]);
         _user = UserModel.fromJson(response["user"]);
+        await StorageService.saveRole(_user?.role ?? "customer");
         _loading = false;
         notifyListeners();
         return true;
