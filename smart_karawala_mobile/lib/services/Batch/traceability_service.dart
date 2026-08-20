@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../../models/traceability_dashboard_model.dart';
 
 class TraceabilityService {
-  static const String baseUrl = "http://localhost:8000/api/batches";
+  static const String baseUrl = "http://localhost:8001/api/batches";
 
   static Future<TraceabilityDashboardModel> getDashboard() async {
     final response = await http.get(

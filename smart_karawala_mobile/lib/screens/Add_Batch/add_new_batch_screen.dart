@@ -52,7 +52,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     // Auto-generate a batchId since there is no input field for it in the UI
     final generatedBatchId =
         "B${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
-    final url = Uri.parse("http://localhost:8000/api/batches");
+    final url = Uri.parse("http://localhost:8001/api/batches");
 
     try {
       final response = await http.post(
@@ -84,6 +84,13 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
               location: location!,
               notes: notesController.text,
             ),
+          ),
+        );
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to save batch (${response.statusCode}): ${response.body}"),
           ),
         );
       }

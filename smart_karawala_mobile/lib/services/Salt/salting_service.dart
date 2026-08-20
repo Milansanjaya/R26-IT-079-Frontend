@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class SaltingService {
   static const String baseUrl =
-      "http://localhost:8000/api/batches";
+      "http://localhost:8001/api/batches";
 
   static Future<bool> startSalting(String batchId) async {
     final response = await http.post(
