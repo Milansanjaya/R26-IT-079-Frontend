@@ -8,6 +8,7 @@ import '../Waste/waste_traceability_screen.dart';
 import '../Salt/salt_prediction_screen.dart';
 import '../Salt/salting_monitoring_screen.dart';
 import '../Drying/drying_dashboard_screen.dart';
+import '../admin_dashboard_screen.dart';
 
 import 'admin_profile_screen.dart';
 
@@ -41,6 +42,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   final List<String> _categories = [
     'All',
+    'Admin',
     'Batch',
     'Waste',
     'Salt',
@@ -55,6 +57,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   List<DashboardItem> _getDashboardItems(BuildContext context) {
     return [
+      DashboardItem(
+        title: 'Admin Dashboard',
+        category: 'Admin',
+        icon: Icons.manage_accounts,
+        iconColor: Colors.deepPurple,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const AdminDashboardScreen(),
+            ),
+          );
+        },
+      ),
       DashboardItem(
         title: 'Add New Batch',
         category: 'Batch',

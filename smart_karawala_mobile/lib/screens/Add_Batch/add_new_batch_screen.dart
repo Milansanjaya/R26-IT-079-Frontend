@@ -25,6 +25,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
 
   String? fish;
   String? location;
+  String? weightError;
   bool isLoading = false; // Added to handle progress status
 
   @override
@@ -43,6 +44,23 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
         const SnackBar(content: Text("Please fill in all required fields")),
       );
       return;
+    }
+
+    final double? parsedWeight = double.tryParse(weightController.text);
+    if (parsedWeight == null || parsedWeight < 0 || parsedWeight > 4.5) {
+      setState(() {
+        weightError = "Weight must be between 0 and 4.5 kg (4kg 500g)";
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Raw Fish Weight must be between 0 and 4.5 kg (4kg 500g)"),
+        ),
+      );
+      return;
+    } else {
+      setState(() {
+        weightError = null;
+      });
     }
 
     setState(() {
@@ -141,12 +159,13 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     }
   }
 
-  InputDecoration _inputDecoration(String label, IconData icon, {String? suffix}) {
+  InputDecoration _inputDecoration(String label, IconData icon, {String? suffix, String? errorText}) {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
       suffixText: suffix,
       suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+      errorText: errorText,
       filled: true,
       fillColor: Colors.grey.shade50,
       prefixIcon: Icon(icon, color: AppColors.primary.withOpacity(0.7)),
@@ -487,9 +506,32 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       controller: weightController,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}$')),
       ],
-      decoration: _inputDecoration("Raw Fish Weight", Icons.scale_outlined, suffix: "kg"),
+      onChanged: (val) {
+        if (val.trim().isEmpty) {
+          setState(() {
+            weightError = null;
+          });
+          return;
+        }
+        final double? parsed = double.tryParse(val);
+        if (parsed == null || parsed < 0 || parsed > 4.5) {
+          setState(() {
+            weightError = "Weight must be between 0 and 4.5 kg (4kg 500g)";
+          });
+        } else {
+          setState(() {
+            weightError = null;
+          });
+        }
+      },
+      decoration: _inputDecoration(
+        "Raw Fish Weight",
+        Icons.scale_outlined,
+        suffix: "kg",
+        errorText: weightError,
+      ),
     );
   }
 

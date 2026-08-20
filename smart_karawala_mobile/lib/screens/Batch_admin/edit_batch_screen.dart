@@ -176,8 +176,12 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                           if (value == null || value.trim().isEmpty) {
                             return "Raw weight is required";
                           }
-                          if (double.tryParse(value) == null) {
+                          final parsed = double.tryParse(value);
+                          if (parsed == null) {
                             return "Enter a valid number";
+                          }
+                          if (parsed < 0 || parsed > 4.5) {
+                            return "Raw weight must be between 0 and 4.5 kg (4kg 500g)";
                           }
                           return null;
                         },
