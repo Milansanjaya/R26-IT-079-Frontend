@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_textfield.dart';
+import '../../widgets/common/google_logo_widget.dart';
 import '../admin/admin_home_screen.dart';
 import '../customer/customer_home.dart';
 import 'signup_screen.dart';
@@ -402,8 +403,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.g_mobiledata_rounded, size: 32, color: Color(0xFF4285F4)),
-                                SizedBox(width: 4),
+                                GoogleLogoWidget(size: 22),
+                                SizedBox(width: 12),
                                 Text(
                                   "Sign in with Google",
                                   style: TextStyle(

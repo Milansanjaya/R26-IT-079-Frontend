@@ -10,6 +10,7 @@ import '../customer/customer_home.dart';
 import '../admin/admin_home_screen.dart';
 import 'otp_verification_screen.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/common/google_logo_widget.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -493,103 +494,4 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
-}
-
-/// Custom Vector Google G Logo Widget
-class GoogleLogoWidget extends StatelessWidget {
-  final double size;
-
-  const GoogleLogoWidget({super.key, this.size = 24});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size(size, size),
-      painter: _GoogleLogoPainter(),
-    );
-  }
-}
-
-class _GoogleLogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double center = size.width / 2;
-    final double radius = size.width / 2;
-
-    final Paint paint = Paint()..style = PaintingStyle.fill;
-
-    // Blue Segment
-    paint.color = const Color(0xFF4285F4);
-    final Path bluePath = Path()
-      ..moveTo(center, center)
-      ..lineTo(size.width, center)
-      ..arcTo(
-        Rect.fromCircle(center: Offset(center, center), radius: radius),
-        0,
-        -1.3,
-        false,
-      )
-      ..close();
-    canvas.drawPath(bluePath, paint);
-
-    // Red Segment
-    paint.color = const Color(0xFFEA4335);
-    final Path redPath = Path()
-      ..moveTo(center, center)
-      ..arcTo(
-        Rect.fromCircle(center: Offset(center, center), radius: radius),
-        -1.3,
-        -1.4,
-        false,
-      )
-      ..close();
-    canvas.drawPath(redPath, paint);
-
-    // Yellow Segment
-    paint.color = const Color(0xFFFBBC05);
-    final Path yellowPath = Path()
-      ..moveTo(center, center)
-      ..arcTo(
-        Rect.fromCircle(center: Offset(center, center), radius: radius),
-        -2.7,
-        -1.0,
-        false,
-      )
-      ..close();
-    canvas.drawPath(yellowPath, paint);
-
-    // Green Segment
-    paint.color = const Color(0xFF34A853);
-    final Path greenPath = Path()
-      ..moveTo(center, center)
-      ..arcTo(
-        Rect.fromCircle(center: Offset(center, center), radius: radius),
-        -3.7,
-        -1.2,
-        false,
-      )
-      ..close();
-    canvas.drawPath(greenPath, paint);
-
-    // Inner Cutout Circle for G shape
-    paint.color = Colors.white;
-    canvas.drawCircle(Offset(center, center), radius * 0.52, paint);
-
-    // Right Bar of Google G
-    paint.color = const Color(0xFF4285F4);
-    final Rect barRect = Rect.fromLTRB(
-      center - radius * 0.1,
-      center - radius * 0.22,
-      size.width - radius * 0.05,
-      center + radius * 0.22,
-    );
-    canvas.drawRect(barRect, paint);
-
-    // Small inner cutout for bar
-    paint.color = Colors.white;
-    canvas.drawCircle(Offset(center, center), radius * 0.32, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
