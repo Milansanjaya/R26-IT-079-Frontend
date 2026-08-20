@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../core/localization/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_logo.dart';
 import '../../widgets/auth/auth_textfield.dart';
+import '../../widgets/language_switcher_button.dart';
 import 'login_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -113,7 +115,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       if (response["success"] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response["message"]),
+            content: Text(response["message"] ?? context.tr('success')),
             backgroundColor: Colors.green,
           ),
         );
@@ -187,45 +189,64 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 10),
+                  /// Top Language Switcher
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: const LanguageSwitcherButton(isCompact: true),
+                  ),
+
+                  const SizedBox(height: 4),
+
                   const AuthLogo(),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    "RESET PASSWORD",
-                    style: TextStyle(
-                      fontSize: 28,
+
+                  Text(
+                    context.tr('reset_password').toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Color(0xff1E4E7B),
                     ),
                   ),
+
                   const SizedBox(height: 15),
+
                   Text(
                     widget.email.isEmpty
-                        ? "Enter the OTP sent to your email and choose a new password."
-                        : "Enter the OTP sent to ${widget.email}",
+                        ? context.tr('forgot_password_desc')
+                        : "${context.tr('otp_sent_to')} ${widget.email}",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.grey.shade700,
                     ),
                   ),
+
                   const SizedBox(height: 30),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(6, buildOtpBox),
                   ),
+
                   const SizedBox(height: 25),
+
                   AuthTextField(
                     controller: passwordController,
-                    hint: "New Password",
+                    hint: context.tr('new_password'),
                     isPassword: true,
                   ),
+
                   const SizedBox(height: 15),
+
                   AuthTextField(
                     controller: confirmPasswordController,
-                    hint: "Confirm New Password",
+                    hint: context.tr('confirm_password'),
                     isPassword: true,
                   ),
+
                   const SizedBox(height: 25),
+
                   SizedBox(
                     width: 180,
                     height: 45,
@@ -244,14 +265,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              "Reset Password",
-                              style: TextStyle(
+                          : Text(
+                              context.tr('reset_password'),
+                              style: const TextStyle(
                                 color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                     ),
                   ),
+
                   const SizedBox(height: 10),
                 ],
               ),

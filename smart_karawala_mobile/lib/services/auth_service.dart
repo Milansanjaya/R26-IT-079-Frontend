@@ -10,6 +10,8 @@ class AuthService {
       "/auth/login",
       {
         "email": email,
+        "username": email,
+        "email_or_username": email,
         "password": password,
       },
     );

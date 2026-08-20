@@ -2,7 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_images.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../widgets/auth/auth_background.dart';
+import '../../widgets/language_switcher_button.dart';
 import 'login_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -25,7 +27,7 @@ class WelcomeScreen extends StatelessWidget {
                 child: Container(
                   width: size.width * 0.92,
                   constraints: const BoxConstraints(maxWidth: 420),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(28),
@@ -45,44 +47,50 @@ class WelcomeScreen extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      /// Top Badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xff0A5B8E).withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xff0A5B8E).withOpacity(0.15),
-                          ),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.verified_rounded,
-                              size: 15,
-                              color: Color(0xff0A5B8E),
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              "Smart Quality Platform",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xff0A5B8E),
-                                letterSpacing: 0.2,
+                      /// Top Bar with Badge & Language Switcher
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xff0A5B8E).withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xff0A5B8E).withOpacity(0.15),
                               ),
                             ),
-                          ],
-                        ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.verified_rounded,
+                                  size: 14,
+                                  color: Color(0xff0A5B8E),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  context.tr('smart_quality_platform'),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xff0A5B8E),
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const LanguageSwitcherButton(isCompact: true),
+                        ],
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 28),
 
                       /// Logo Hero Section with Ambient Glow
                       Container(
-                        height: 120,
-                        width: 120,
+                        height: 110,
+                        width: 110,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
@@ -94,42 +102,42 @@ class WelcomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(18),
                         child: Image.asset(
                           AppImages.logo,
                           fit: BoxFit.contain,
                         ),
                       ),
 
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 24),
 
                       /// Title
-                      const Text(
-                        "Smart Karawala",
+                      Text(
+                        context.tr('app_name'),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 30,
+                        style: const TextStyle(
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: Color(0xff0A5B8E),
                           letterSpacing: -0.5,
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
 
                       /// Subtitle / Description
-                      const Text(
-                        "Automated salting prediction, real-time batch monitoring, and certified dry fish quality management.",
+                      Text(
+                        context.tr('welcome_description'),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: const TextStyle(
+                          fontSize: 13,
                           height: 1.5,
                           color: Color(0xff5A7C99),
                           fontWeight: FontWeight.w400,
                         ),
                       ),
 
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 36),
 
                       /// Primary "Get Started" Button
                       SizedBox(
@@ -153,19 +161,19 @@ class WelcomeScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Get Started",
-                                style: TextStyle(
+                                context.tr('get_started'),
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.3,
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Icon(
+                              const SizedBox(width: 8),
+                              const Icon(
                                 Icons.arrow_forward_rounded,
                                 size: 20,
                               ),
@@ -174,7 +182,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 22),
 
                       /// Footer note
                       Row(
@@ -186,12 +194,15 @@ class WelcomeScreen extends StatelessWidget {
                             color: const Color(0xff8BA6BE).withOpacity(0.85),
                           ),
                           const SizedBox(width: 5),
-                          Text(
-                            "Smart Karawala • Safe & Quality Assured",
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: const Color(0xff8BA6BE).withOpacity(0.85),
-                              fontWeight: FontWeight.w500,
+                          Flexible(
+                            child: Text(
+                              context.tr('safe_quality_assured'),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: const Color(0xff8BA6BE).withOpacity(0.85),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ],
