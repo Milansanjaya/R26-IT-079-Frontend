@@ -5,8 +5,7 @@ import '../../widgets/Batch/colors.dart';
 import '../../widgets/Batch/batch_stage_chip.dart';
 import '../../widgets/Drying/drying_process_card.dart';
 import '../../core/batch_stage.dart';
-import '../../services/Drying/drying_service.dart';
-import '../drying/time_prediction_screen.dart';
+
 
 class BatchDetailsScreen extends StatelessWidget {
   final ProcessingReportModel batch;
@@ -51,7 +50,17 @@ class BatchDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),

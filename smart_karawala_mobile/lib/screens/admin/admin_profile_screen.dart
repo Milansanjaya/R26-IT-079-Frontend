@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../widgets/Batch/colors.dart';
 import '../../services/storage_service.dart';
 import '../auth/login_screen.dart';
+import 'edit_personal_info_screen.dart';
+import 'security_settings_screen.dart';
+import 'help_support_screen.dart';
 
 class AdminProfileScreen extends StatefulWidget {
   const AdminProfileScreen({super.key});
@@ -11,6 +14,10 @@ class AdminProfileScreen extends StatefulWidget {
 }
 
 class _AdminProfileScreenState extends State<AdminProfileScreen> {
+  String adminName = "Sanjaya";
+  String adminRole = "System Administrator";
+  String adminEmail = "sanjaya@smartkarawala.com";
+  String adminPhone = "+94 77 123 4567";
   bool darkMode = false;
 
   Widget insightItem(String value, String label) {
@@ -106,9 +113,9 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Sanjaya",
-                              style: TextStyle(
+                            Text(
+                              adminName,
+                              style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.primary,
@@ -116,7 +123,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "System Administrator",
+                              adminRole,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey.shade600,
@@ -125,7 +132,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "sanjaya@smartkarawala.com",
+                              adminEmail,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade400,
@@ -159,11 +166,11 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
-                      const Icon(Icons.insights_rounded, color: AppColors.primary),
-                      const SizedBox(width: 10),
-                      const Expanded(
+                      Icon(Icons.insights_rounded, color: AppColors.primary),
+                      SizedBox(width: 10),
+                      Expanded(
                         child: Text(
                           "Your Administrative Insights",
                           style: TextStyle(
@@ -206,24 +213,97 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               ),
               child: Column(
                 children: [
-                  menuOption(Icons.person_outline_rounded, "Edit Personal Information", () {}),
-                  menuOption(Icons.lock_outline_rounded, "Security Settings", () {}),
+                  // 1. Edit Personal Information
+                  menuOption(
+                    Icons.person_outline_rounded,
+                    "Edit Personal Information",
+                    () async {
+                      final result = await Navigator.push<Map<String, String>>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditPersonalInfoScreen(
+                            currentName: adminName,
+                            currentRole: adminRole,
+                            currentEmail: adminEmail,
+                            currentPhone: adminPhone,
+                          ),
+                        ),
+                      );
+
+                      if (result != null && mounted) {
+                        setState(() {
+                          adminName = result['name'] ?? adminName;
+                          adminRole = result['role'] ?? adminRole;
+                          adminEmail = result['email'] ?? adminEmail;
+                          adminPhone = result['phone'] ?? adminPhone;
+                        });
+                      }
+                    },
+                  ),
+
+                  // 2. Security Settings
+                  menuOption(
+                    Icons.lock_outline_rounded,
+                    "Security Settings",
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SecuritySettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // 3. Dark Mode
                   menuOption(
                     Icons.dark_mode_outlined,
                     "Dark Mode",
-                    () {},
+                    () {
+                      setState(() {
+                        darkMode = !darkMode;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(darkMode ? "Dark mode enabled" : "Light mode enabled"),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
                     trailing: Switch.adaptive(
                       value: darkMode,
-                      activeColor: Colors.blue,
+                      activeColor: AppColors.primary,
                       onChanged: (val) {
                         setState(() {
                           darkMode = val;
                         });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(val ? "Dark mode enabled" : "Light mode enabled"),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
                       },
                     ),
                   ),
-                  menuOption(Icons.help_outline_rounded, "Help & Support", () {}),
+
+                  // 4. Help & Support
+                  menuOption(
+                    Icons.help_outline_rounded,
+                    "Help & Support",
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const HelpSupportScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
                   const Divider(height: 16, color: Color(0xFFF1F3F5)),
+
+                  // 5. Log Out with Confirmation Dialog
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
@@ -238,13 +318,43 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.red),
                     ),
                     trailing: const Icon(Icons.chevron_right, color: Colors.red),
-                    onTap: () async {
-                      await StorageService.clearToken();
-                      if (!mounted) return;
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                        (route) => false,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          title: const Row(
+                            children: [
+                              Icon(Icons.logout_rounded, color: Colors.red),
+                              SizedBox(width: 10),
+                              Text("Log Out"),
+                            ],
+                          ),
+                          content: const Text("Are you sure you want to log out of your account?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx),
+                              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              onPressed: () async {
+                                Navigator.pop(ctx);
+                                await StorageService.clearToken();
+                                if (!mounted) return;
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                  (route) => false,
+                                );
+                              },
+                              child: const Text("Log Out", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),

@@ -6,6 +6,7 @@ import '../../services/Batch/traceability_service.dart';
 import '../../widgets/Batch/colors.dart';
 import 'batch_details_screen.dart';
 import 'edit_batch_screen.dart';
+import '../admin/admin_home_screen.dart';
 
 class BatchRecordsDashboardScreen extends StatefulWidget {
   const BatchRecordsDashboardScreen({super.key});
@@ -182,7 +183,17 @@ class _BatchRecordsDashboardScreenState
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Image.asset('assets/images/logo.png', height: 55),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AdminHomeScreen(),
+                ),
+              );
+            },
+            child: Image.asset('assets/images/logo.png', height: 55),
+          ),
           const SizedBox(width: 16),
         ],
       ),

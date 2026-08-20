@@ -4,6 +4,7 @@ import '../../services/Batch/batch_service.dart';
 import '../../widgets/Batch/colors.dart';
 import 'waste_notification_screen.dart';
 import '../Salt/salt_prediction_screen.dart';
+import '../admin/admin_home_screen.dart';
 
 class WastePredictionScreen extends StatefulWidget {
   const WastePredictionScreen({super.key});
@@ -125,7 +126,17 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),

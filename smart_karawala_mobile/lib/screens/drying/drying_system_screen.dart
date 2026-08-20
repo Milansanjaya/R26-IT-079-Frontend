@@ -5,6 +5,7 @@ import 'drying_control_screen.dart';
 import 'live_graph_screen.dart';
 import 'device_status_screen.dart';
 import 'alerts_screen.dart';
+import '../admin/admin_home_screen.dart';
 
 class DryingSystemScreen
     extends StatelessWidget {
@@ -43,9 +44,19 @@ class DryingSystemScreen
 
                   const Spacer(),
 
-                  Image.asset(
-                    "assets/images/logo.png",
-                    width: 70,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset(
+                      "assets/images/logo.png",
+                      width: 70,
+                    ),
                   ),
                 ],
               ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'admin_home_screen.dart';
+
 import '../../widgets/Batch/colors.dart';
 import '../Add_Batch/add_new_batch_screen.dart';
 import '../Add_company/add_company_screen.dart';
@@ -68,7 +70,17 @@ class _SystemOverviewDashboardScreenState
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 60),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 60),
+                  ),
                   Container(
                     height: 42,
                     width: 42,

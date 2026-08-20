@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/processing_report_model.dart';
 import '../../services/Batch/processing_report_service.dart';
 import '../../widgets/Batch/colors.dart';
+import '../admin/admin_home_screen.dart';
 
 class EditBatchScreen extends StatefulWidget {
   final ProcessingReportModel batch;
@@ -110,7 +111,17 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -165,8 +176,12 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                           if (value == null || value.trim().isEmpty) {
                             return "Raw weight is required";
                           }
-                          if (double.tryParse(value) == null) {
+                          final parsed = double.tryParse(value);
+                          if (parsed == null) {
                             return "Enter a valid number";
+                          }
+                          if (parsed < 0 || parsed > 4.5) {
+                            return "Raw weight must be between 0 and 4.5 kg (4kg 500g)";
                           }
                           return null;
                         },

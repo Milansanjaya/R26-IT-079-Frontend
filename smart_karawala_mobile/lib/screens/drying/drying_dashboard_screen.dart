@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../admin/admin_home_screen.dart';
+
 
 import '../../models/sensor_model.dart';
 import '../../services/iot_service.dart';
@@ -261,9 +263,19 @@ class _DryingDashboardScreenState
                               ),
                             ),
 
-                            Image.asset(
-                              "assets/images/logo.png",
-                              width: 70,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AdminHomeScreen(),
+                                  ),
+                                );
+                              },
+                              child: Image.asset(
+                                "assets/images/logo.png",
+                                width: 70,
+                              ),
                             ),
                           ],
                         ),

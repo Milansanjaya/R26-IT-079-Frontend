@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/Batch/colors.dart';
+import '../admin/admin_home_screen.dart';
 import '../../widgets/Traceability/traceability_stat_card.dart';
 import '../../widgets/Traceability/processing_record_card.dart';
 import '../../widgets/Traceability/quick_action_card.dart';
@@ -80,7 +81,17 @@ class _WasteTraceabilityScreenState extends State<WasteTraceabilityScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Image.asset('assets/images/logo.png', height: 55),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AdminHomeScreen(),
+                ),
+              );
+            },
+            child: Image.asset('assets/images/logo.png', height: 55),
+          ),
           const SizedBox(width: 16),
         ],
       ),

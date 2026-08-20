@@ -57,6 +57,30 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> googleSignIn({String? idToken}) async {
+    _loading = true;
+    notifyListeners();
+
+    try {
+      final response = await AuthService.googleSignIn(idToken: idToken);
+
+      if (response["access_token"] != null) {
+        await StorageService.saveToken(response["access_token"]);
+        _user = UserModel.fromJson(response["user"]);
+        _loading = false;
+        notifyListeners();
+        return true;
+      }
+      _loading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _loading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   void logout() async {
     await StorageService.clearToken();
 

@@ -7,6 +7,7 @@ import '../../widgets/Batch/cleaned_weight_card.dart';
 import '../../widgets/Prediction/prediction_result_card.dart';
 import '../../services/Salt/salting_service.dart';
 import 'salting_monitoring_screen.dart';
+import '../admin/admin_home_screen.dart';
 
 class SaltPredictionScreen extends StatefulWidget {
   const SaltPredictionScreen({super.key});
@@ -119,7 +120,17 @@ class _SaltPredictionScreenState extends State<SaltPredictionScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/logo.png', height: 70),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: Image.asset('assets/images/logo.png', height: 70),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
