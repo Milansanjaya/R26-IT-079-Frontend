@@ -6,11 +6,17 @@ import '../../models/drying_model.dart';
 import '../../services/Drying/drying_service.dart';
 import '../../services/Drying/spoilage_detail_screen.dart';
 import '../../services/Drying/drying_time_detail_screen.dart';
+import '../../services/iot_service.dart';
 
 /// How often the drying card re-fetches live IoT sensor data and re-predicts
 /// drying time / spoilage risk. Change this single value to adjust the
 /// polling rate app-wide.
 const Duration kDryingSensorRefreshInterval = Duration(seconds: 10);
+
+/// TEMPORARY (testing): duration used when resuming a paused batch, matching
+/// the override on the Time Prediction screen. Set to null to fall back to the
+/// batch's remaining predicted time.
+const int _resumeDurationMinutes = 10;
 
 /// Self-contained drying dashboard for a single batch, shown inside the
 /// Batch Details page.
@@ -45,6 +51,15 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   ActiveDryingBatch? _active; // the current active batch (may be another batch)
   DryingTimeResult? _time;
   SpoilageRiskResult? _risk;
+
+  // --- Paused state ------------------------------------------------------
+  // The oven has no real pause: STOPPED is terminal and a stopped session
+  // cannot be restarted. So "pause" stops the oven and remembers the batch's
+  // settings here, and "resume" starts a FRESH session from them.
+  bool _paused = false;
+  bool _resuming = false;
+  double? _pausedTemperatureC;
+  double? _pausedTotalHours;
 
   // Remaining seconds for the live countdown, re-synced on each refresh.
   int _remainingSeconds = 0;
@@ -98,6 +113,15 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   Future<void> _startDrying() async {
     setState(() => _starting = true);
     try {
+      // This path has no predicted temperature/duration to build a control
+      // profile from, so it can only start the oven if a profile already
+      // exists for this batch (created by the Time Prediction flow).
+      // Without one the oven has no set-points and must not be started.
+      await IotService.startDryingSession(
+        batchId: widget.batchId,
+        mode: 'AUTO',
+      );
+
       final started = await DryingService.startDrying(widget.batchId);
       if (!mounted) return;
       _active = ActiveDryingBatch(
@@ -170,10 +194,11 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Cancel drying?"),
+        title: const Text("Pause drying?"),
         content: const Text(
-          "This stops the drying process for this batch and clears its timer. "
-          "You can start drying again at any time.",
+          "This switches the oven off and pauses this batch. You can resume "
+          "it from here, which starts a fresh drying run with the same "
+          "settings.",
         ),
         actions: [
           TextButton(
@@ -183,14 +208,28 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text("Cancel drying", style: TextStyle(color: Colors.white)),
+            child: const Text("Pause drying", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
     if (confirmed != true) return;
 
+    // Remember the settings so Resume can recreate an equivalent session.
+    final pausedTemp = _active?.initialTemperatureC;
+    final pausedHours = _active?.initialTotalHours;
+
     try {
+      // Stop the physical oven first so the heater/fan are actually switched
+      // off, then clear the prediction service's active-batch pointer. If the
+      // oven has no session for this batch (e.g. drying was started outside
+      // the app) that's not fatal - still clear the pointer below.
+      try {
+        await IotService.stopDryingSession(widget.batchId);
+      } catch (e) {
+        debugPrint("Oven stop failed (continuing to clear active batch): $e");
+      }
+
       await DryingService.stopDrying();
       if (!mounted) return;
       _tickTimer?.cancel();
@@ -202,15 +241,72 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         _remainingSeconds = 0;
         _recentHours.clear();
         _error = null;
+        _paused = true;
+        _pausedTemperatureC = pausedTemp;
+        _pausedTotalHours = pausedHours;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Drying cancelled")),
+        const SnackBar(content: Text("Drying paused")),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_clean(e)), backgroundColor: AppColors.error),
       );
+    }
+  }
+
+  /// Resume a paused batch.
+  ///
+  /// The oven cannot restart a STOPPED session, so this starts a FRESH run
+  /// using the settings captured when the batch was paused. Elapsed drying
+  /// time from the previous run is not carried over.
+  Future<void> _resumeDrying() async {
+    setState(() => _resuming = true);
+    try {
+      // A stopped session still occupies the batch id, so creating a new
+      // profile may 409. Try, and fall through to start either way.
+      try {
+        await IotService.createControlProfile(
+          batchId: widget.batchId,
+          targetTemperature: _pausedTemperatureC ?? 50.0,
+          targetHumidity: 55.0,
+          targetDurationMinutes: _resumeDurationMinutes,
+        );
+      } catch (e) {
+        debugPrint("Resume: profile not recreated (likely exists): $e");
+      }
+
+      await IotService.startDryingSession(
+        batchId: widget.batchId,
+        mode: 'AUTO',
+      );
+
+      await DryingService.startDrying(
+        widget.batchId,
+        initialTemperatureC: _pausedTemperatureC,
+        initialTotalHours: _pausedTotalHours,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _paused = false;
+        _error = null;
+      });
+      await _refreshPredictions();
+      _startTimers();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Drying resumed")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_clean(e)), backgroundColor: AppColors.error),
+      );
+    } finally {
+      if (mounted) setState(() => _resuming = false);
     }
   }
 
@@ -310,8 +406,77 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     // This batch is drying -> the live dashboard.
     if (_isThisBatchDrying) return _dryingDashboard();
 
+    // Paused -> offer Resume.
+    if (_paused) return _pausedSection();
+
     // Not drying yet -> Start button.
     return _startSection();
+  }
+
+  Widget _pausedSection() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF8E8),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.pause_circle_filled_rounded,
+                  color: Colors.orange.shade700, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Drying paused",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "The oven is switched off. Resuming starts a fresh "
+                      "drying run with the same settings.",
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _resuming ? null : _resumeDrying,
+            icon: _resuming
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.play_arrow_rounded),
+            label: Text(_resuming ? "Resuming…" : "Resume Drying"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF34C759),
+              foregroundColor: Colors.white,
+              minimumSize: const Size(0, 52),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _startSection() {
@@ -494,7 +659,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
           child: OutlinedButton.icon(
             onPressed: _cancelDrying,
             icon: const Icon(Icons.stop_circle_outlined, size: 20),
-            label: const Text("Cancel Drying"),
+            label: const Text("Pause Drying"),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.error,
               side: BorderSide(color: AppColors.error.withValues(alpha: 0.5)),

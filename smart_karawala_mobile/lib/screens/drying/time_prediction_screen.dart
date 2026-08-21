@@ -10,6 +10,27 @@ import '../../services/iot_service.dart';
 const double _fallbackHumidityPercent = 60.0;
 const double _fallbackMq136Value = 0.0;
 
+/// Chamber humidity the oven should drive toward while drying. The model
+/// predicts temperature and time but not a target humidity, so this is the
+/// drying set-point handed to the oven's control profile.
+const double _targetHumidityPercent = 55.0;
+
+/// Client-side safety ceiling on the temperature sent to the oven.
+///
+/// The backend already clamps every recommendation (see
+/// MAX_DRYING_TEMPERATURE_C in TimeAndSpoilagePredictionService config, and
+/// GET /api/predict/safety-limits). This is a last-resort guard so a stale
+/// or manually-entered value can never command the oven to overheat.
+/// Keep it in sync with the backend cap.
+const double _maxSafeTemperatureC = 60.0;
+
+/// TEMPORARY (testing): duration sent to the oven's control profile, instead
+/// of the model's predicted drying time.
+///
+/// The predicted time (often 12h+) makes test runs impractical. Set this to
+/// null to go back to using the real predicted duration.
+const int? _testDurationMinutesOverride = 10;
+
 class TimePredictionScreen extends StatefulWidget {
   final String batchId;
   final String fishType;
@@ -113,11 +134,46 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
     });
 
     try {
+      // 1) Hand the predicted parameters to the IoT oven as its control
+      //    profile, then physically start the drying session. The oven
+      //    validates its own sensors here (it refuses to start without a
+      //    valid positive weight / temperature / humidity reading), so this
+      //    must succeed before we record the batch as drying.
+      // Final guard before the value reaches the oven's heater control.
+      final safeTemperature =
+          _recommendedTemperature.clamp(0.0, _maxSafeTemperatureC).toDouble();
+
+      final durationMinutes =
+          _testDurationMinutesOverride ?? (_estimatedHours * 60).round();
+
+      // The oven allows only one session per batch. If a profile already
+      // exists (e.g. a previous start failed after the profile was created)
+      // it returns 409 - reuse that READY session rather than failing.
+      try {
+        await IotService.createControlProfile(
+          batchId: widget.batchId,
+          targetTemperature: safeTemperature,
+          targetHumidity: _targetHumidityPercent,
+          targetDurationMinutes: durationMinutes,
+        );
+      } catch (e) {
+        debugPrint('Control profile exists, reusing it: $e');
+      }
+
+      await IotService.startDryingSession(
+        batchId: widget.batchId,
+        mode: 'AUTO',
+      );
+
+      // 2) Only once the oven is actually running, record it as the active
+      //    drying batch in the prediction service (seeded with the predicted
+      //    temperature/time so the countdown starts from a real estimate).
       await DryingService.startDrying(
         widget.batchId,
-        initialTemperatureC: _recommendedTemperature,
+        initialTemperatureC: safeTemperature,
         initialTotalHours: _estimatedHours,
       );
+
       if (!mounted) return;
 
       Navigator.pushReplacement(

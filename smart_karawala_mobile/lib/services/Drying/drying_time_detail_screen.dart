@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/drying_model.dart';
 import '../../services/Drying/drying_service.dart';
+import '../../widgets/Drying/drying_process_card.dart'
+    show kDryingSensorRefreshInterval;
 import '../../widgets/Drying/factor_tile.dart';
 
 /// Explains HOW the remaining drying time is estimated: the headline estimate
@@ -26,7 +28,8 @@ class _DryingTimeDetailScreenState extends State<DryingTimeDetailScreen> {
   void initState() {
     super.initState();
     _load();
-    _timer = Timer.periodic(const Duration(minutes: 10), (_) => _load(silent: true));
+    _timer =
+        Timer.periodic(kDryingSensorRefreshInterval, (_) => _load(silent: true));
   }
 
   @override
@@ -41,7 +44,13 @@ class _DryingTimeDetailScreenState extends State<DryingTimeDetailScreen> {
       final t = await DryingService.getDryingTime();
       if (!mounted) return;
       setState(() {
-        _time = t;
+        // Keep the last good reading when the IoT weight drops out (backend
+        // then returns a factor-less "SeededEstimate"/"Unavailable" result).
+        final isUnavailable = t.factors.isEmpty &&
+            (t.modelUsed == "Unavailable" || t.modelUsed == "SeededEstimate");
+        if (!isUnavailable || _time == null) {
+          _time = t;
+        }
         _error = null;
         _loading = false;
       });
@@ -153,12 +162,27 @@ class _DryingTimeDetailScreenState extends State<DryingTimeDetailScreen> {
           ),
           const SizedBox(height: 16),
           if (t.factors.isEmpty)
-            Text("No factor data available.", style: TextStyle(color: Colors.grey.shade500))
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.sensors_off_rounded,
+                    size: 18, color: Colors.orange.shade700),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    "Waiting for a complete IoT sensor reading. This usually "
+                    "recovers within a few seconds.",
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                  ),
+                ),
+              ],
+            )
           else
             ...t.factors.map((f) => FactorTile(factor: f)),
           const SizedBox(height: 16),
           Center(
-            child: Text("Auto-updates every 10 min from IoT sensors",
+            child: Text(
+                "Auto-updates every ${kDryingSensorRefreshInterval.inSeconds}s from IoT sensors",
                 style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
           ),
           const SizedBox(height: 20),
