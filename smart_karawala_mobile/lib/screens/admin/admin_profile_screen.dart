@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/Batch/colors.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/storage_service.dart';
 import '../auth/login_screen.dart';
 import 'edit_personal_info_screen.dart';
@@ -66,6 +68,12 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<AuthProvider>(context).user;
+    final displayName = (user?.fullName != null && user!.fullName.isNotEmpty) ? user.fullName : adminName;
+    final displayRole = user?.role == 'admin' ? "System Administrator" : (user?.role ?? adminRole);
+    final displayEmail = (user?.email != null && user!.email.isNotEmpty) ? user.email : adminEmail;
+    final displayPhone = (user?.phone != null && user!.phone!.isNotEmpty) ? user.phone! : adminPhone;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -114,7 +122,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              adminName,
+                              displayName,
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -123,7 +131,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              adminRole,
+                              displayRole,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey.shade600,
@@ -132,7 +140,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              adminEmail,
+                              displayEmail,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade400,
@@ -222,10 +230,10 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => EditPersonalInfoScreen(
-                            currentName: adminName,
-                            currentRole: adminRole,
-                            currentEmail: adminEmail,
-                            currentPhone: adminPhone,
+                            currentName: displayName,
+                            currentRole: displayRole,
+                            currentEmail: displayEmail,
+                            currentPhone: displayPhone,
                           ),
                         ),
                       );

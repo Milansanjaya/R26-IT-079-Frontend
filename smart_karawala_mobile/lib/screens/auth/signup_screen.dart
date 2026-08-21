@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_images.dart';
@@ -11,6 +12,7 @@ import '../admin/admin_home_screen.dart';
 import 'otp_verification_screen.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/common/google_logo_widget.dart';
+import '../../widgets/common/google_account_picker.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -121,53 +123,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    setState(() => _isGoogleLoading = true);
-
-    try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      final success = await auth.googleSignIn();
-
-      if (!mounted) return;
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle_outline, color: Colors.white),
-                SizedBox(width: 10),
-                Text("Signed in with Google successfully!"),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-
-        if (auth.isAdmin) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const CustomerHome()),
-          );
-        }
-      }
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Google Sign-In Error: ${e.toString()}"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isGoogleLoading = false);
-    }
+    GoogleAccountPicker.show(context);
   }
 
   @override
@@ -290,13 +246,24 @@ class _SignupScreenState extends State<SignupScreen> {
                         AuthTextField(
                           controller: mobileController,
                           label: "Mobile Number",
-                          hint: "Enter your phone number",
+                          hint: "Enter 10-digit phone number",
                           prefixIcon: Icons.phone_outlined,
-                          keyboardType: TextInputType.phone,
+                          keyboardType: TextInputType.number,
                           textInputAction: TextInputAction.next,
-                          validator: (v) => v == null || v.trim().isEmpty
-                              ? "Please enter your mobile number"
-                              : null,
+                          maxLength: 10,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return "Please enter your mobile number";
+                            }
+                            if (v.trim().length != 10) {
+                              return "Mobile number must be exactly 10 digits";
+                            }
+                            return null;
+                          },
                         ),
 
                         const SizedBox(height: 14),
@@ -407,7 +374,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           width: double.infinity,
                           height: 52,
                           child: OutlinedButton(
-                            onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
+                            onPressed: _handleGoogleSignIn,
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Colors.white,
                               foregroundColor: const Color(0xff1E293B),

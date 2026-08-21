@@ -46,7 +46,15 @@ class AuthProvider extends ChangeNotifier {
         response["user"],
       );
 
-      await StorageService.saveRole(_user?.role ?? "customer");
+      if (_user != null) {
+        await StorageService.saveRole(_user?.role ?? "customer");
+        await StorageService.saveUserInfo(
+          name: _user!.fullName,
+          email: _user!.email,
+          role: _user!.role,
+          phone: _user!.phone,
+        );
+      }
 
       _loading = false;
       notifyListeners();
@@ -59,17 +67,35 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> googleSignIn({String? idToken}) async {
+  Future<bool> googleSignIn({
+    String? idToken,
+    String? email,
+    String? name,
+    String? role,
+  }) async {
     _loading = true;
     notifyListeners();
 
     try {
-      final response = await AuthService.googleSignIn(idToken: idToken);
+      final response = await AuthService.googleSignIn(
+        idToken: idToken,
+        email: email,
+        name: name,
+        role: role,
+      );
 
       if (response["access_token"] != null) {
         await StorageService.saveToken(response["access_token"]);
         _user = UserModel.fromJson(response["user"]);
         await StorageService.saveRole(_user?.role ?? "customer");
+        if (_user != null) {
+          await StorageService.saveUserInfo(
+            name: _user!.fullName,
+            email: _user!.email,
+            role: _user!.role,
+            phone: _user!.phone,
+          );
+        }
         _loading = false;
         notifyListeners();
         return true;
@@ -81,6 +107,26 @@ class AuthProvider extends ChangeNotifier {
       _loading = false;
       notifyListeners();
       rethrow;
+    }
+  }
+
+  Future<void> loadUserFromStorage() async {
+    if (_user != null) return;
+    final name = await StorageService.getUserName();
+    final email = await StorageService.getUserEmail();
+    final role = await StorageService.getRole();
+    final phone = await StorageService.getUserPhone();
+
+    if (name != null && name.isNotEmpty) {
+      _user = UserModel(
+        id: "",
+        fullName: name,
+        email: email ?? "",
+        role: role ?? "customer",
+        isVerified: true,
+        phone: phone,
+      );
+      notifyListeners();
     }
   }
 

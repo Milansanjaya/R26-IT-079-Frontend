@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/Batch/colors.dart';
 import '../Add_company/add_company_screen.dart';
 import '../admin/admin_home_screen.dart';
+import '../Salt/salt_prediction_screen.dart';
 
 class WasteNotificationScreen extends StatefulWidget {
   final double predictedWaste;
@@ -21,6 +22,8 @@ class WasteNotificationScreen extends StatefulWidget {
 }
 
 class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
+  bool isNotificationSent = false;
+
   final TextEditingController collectionDateController =
       TextEditingController();
   final TextEditingController messageController = TextEditingController();
@@ -588,6 +591,10 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                 height: 56,
                 child: ElevatedButton.icon(
                   onPressed: () {
+                    setState(() {
+                      isNotificationSent = true;
+                    });
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Notification sent successfully!"),
@@ -595,13 +602,16 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.send_rounded, color: Colors.white),
-                  label: const Text(
-                    "Send Notification",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  icon: Icon(
+                    isNotificationSent ? Icons.check_circle_rounded : Icons.send_rounded,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    isNotificationSent ? "Notification Sent" : "Send Notification",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.button,
+                    backgroundColor: isNotificationSent ? Colors.green.shade700 : AppColors.button,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -610,6 +620,39 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
                   ),
                 ),
               ),
+
+              if (isNotificationSent) ...[
+                const SizedBox(height: 14),
+
+                // Next Step: Salt Prediction Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SaltPredictionScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.opacity_rounded, color: Colors.white),
+                    label: const Text(
+                      "Next Step: Salt Prediction",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
 
               // Information Card banner

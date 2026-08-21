@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
+import '../providers/auth_provider.dart';
 import '../services/storage_service.dart';
 import '../widgets/Batch/dashboard_menu_card.dart';
 
@@ -59,13 +61,21 @@ class AdminDashboardScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Greeting title matching screenshot
-              const Text(
-                "Hi ,Sanjaya",
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xff103F73),
-                ),
+              Consumer<AuthProvider>(
+                builder: (context, auth, _) {
+                  final user = auth.user;
+                  final name = (user?.fullName != null && user!.fullName.isNotEmpty)
+                      ? user.fullName
+                      : 'Admin';
+                  return Text(
+                    "Hi, $name",
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff103F73),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 16),
