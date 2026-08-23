@@ -26,7 +26,6 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
   String? fish;
   String? location;
   String? weightError;
-  String weightUnit = "kg"; // "kg" or "g"
   bool isLoading = false; // Added to handle progress status
 
   @override
@@ -48,23 +47,13 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     }
 
     final double? parsedWeight = double.tryParse(weightController.text);
-    final double rawWeightInKg = (weightUnit == "g" && parsedWeight != null)
-        ? parsedWeight / 1000.0
-        : (parsedWeight ?? 0.0);
-
-    final bool isInvalid = weightUnit == "g"
-        ? (parsedWeight == null || parsedWeight <= 0 || parsedWeight > 4500)
-        : (parsedWeight == null || parsedWeight <= 0 || parsedWeight > 4.5);
-
-    if (isInvalid) {
-      final msg = weightUnit == "g"
-          ? "Raw Fish Weight must be between 1 g and 4500 g (4.5 kg)"
-          : "Raw Fish Weight must be between 0.001 kg and 4.5 kg";
+    if (parsedWeight == null || parsedWeight <= 0 || parsedWeight > 4.5) {
+      const msg = "Raw Fish Weight must be between 0.001 kg and 4.5 kg";
       setState(() {
         weightError = msg;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
+        const SnackBar(content: Text(msg)),
       );
       return;
     } else {
@@ -89,7 +78,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
         body: jsonEncode({
           "batchId": generatedBatchId,
           "fishType": fish,
-          "rawWeight": rawWeightInKg,
+          "rawWeight": parsedWeight,
           "date": dateController.text,
           "time": timeController.text,
           "location": location,
@@ -100,17 +89,13 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (!mounted) return;
 
-        final displayWeightStr = weightUnit == "g"
-            ? "${weightController.text} g (${rawWeightInKg.toStringAsFixed(3)} kg)"
-            : "${weightController.text} kg";
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (_) => BatchCreatedSuccessScreen(
               batchId: generatedBatchId,
               fishType: fish!,
-              rawWeight: displayWeightStr,
+              rawWeight: "${weightController.text} kg",
               date: dateController.text,
               time: timeController.text,
               location: location!,
@@ -524,88 +509,15 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       return;
     }
     final double? parsed = double.tryParse(val);
-    if (weightUnit == "g") {
-      if (parsed == null || parsed <= 0 || parsed > 4500) {
-        setState(() {
-          weightError = "Weight must be greater than 0 and up to 4500 g (4.5 kg)";
-        });
-      } else {
-        setState(() {
-          weightError = null;
-        });
-      }
+    if (parsed == null || parsed <= 0 || parsed > 4.5) {
+      setState(() {
+        weightError = "Weight must be greater than 0 and up to 4.5 kg";
+      });
     } else {
-      if (parsed == null || parsed <= 0 || parsed > 4.5) {
-        setState(() {
-          weightError = "Weight must be greater than 0 and up to 4.5 kg";
-        });
-      } else {
-        setState(() {
-          weightError = null;
-        });
-      }
+      setState(() {
+        weightError = null;
+      });
     }
-  }
-
-  Widget _buildUnitToggle() {
-    return Container(
-      margin: const EdgeInsets.only(right: 6, top: 4, bottom: 4),
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _unitOption("kg"),
-          _unitOption("g"),
-        ],
-      ),
-    );
-  }
-
-  Widget _unitOption(String unit) {
-    final isSelected = weightUnit == unit;
-    return GestureDetector(
-      onTap: () {
-        if (weightUnit != unit) {
-          final val = double.tryParse(weightController.text);
-          if (val != null && val > 0) {
-            if (unit == "g" && weightUnit == "kg") {
-              final inG = (val * 1000).round();
-              weightController.text = inG.toString();
-            } else if (unit == "kg" && weightUnit == "g") {
-              final inKg = val / 1000.0;
-              weightController.text = inKg
-                  .toStringAsFixed(3)
-                  .replaceAll(RegExp(r'0+$'), '')
-                  .replaceAll(RegExp(r'\.$'), '');
-            }
-          }
-          setState(() {
-            weightUnit = unit;
-            _validateWeight(weightController.text);
-          });
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          unit,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            color: isSelected ? Colors.white : AppColors.primary,
-          ),
-        ),
-      ),
-    );
   }
 
   Widget buildWeight() {
@@ -619,7 +531,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       decoration: _inputDecoration(
         "Raw Fish Weight",
         Icons.scale_outlined,
-        suffixIcon: _buildUnitToggle(),
+        suffix: "kg",
         errorText: weightError,
       ),
     );

@@ -17,7 +17,6 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
   late TextEditingController fishController;
   late TextEditingController weightController;
   late String selectedStatus;
-  String weightUnit = "kg";
   final _formKey = GlobalKey<FormState>();
 
   final List<String> statusOptions = [
@@ -72,66 +71,6 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
         borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-    );
-  }
-
-  Widget _buildUnitToggle() {
-    return Container(
-      margin: const EdgeInsets.only(right: 6, top: 4, bottom: 4),
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _unitOption("kg"),
-          _unitOption("g"),
-        ],
-      ),
-    );
-  }
-
-  Widget _unitOption(String unit) {
-    final isSelected = weightUnit == unit;
-    return GestureDetector(
-      onTap: () {
-        if (weightUnit != unit) {
-          final val = double.tryParse(weightController.text);
-          if (val != null && val > 0) {
-            if (unit == "g" && weightUnit == "kg") {
-              final inG = (val * 1000).round();
-              weightController.text = inG.toString();
-            } else if (unit == "kg" && weightUnit == "g") {
-              final inKg = val / 1000.0;
-              weightController.text = inKg
-                  .toStringAsFixed(3)
-                  .replaceAll(RegExp(r'0+$'), '')
-                  .replaceAll(RegExp(r'\.$'), '');
-            }
-          }
-          setState(() {
-            weightUnit = unit;
-          });
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          unit,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            color: isSelected ? Colors.white : AppColors.primary,
-          ),
-        ),
-      ),
     );
   }
 
@@ -219,21 +158,15 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                         decoration: _inputDecoration(
                           "Raw Weight",
                           Icons.scale_outlined,
-                          suffixIcon: _buildUnitToggle(),
+                          suffix: "kg",
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Raw weight is required";
                           }
                           final parsed = double.tryParse(value);
-                          if (parsed == null || parsed <= 0) {
-                            return "Enter a valid number greater than 0";
-                          }
-                          final inKg = weightUnit == "g" ? parsed / 1000.0 : parsed;
-                          if (inKg > 4.5) {
-                            return weightUnit == "g"
-                                ? "Weight must be up to 4500 g (4.5 kg)"
-                                : "Weight must be up to 4.5 kg";
+                          if (parsed == null || parsed <= 0 || parsed > 4.5) {
+                            return "Raw weight must be greater than 0 and up to 4.5 kg";
                           }
                           return null;
                         },
@@ -283,8 +216,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                             }
 
                             try {
-                              final double parsedVal = double.parse(weightController.text.trim());
-                              final double parsedRawKg = weightUnit == "g" ? parsedVal / 1000.0 : parsedVal;
+                              final double parsedRawKg = double.parse(weightController.text.trim());
 
                               await ProcessingReportService.updateBatch(
                                 batchId: widget.batch.batchId,
