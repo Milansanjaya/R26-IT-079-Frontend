@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter/services.dart';
+
 import '../../core/constants/app_colors.dart';
 
 class AuthTextField extends StatefulWidget {
@@ -12,6 +14,8 @@ class AuthTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final TextInputAction? textInputAction;
   final void Function(String)? onFieldSubmitted;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
 
   const AuthTextField({
     super.key,
@@ -24,6 +28,8 @@ class AuthTextField extends StatefulWidget {
     this.validator,
     this.textInputAction,
     this.onFieldSubmitted,
+    this.inputFormatters,
+    this.maxLength,
   });
 
   @override
@@ -57,12 +63,15 @@ class _AuthTextFieldState extends State<AuthTextField> {
           validator: widget.validator,
           textInputAction: widget.textInputAction,
           onFieldSubmitted: widget.onFieldSubmitted,
+          inputFormatters: widget.inputFormatters,
+          maxLength: widget.maxLength,
           style: const TextStyle(
             fontSize: 15,
             color: Color(0xFF1A3B5D),
             fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
+            counterText: "",
             hintText: widget.hint,
             hintStyle: const TextStyle(
               color: Color(0xFF8BA6BE),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/constants/app_images.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/storage_service.dart';
 import '../../widgets/auth/auth_background.dart';
 import '../admin/admin_home_screen.dart';
@@ -28,6 +30,8 @@ class _SplashScreenState extends State<SplashScreen> {
     final role = await StorageService.getRole();
 
     if (!mounted) return;
+
+    await Provider.of<AuthProvider>(context, listen: false).loadUserFromStorage();
 
     if (token == null) {
       Navigator.pushReplacement(

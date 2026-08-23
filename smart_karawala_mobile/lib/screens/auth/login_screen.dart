@@ -8,6 +8,7 @@ import '../../widgets/auth/auth_background.dart';
 import '../../widgets/auth/auth_card.dart';
 import '../../widgets/auth/auth_textfield.dart';
 import '../../widgets/common/google_logo_widget.dart';
+import '../../widgets/common/google_account_picker.dart';
 import '../admin/admin_home_screen.dart';
 import '../customer/customer_home.dart';
 import 'signup_screen.dart';
@@ -367,34 +368,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: double.infinity,
                           height: 52,
                           child: OutlinedButton(
-                            onPressed: () async {
-                              final auth = Provider.of<AuthProvider>(context, listen: false);
-                              try {
-                                final success = await auth.googleSignIn();
-                                if (!context.mounted) return;
-                                if (success) {
-                                  if (auth.isAdmin) {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
-                                    );
-                                  } else {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => const CustomerHome()),
-                                    );
-                                  }
-                                }
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Google Sign-In Error: ${e.toString()}"),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            },
+                            onPressed: () => GoogleAccountPicker.show(context),
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Colors.white,
                               foregroundColor: const Color(0xff1E293B),

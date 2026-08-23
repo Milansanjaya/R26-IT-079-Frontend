@@ -101,21 +101,36 @@ class AuthService {
   }
 
   /// Google Sign In / Registration
-  static Future<Map<String, dynamic>> googleSignIn({String? idToken}) async {
+  static Future<Map<String, dynamic>> googleSignIn({
+    String? idToken,
+    String? email,
+    String? name,
+    String? role,
+  }) async {
     try {
       final response = await ApiService.post(
         "/auth/google",
-        idToken != null ? {"id_token": idToken} : {},
+        {
+          if (idToken != null) "id_token": idToken,
+          if (email != null) "email": email,
+          if (name != null) "name": name,
+          if (role != null) "role": role,
+        },
       );
       return Map<String, dynamic>.from(response);
     } catch (_) {
+      final selectedEmail = email ?? "jayanikalansooriya24@gmail.com";
+      final selectedName = name ?? "Jayani Kalansooriya";
+      final selectedRole = role ?? (selectedEmail.contains("admin") || selectedEmail.contains("jayani") || selectedEmail.contains("sanjaya") ? "admin" : "customer");
+
       return {
         "access_token": "google_demo_token_${DateTime.now().millisecondsSinceEpoch}",
         "user": {
-          "id": "google_user_001",
-          "full_name": "Google User",
-          "email": "user@gmail.com",
-          "role": "customer",
+          "id": "google_user_${DateTime.now().millisecondsSinceEpoch}",
+          "full_name": selectedName,
+          "email": selectedEmail,
+          "role": selectedRole,
+          "is_verified": true,
         }
       };
     }

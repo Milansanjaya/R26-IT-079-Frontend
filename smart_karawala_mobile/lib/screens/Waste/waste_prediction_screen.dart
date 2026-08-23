@@ -3,7 +3,6 @@ import '../../models/batch_model.dart';
 import '../../services/Batch/batch_service.dart';
 import '../../widgets/Batch/colors.dart';
 import 'waste_notification_screen.dart';
-import '../Salt/salt_prediction_screen.dart';
 import '../admin/admin_home_screen.dart';
 
 class WastePredictionScreen extends StatefulWidget {
@@ -16,6 +15,7 @@ class WastePredictionScreen extends StatefulWidget {
 class _WastePredictionScreenState extends State<WastePredictionScreen> {
   bool loading = true;
   bool predicting = false;
+  bool hasPredicted = false;
 
   BatchModel? batch;
 
@@ -52,6 +52,11 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
     try {
       await BatchService.predictWaste(batch!.batchId);
       await loadLatestBatch();
+      if (mounted) {
+        setState(() {
+          hasPredicted = true;
+        });
+      }
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -244,260 +249,231 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              if (hasPredicted) ...[
+                const SizedBox(height: 24),
 
-              // Prediction Result Heading
-              const Text(
-                "Prediction Result",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                // Prediction Result Heading
+                const Text(
+                  "Prediction Result",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Prediction Result Container
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withOpacity(0.04),
-                      blurRadius: 16,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    // Circular progress ring on the left
-                    Expanded(
-                      flex: 6,
-                      child: Center(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              height: 130,
-                              width: 130,
-                              child: CircularProgressIndicator(
-                                value: batch!.rawWeight > 0 ? (batch!.predictedWaste / batch!.rawWeight) : 0,
-                                strokeWidth: 10,
-                                backgroundColor: Colors.grey.shade100,
-                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                // Prediction Result Container
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.04),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      // Circular progress ring on the left
+                      Expanded(
+                        flex: 6,
+                        child: Center(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                height: 130,
+                                width: 130,
+                                child: CircularProgressIndicator(
+                                  value: batch!.rawWeight > 0 ? (batch!.predictedWaste / batch!.rawWeight) : 0,
+                                  strokeWidth: 10,
+                                  backgroundColor: Colors.grey.shade100,
+                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                                ),
                               ),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  batch!.predictedWaste.toStringAsFixed(3),
-                                  style: const TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    batch!.predictedWaste.toStringAsFixed(3),
+                                    style: const TextStyle(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
+                                    ),
                                   ),
-                                ),
-                                const Text(
-                                  "kg",
-                                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "${wastePercentage.toStringAsFixed(1)}%",
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
+                                  const Text(
+                                    "kg",
+                                    style: TextStyle(fontSize: 12, color: Colors.grey),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "${wastePercentage.toStringAsFixed(1)}%",
+                                    style: const TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
+                      const SizedBox(width: 16),
 
-                    // Information details on the right
-                    Expanded(
-                      flex: 7,
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F9FD),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.blue.shade50),
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.delete_sweep_outlined,
-                              color: AppColors.primary,
-                              size: 28,
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              "Predicted Waste",
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                      // Information details on the right
+                      Expanded(
+                        flex: 7,
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F9FD),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.blue.shade50),
+                          ),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.delete_sweep_outlined,
                                 color: AppColors.primary,
+                                size: 28,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 6),
+                              const SizedBox(height: 8),
+                              const Text(
+                                "Predicted Waste",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                "${batch!.predictedWaste.toStringAsFixed(3)} kg",
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "${wastePercentage.toStringAsFixed(1)}% of raw weight",
+                                style: const TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Next Step Info Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE3F2FD), // Soft blue background
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.blue.shade100, width: 1.5),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline_rounded, color: Colors.blue.shade800, size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              "${batch!.predictedWaste.toStringAsFixed(3)} kg",
-                              style: const TextStyle(
-                                fontSize: 20,
+                              "Next Step",
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                                color: Colors.blue.shade900,
+                                fontSize: 15,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "${wastePercentage.toStringAsFixed(1)}% of raw weight",
-                              style: const TextStyle(
-                                color: Colors.green,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                              "After predicting the waste amount, notify the recycling partners so they can collect the fish waste for recycling.",
+                              style: TextStyle(
+                                color: Colors.blue.shade800,
+                                fontSize: 12,
+                                height: 1.4,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Next Step Info Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE3F2FD), // Soft blue background
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.blue.shade100, width: 1.5),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info_outline_rounded, color: Colors.blue.shade800, size: 24),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Next Step",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade900,
-                              fontSize: 15,
+                // Send Notification Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () async {
+                      final success = await BatchService.sendNotification(
+                        batch!.batchId,
+                      );
+
+                      if (!mounted) return;
+
+                      if (success) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WasteNotificationScreen(
+                              predictedWaste: batch!.predictedWaste,
+                              batchId: batch!.batchId,
+                              wastePercentage: wastePercentage,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "After predicting the waste amount, notify the recycling partners so they can collect the fish waste for recycling.",
-                            style: TextStyle(
-                              color: Colors.blue.shade800,
-                              fontSize: 12,
-                              height: 1.4,
-                            ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text("Failed to send notification."),
                           ),
-                        ],
-                      ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.send_rounded, color: Colors.white),
+                    label: const Text(
+                      "Send Notification",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Salt Prediction Button (Next Step)
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.button,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SaltPredictionScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.opacity_rounded, color: Colors.white),
-                  label: const Text(
-                    "Salt Prediction",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Send Notification Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    minimumSize: const Size(0, 56),
-                  ),
-                  onPressed: () async {
-                    final success = await BatchService.sendNotification(
-                      batch!.batchId,
-                    );
-
-                    if (!mounted) return;
-
-                    if (success) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => WasteNotificationScreen(
-                            predictedWaste: batch!.predictedWaste,
-                            batchId: batch!.batchId,
-                            wastePercentage: wastePercentage,
-                          ),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: Colors.red,
-                          content: Text("Failed to send notification."),
-                        ),
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.send_rounded, color: AppColors.primary),
-                  label: const Text(
-                    "Send Notification",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-              ),
+              ],
 
               const SizedBox(height: 32),
               const Divider(),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/Salt/salt_service.dart';
 import '../Add_Batch/add_new_batch_screen.dart';
 import '../Waste/waste_prediction_screen.dart';
@@ -313,13 +315,21 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Sanjaya',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
+                    Consumer<AuthProvider>(
+                      builder: (context, auth, _) {
+                        final user = auth.user;
+                        final name = (user?.fullName != null && user!.fullName.isNotEmpty)
+                            ? user.fullName
+                            : 'Admin';
+                        return Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

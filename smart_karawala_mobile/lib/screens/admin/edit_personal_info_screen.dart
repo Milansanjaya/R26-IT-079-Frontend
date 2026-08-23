@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/storage_service.dart';
 import '../../widgets/Batch/colors.dart';
 
 class EditPersonalInfoScreen extends StatefulWidget {
-  final String currentName;
-  final String currentRole;
-  final String currentEmail;
-  final String currentPhone;
+  final String? currentName;
+  final String? currentRole;
+  final String? currentEmail;
+  final String? currentPhone;
 
   const EditPersonalInfoScreen({
     super.key,
-    required this.currentName,
-    required this.currentRole,
-    required this.currentEmail,
-    this.currentPhone = "+94 77 123 4567",
+    this.currentName,
+    this.currentRole,
+    this.currentEmail,
+    this.currentPhone,
   });
 
   @override
@@ -25,14 +29,38 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   late TextEditingController emailController;
   late TextEditingController phoneController;
   bool isSaving = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.currentName);
-    roleController = TextEditingController(text: widget.currentRole);
-    emailController = TextEditingController(text: widget.currentEmail);
-    phoneController = TextEditingController(text: widget.currentPhone);
+    nameController = TextEditingController(text: widget.currentName ?? "");
+    roleController = TextEditingController(text: widget.currentRole ?? "");
+    emailController = TextEditingController(text: widget.currentEmail ?? "");
+    phoneController = TextEditingController(text: widget.currentPhone ?? "");
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      final user = Provider.of<AuthProvider>(context, listen: false).user;
+      if (user != null) {
+        if (nameController.text.isEmpty) {
+          nameController.text = user.fullName;
+        }
+        if (emailController.text.isEmpty) {
+          emailController.text = user.email;
+        }
+        if (roleController.text.isEmpty) {
+          roleController.text = user.role == 'admin' ? 'System Administrator' : user.role;
+        }
+        if (phoneController.text.isEmpty && user.phone != null) {
+          phoneController.text = user.phone!;
+        }
+      }
+      _isInitialized = true;
+    }
   }
 
   @override
@@ -53,7 +81,22 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     }
 
     setState(() => isSaving = true);
-    await Future.delayed(const Duration(milliseconds: 600));
+    
+    final updatedName = nameController.text.trim();
+    final updatedRole = roleController.text.trim();
+    final updatedEmail = emailController.text.trim();
+    final updatedPhone = phoneController.text.trim();
+
+    await StorageService.saveUserInfo(
+      name: updatedName,
+      email: updatedEmail,
+      role: updatedRole == "System Administrator" ? "admin" : updatedRole,
+      phone: updatedPhone,
+    );
+
+    if (mounted) {
+      await Provider.of<AuthProvider>(context, listen: false).loadUserFromStorage();
+    }
 
     if (!mounted) return;
 
@@ -65,10 +108,10 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     );
 
     Navigator.pop(context, {
-      "name": nameController.text.trim(),
-      "role": roleController.text.trim(),
-      "email": emailController.text.trim(),
-      "phone": phoneController.text.trim(),
+      "name": updatedName,
+      "role": updatedRole,
+      "email": updatedEmail,
+      "phone": updatedPhone,
     });
   }
 
@@ -212,8 +255,13 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: _inputDecoration("Phone Number", Icons.phone_outlined),
+                    keyboardType: TextInputType.number,
+                    maxLength: 10,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(10),
+                    ],
+                    decoration: _inputDecoration("Phone Number", Icons.phone_outlined).copyWith(counterText: ""),
                   ),
                 ],
               ),
