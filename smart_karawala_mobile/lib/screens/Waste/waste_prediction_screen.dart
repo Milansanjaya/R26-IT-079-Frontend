@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import '../../models/batch_model.dart';
 import '../../services/Batch/batch_service.dart';
 import '../../widgets/Batch/colors.dart';
+import '../../utils/weight_formatter.dart';
 import 'waste_notification_screen.dart';
 import '../admin/admin_home_screen.dart';
 
 class WastePredictionScreen extends StatefulWidget {
-  const WastePredictionScreen({super.key});
+  final String? batchId;
+
+  const WastePredictionScreen({
+    super.key,
+    this.batchId,
+  });
 
   @override
   State<WastePredictionScreen> createState() => _WastePredictionScreenState();
@@ -27,7 +33,9 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
 
   Future<void> loadLatestBatch() async {
     try {
-      final latest = await BatchService.getLatestBatch();
+      final latest = (widget.batchId != null && widget.batchId!.isNotEmpty)
+          ? await BatchService.getBatchById(widget.batchId!)
+          : await BatchService.getLatestBatch();
 
       setState(() {
         batch = latest;
@@ -207,7 +215,7 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                     const Divider(height: 24),
                     _buildSummaryRow("Fish Type", batch!.fishType),
                     const Divider(height: 24),
-                    _buildSummaryRow("Raw Fish Weight", "${batch!.rawWeight} kg"),
+                    _buildSummaryRow("Raw Fish Weight", WeightFormatter.format(batch!.rawWeight)),
 
                     const SizedBox(height: 24),
 
@@ -301,16 +309,12 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    batch!.predictedWaste.toStringAsFixed(3),
+                                    WeightFormatter.format(batch!.predictedWaste),
                                     style: const TextStyle(
-                                      fontSize: 26,
+                                      fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.primary,
                                     ),
-                                  ),
-                                  const Text(
-                                    "kg",
-                                    style: TextStyle(fontSize: 12, color: Colors.grey),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
@@ -358,7 +362,7 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                "${batch!.predictedWaste.toStringAsFixed(3)} kg",
+                                WeightFormatter.format(batch!.predictedWaste),
                                 style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,

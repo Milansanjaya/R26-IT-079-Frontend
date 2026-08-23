@@ -17,13 +17,35 @@ class SaltService {
 
     final json = jsonDecode(response.body);
 
-    final List batches = json["batches"];
+    final List batches = json["batches"] ?? [];
 
     if (batches.isEmpty) {
       throw Exception("No batches found");
     }
 
     return BatchModel.fromJson(batches.first);
+  }
+
+  /// Get batch by specific ID
+  static Future<BatchModel> getBatchById(String batchId) async {
+    try {
+      final response = await http.get(Uri.parse(baseUrl));
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final List batches = json["batches"] ?? [];
+
+        final found = batches.firstWhere(
+          (b) => b["batchId"] == batchId || b["_id"] == batchId,
+          orElse: () => null,
+        );
+
+        if (found != null) {
+          return BatchModel.fromJson(found);
+        }
+      }
+    } catch (_) {}
+    return getLatestBatch();
   }
 
   

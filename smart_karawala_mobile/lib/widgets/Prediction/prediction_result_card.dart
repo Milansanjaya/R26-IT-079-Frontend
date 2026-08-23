@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/weight_formatter.dart';
 
 class PredictionResultCard extends StatelessWidget {
   final double saltAmount;
@@ -92,7 +93,7 @@ class PredictionResultCard extends StatelessWidget {
                       const SizedBox(height: 15),
 
                       Text(
-                        "${saltAmount.toStringAsFixed(2)} kg",
+                        WeightFormatter.format(saltAmount),
                         style: const TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,

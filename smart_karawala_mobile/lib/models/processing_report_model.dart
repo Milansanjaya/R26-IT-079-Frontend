@@ -6,6 +6,8 @@ class ProcessingReportModel {
   final double predictedWaste;
   final double wastePercentage;
   final String status;
+  final String? location;
+  final String? notes;
 
   ProcessingReportModel({
     required this.batchId,
@@ -15,6 +17,8 @@ class ProcessingReportModel {
     required this.predictedWaste,
     required this.wastePercentage,
     required this.status,
+    this.location,
+    this.notes,
   });
 
   factory ProcessingReportModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +30,8 @@ class ProcessingReportModel {
       predictedWaste: (json["predictedWaste"] ?? 0).toDouble(),
       wastePercentage: (json["wastePercentage"] ?? 0).toDouble(),
       status: json["status"] ?? "",
+      location: json["location"],
+      notes: json["notes"],
     );
   }
 }

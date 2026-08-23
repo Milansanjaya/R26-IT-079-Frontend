@@ -17,6 +17,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
   late TextEditingController fishController;
   late TextEditingController weightController;
   late String selectedStatus;
+  String weightUnit = "kg";
   final _formKey = GlobalKey<FormState>();
 
   final List<String> statusOptions = [
@@ -48,10 +49,11 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
     super.dispose();
   }
 
-  InputDecoration _inputDecoration(String label, IconData icon, {String? suffix}) {
+  InputDecoration _inputDecoration(String label, IconData icon, {Widget? suffixIcon, String? suffix}) {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+      suffixIcon: suffixIcon,
       suffixText: suffix,
       suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
       filled: true,
@@ -73,6 +75,66 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
     );
   }
 
+  Widget _buildUnitToggle() {
+    return Container(
+      margin: const EdgeInsets.only(right: 6, top: 4, bottom: 4),
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _unitOption("kg"),
+          _unitOption("g"),
+        ],
+      ),
+    );
+  }
+
+  Widget _unitOption(String unit) {
+    final isSelected = weightUnit == unit;
+    return GestureDetector(
+      onTap: () {
+        if (weightUnit != unit) {
+          final val = double.tryParse(weightController.text);
+          if (val != null && val > 0) {
+            if (unit == "g" && weightUnit == "kg") {
+              final inG = (val * 1000).round();
+              weightController.text = inG.toString();
+            } else if (unit == "kg" && weightUnit == "g") {
+              final inKg = val / 1000.0;
+              weightController.text = inKg
+                  .toStringAsFixed(3)
+                  .replaceAll(RegExp(r'0+$'), '')
+                  .replaceAll(RegExp(r'\.$'), '');
+            }
+          }
+          setState(() {
+            weightUnit = unit;
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          unit,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            color: isSelected ? Colors.white : AppColors.primary,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,7 +146,6 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header navigation row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -104,40 +165,24 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new,
-                        color: AppColors.primary,
-                        size: 18,
-                      ),
+                      child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AdminHomeScreen(),
-                        ),
-                      );
-                    },
-                    child: Image.asset('assets/images/logo.png', height: 70),
-                  ),
+                  Image.asset('assets/images/logo.png', height: 70),
                 ],
               ),
               const SizedBox(height: 24),
 
-              // Title
               const Text(
                 "Edit Batch",
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Form Container Card
               Form(
                 key: _formKey,
                 child: Container(
@@ -171,17 +216,24 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                       TextFormField(
                         controller: weightController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: _inputDecoration("Raw Weight", Icons.scale_outlined, suffix: "kg"),
+                        decoration: _inputDecoration(
+                          "Raw Weight",
+                          Icons.scale_outlined,
+                          suffixIcon: _buildUnitToggle(),
+                        ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Raw weight is required";
                           }
                           final parsed = double.tryParse(value);
-                          if (parsed == null) {
-                            return "Enter a valid number";
+                          if (parsed == null || parsed <= 0) {
+                            return "Enter a valid number greater than 0";
                           }
-                          if (parsed <= 0 || parsed > 4.5) {
-                            return "Raw weight must be greater than 0 and up to 4.5 kg (4kg 500g)";
+                          final inKg = weightUnit == "g" ? parsed / 1000.0 : parsed;
+                          if (inKg > 4.5) {
+                            return weightUnit == "g"
+                                ? "Weight must be up to 4500 g (4.5 kg)"
+                                : "Weight must be up to 4.5 kg";
                           }
                           return null;
                         },
@@ -231,10 +283,13 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                             }
 
                             try {
+                              final double parsedVal = double.parse(weightController.text.trim());
+                              final double parsedRawKg = weightUnit == "g" ? parsedVal / 1000.0 : parsedVal;
+
                               await ProcessingReportService.updateBatch(
                                 batchId: widget.batch.batchId,
                                 fishType: fishController.text.trim(),
-                                rawWeight: double.parse(weightController.text.trim()),
+                                rawWeight: parsedRawKg,
                                 status: selectedStatus,
                               );
 
@@ -242,7 +297,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                                 batchId: widget.batch.batchId,
                                 fishType: fishController.text.trim(),
                                 date: widget.batch.date,
-                                rawWeight: double.parse(weightController.text.trim()),
+                                rawWeight: parsedRawKg,
                                 predictedWaste: widget.batch.predictedWaste,
                                 wastePercentage: widget.batch.wastePercentage,
                                 status: selectedStatus,
