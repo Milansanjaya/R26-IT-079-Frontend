@@ -127,6 +127,59 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
     }
   }
 
+  /// Oven session states that can never be started again.
+  static const _terminalOvenStates = {"STOPPED", "COMPLETED", "FAULT"};
+
+  /// Decide which id to open the oven session under, and make sure a control
+  /// profile exists for it.
+  ///
+  /// Prefers the real batch id so the oven session stays traceable. Falls back
+  /// to a unique suffixed id when the batch's own session is in a terminal
+  /// state and therefore unusable.
+  Future<String> _resolveOvenSessionId() async {
+    final safeTemperature =
+        _recommendedTemperature.clamp(0.0, _maxSafeTemperatureC).toDouble();
+    final durationMinutes =
+        _testDurationMinutesOverride ?? (_estimatedHours * 60).round();
+
+    Future<void> createProfile(String id) => IotService.createControlProfile(
+          batchId: id,
+          targetTemperature: safeTemperature,
+          targetHumidity: _targetHumidityPercent,
+          targetDurationMinutes: durationMinutes,
+        );
+
+    String? existingStatus;
+    try {
+      final session = await IotService.getDryingSession(widget.batchId);
+      existingStatus = session["status"]?.toString().toUpperCase();
+    } catch (_) {
+      // No session for this batch yet - the normal first-run path.
+      existingStatus = null;
+    }
+
+    if (existingStatus == null) {
+      await createProfile(widget.batchId);
+      return widget.batchId;
+    }
+
+    if (existingStatus == "DRYING" || existingStatus == "READY") {
+      // Already usable: DRYING starts are idempotent, READY just needs
+      // starting. Its profile already exists, so don't recreate it.
+      return widget.batchId;
+    }
+
+    if (_terminalOvenStates.contains(existingStatus)) {
+      final freshId =
+          "${widget.batchId}-${DateTime.now().millisecondsSinceEpoch}";
+      await createProfile(freshId);
+      return freshId;
+    }
+
+    // Unknown state - try the batch id and let the oven reject it clearly.
+    return widget.batchId;
+  }
+
   Future<void> _startDrying() async {
     setState(() {
       _startingDrying = true;
@@ -143,25 +196,25 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
       final safeTemperature =
           _recommendedTemperature.clamp(0.0, _maxSafeTemperatureC).toDouble();
 
-      final durationMinutes =
-          _testDurationMinutesOverride ?? (_estimatedHours * 60).round();
+      // Pick the oven session id.
+      //
+      // The oven keeps one session per id and its terminal states are sticky:
+      // once an id ends up STOPPED/COMPLETED/FAULT it can never be started
+      // again (a transient sensor dropout is enough to burn one). So only a
+      // session that is still READY may be reused - otherwise we start a new
+      // oven session under a unique id, exactly as the Drying Control screen
+      // does with its "MOBILE-<timestamp>" ids.
+      final ovenBatchId = await _resolveOvenSessionId();
 
-      // The oven allows only one session per batch. If a profile already
-      // exists (e.g. a previous start failed after the profile was created)
-      // it returns 409 - reuse that READY session rather than failing.
-      try {
-        await IotService.createControlProfile(
-          batchId: widget.batchId,
-          targetTemperature: safeTemperature,
-          targetHumidity: _targetHumidityPercent,
-          targetDurationMinutes: durationMinutes,
+      if (ovenBatchId != widget.batchId) {
+        debugPrint(
+          'Batch ${widget.batchId} has a terminal oven session; '
+          'starting a new one as $ovenBatchId',
         );
-      } catch (e) {
-        debugPrint('Control profile exists, reusing it: $e');
       }
 
       await IotService.startDryingSession(
-        batchId: widget.batchId,
+        batchId: ovenBatchId,
         mode: 'AUTO',
       );
 
@@ -172,6 +225,7 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
         widget.batchId,
         initialTemperatureC: safeTemperature,
         initialTotalHours: _estimatedHours,
+        ovenSessionId: ovenBatchId,
       );
 
       if (!mounted) return;

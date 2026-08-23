@@ -61,6 +61,18 @@ class ActiveDryingBatch {
   final double? initialTemperatureC;
   final double? initialTotalHours;
 
+  /// Ground truth from the IoT oven. The active-batch record is only
+  /// bookkeeping; these say whether the heater is ACTUALLY running, so the
+  /// countdown can be paused when the oven stops or faults.
+  final bool ovenRunning;
+  final String? ovenStatus;
+  final bool ovenReachable;
+  final String? ovenStoppedReason;
+
+  /// Id the oven session runs under. Usually equals [batchId], but differs
+  /// when the batch's own oven session was terminal and a fresh id was used.
+  final String? ovenSessionId;
+
   ActiveDryingBatch({
     required this.batchId,
     required this.fishType,
@@ -69,6 +81,11 @@ class ActiveDryingBatch {
     required this.elapsedDryingHours,
     this.initialTemperatureC,
     this.initialTotalHours,
+    this.ovenRunning = true,
+    this.ovenStatus,
+    this.ovenReachable = true,
+    this.ovenStoppedReason,
+    this.ovenSessionId,
   });
 
   factory ActiveDryingBatch.fromJson(Map<String, dynamic> json) {
@@ -84,6 +101,13 @@ class ActiveDryingBatch {
       initialTotalHours: json["initialTotalHours"] == null
           ? null
           : _toDouble(json["initialTotalHours"]),
+      // Default to "running" when the field is absent so an older backend
+      // doesn't make the UI look permanently stopped.
+      ovenRunning: json["ovenRunning"] as bool? ?? true,
+      ovenStatus: json["ovenStatus"]?.toString(),
+      ovenReachable: json["ovenReachable"] as bool? ?? true,
+      ovenStoppedReason: json["ovenStoppedReason"]?.toString(),
+      ovenSessionId: json["ovenSessionId"]?.toString(),
     );
   }
 }
