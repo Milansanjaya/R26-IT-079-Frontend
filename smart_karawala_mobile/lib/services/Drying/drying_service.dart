@@ -69,10 +69,14 @@ class DryingService {
   /// (TimePredictionService.predictInitial), if that step ran first. They
   /// seed the countdown shown before live sensor data can produce a
   /// meaningful re-estimate.
+  /// [ovenSessionId] is the id the oven session was actually opened under. It
+  /// usually equals [batchId], but differs when the batch's own oven session
+  /// is in a terminal state and a fresh suffixed id had to be used.
   static Future<ActiveDryingBatch> startDrying(
     String batchId, {
     double? initialTemperatureC,
     double? initialTotalHours,
+    String? ovenSessionId,
   }) async {
     final response = await http
         .post(
@@ -82,6 +86,7 @@ class DryingService {
             "batchId": batchId,
             if (initialTemperatureC != null) "initialTemperatureC": initialTemperatureC,
             if (initialTotalHours != null) "initialTotalHours": initialTotalHours,
+            if (ovenSessionId != null) "ovenSessionId": ovenSessionId,
           }),
         )
         .timeout(_timeout);
