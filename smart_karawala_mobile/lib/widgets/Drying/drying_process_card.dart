@@ -150,9 +150,12 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     _tickTimer?.cancel();
     _refreshTimer?.cancel();
 
-    // Local 1-second countdown.
+    // Local 1-second countdown. Only ticks while the oven is actually
+    // running - otherwise the timer would keep counting down after the oven
+    // has stopped or faulted, which misrepresents the batch as still drying.
     _tickTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
+      if (_active?.ovenRunning == false) return;
       if (_remainingSeconds > 0) {
         setState(() => _remainingSeconds--);
       }
@@ -225,7 +228,11 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
       // oven has no session for this batch (e.g. drying was started outside
       // the app) that's not fatal - still clear the pointer below.
       try {
-        await IotService.stopDryingSession(widget.batchId);
+        // Stop the session the oven actually opened, which may run under a
+        // different id than the batch (see ActiveDryingBatch.ovenSessionId).
+        await IotService.stopDryingSession(
+          _active?.ovenSessionId ?? widget.batchId,
+        );
       } catch (e) {
         debugPrint("Oven stop failed (continuing to clear active batch): $e");
       }
@@ -544,9 +551,60 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     }
   }
 
+  /// Shown when our records say this batch is drying but the oven says
+  /// otherwise (stopped, faulted, or unreachable). Without this the countdown
+  /// silently keeps running against a switched-off oven.
+  Widget? _ovenMismatchBanner() {
+    final a = _active;
+    if (a == null || a.ovenRunning) return null;
+
+    final String message;
+    if (!a.ovenReachable) {
+      message = "Can't reach the drying oven. The countdown is paused until "
+          "it responds again.";
+    } else if (a.ovenStoppedReason != null && a.ovenStoppedReason!.isNotEmpty) {
+      message = "The oven stopped drying (${a.ovenStatus ?? 'stopped'}): "
+          "${a.ovenStoppedReason}. The countdown is paused.";
+    } else {
+      message = "The oven is not drying (${a.ovenStatus ?? 'stopped'}). "
+          "The countdown is paused.";
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFDECEC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFF5C2C2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF8B2F2F),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _dryingDashboard() {
+    final mismatch = _ovenMismatchBanner();
     return Column(
       children: [
+        if (mismatch != null) mismatch,
         // Countdown timer (tap -> drying-time detail).
         GestureDetector(
           onTap: () => Navigator.push(
