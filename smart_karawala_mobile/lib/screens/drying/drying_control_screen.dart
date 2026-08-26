@@ -200,7 +200,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
 
     if (temperature == null ||
         temperature <= 0 ||
-        temperature > 120 ||
+        temperature > 150 ||
         humidity == null ||
         humidity < 0 ||
         humidity > 100 ||
@@ -208,7 +208,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
         duration <= 0 ||
         duration > 14400) {
       _showMessage(
-        'Enter valid targets: 0–120°C, 0–100% humidity, and 1–14400 minutes.',
+        'Enter valid targets: 0–150°C, 0–100% humidity, and 1–14400 minutes.',
         Colors.orange.shade700,
       );
       return null;
