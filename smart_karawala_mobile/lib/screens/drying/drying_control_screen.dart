@@ -526,7 +526,7 @@ class _DryingControlScreenState
         int.tryParse(durationController.text.trim());
     if (targetTemperature == null ||
         targetTemperature <= 0 ||
-        targetTemperature > 120 ||
+        targetTemperature > 150 ||
         targetHumidity == null ||
         targetHumidity < 0 ||
         targetHumidity > 100 ||
