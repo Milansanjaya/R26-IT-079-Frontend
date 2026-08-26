@@ -242,6 +242,8 @@ class _SaltingMonitoringScreenState extends State<SaltingMonitoringScreen> {
                 ),
                 const SizedBox(width: 10),
                 MonitoringWeightCard(
+                  currentWeight: m.currentWeight,
+                  cleanedWeight: m.cleanedWeight,
                   weightLoss: m.weightLoss,
                   percentage: m.weightLossPercentage,
                 ),

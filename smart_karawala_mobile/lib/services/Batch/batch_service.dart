@@ -25,6 +25,18 @@ class BatchService {
     return batches.first;
   }
 
+  static Future<BatchModel> getBatchById(String batchId) async {
+    try {
+      final batches = await getBatches();
+      final found = batches.firstWhere(
+        (b) => b.batchId == batchId,
+        orElse: () => batches.first,
+      );
+      return found;
+    } catch (_) {}
+    return getLatestBatch();
+  }
+
   static Future<void> predictWaste(String batchId) async {
     final response = await http.post(
       Uri.parse("$baseUrl/$batchId/predict-waste"),

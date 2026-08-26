@@ -24,13 +24,6 @@ const double _targetHumidityPercent = 55.0;
 /// Keep it in sync with the backend cap.
 const double _maxSafeTemperatureC = 150.0;
 
-/// TEMPORARY (testing): duration sent to the oven's control profile, instead
-/// of the model's predicted drying time.
-///
-/// The predicted time (often 12h+) makes test runs impractical. Set this to
-/// null to go back to using the real predicted duration.
-const int? _testDurationMinutesOverride = 10;
-
 class TimePredictionScreen extends StatefulWidget {
   final String batchId;
   final String fishType;
@@ -140,7 +133,7 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
     final safeTemperature =
         _recommendedTemperature.clamp(0.0, _maxSafeTemperatureC).toDouble();
     final durationMinutes =
-        _testDurationMinutesOverride ?? (_estimatedHours * 60).round();
+        TimePredictionService.durationMinutesFromHours(_estimatedHours);
 
     Future<void> createProfile(String id) => IotService.createControlProfile(
           batchId: id,

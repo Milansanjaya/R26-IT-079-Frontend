@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/batch_model.dart';
+import '../../utils/weight_formatter.dart';
 
 class BatchSummaryCard extends StatelessWidget {
   final BatchModel batch;
@@ -66,7 +67,7 @@ class BatchSummaryCard extends StatelessWidget {
 
           _item("Fish Type", batch.fishType),
 
-          _item("Raw Fish Weight", "${batch.rawWeight} kg"),
+          _item("Raw Fish Weight", WeightFormatter.format(batch.rawWeight)),
 
           _item("Date", batch.date),
 

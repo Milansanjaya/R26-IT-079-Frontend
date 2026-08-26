@@ -48,10 +48,11 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
     super.dispose();
   }
 
-  InputDecoration _inputDecoration(String label, IconData icon, {String? suffix}) {
+  InputDecoration _inputDecoration(String label, IconData icon, {Widget? suffixIcon, String? suffix}) {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+      suffixIcon: suffixIcon,
       suffixText: suffix,
       suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
       filled: true,
@@ -84,7 +85,6 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header navigation row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -104,40 +104,24 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new,
-                        color: AppColors.primary,
-                        size: 18,
-                      ),
+                      child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.primary),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AdminHomeScreen(),
-                        ),
-                      );
-                    },
-                    child: Image.asset('assets/images/logo.png', height: 70),
-                  ),
+                  Image.asset('assets/images/logo.png', height: 70),
                 ],
               ),
               const SizedBox(height: 24),
 
-              // Title
               const Text(
                 "Edit Batch",
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Form Container Card
               Form(
                 key: _formKey,
                 child: Container(
@@ -171,17 +155,18 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                       TextFormField(
                         controller: weightController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: _inputDecoration("Raw Weight", Icons.scale_outlined, suffix: "kg"),
+                        decoration: _inputDecoration(
+                          "Raw Weight",
+                          Icons.scale_outlined,
+                          suffix: "kg",
+                        ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Raw weight is required";
                           }
                           final parsed = double.tryParse(value);
-                          if (parsed == null) {
-                            return "Enter a valid number";
-                          }
-                          if (parsed <= 0 || parsed > 4.5) {
-                            return "Raw weight must be greater than 0 and up to 4.5 kg (4kg 500g)";
+                          if (parsed == null || parsed <= 0 || parsed > 4.5) {
+                            return "Raw weight must be greater than 0 and up to 4.5 kg";
                           }
                           return null;
                         },
@@ -231,10 +216,12 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                             }
 
                             try {
+                              final double parsedRawKg = double.parse(weightController.text.trim());
+
                               await ProcessingReportService.updateBatch(
                                 batchId: widget.batch.batchId,
                                 fishType: fishController.text.trim(),
-                                rawWeight: double.parse(weightController.text.trim()),
+                                rawWeight: parsedRawKg,
                                 status: selectedStatus,
                               );
 
@@ -242,7 +229,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                                 batchId: widget.batch.batchId,
                                 fishType: fishController.text.trim(),
                                 date: widget.batch.date,
-                                rawWeight: double.parse(weightController.text.trim()),
+                                rawWeight: parsedRawKg,
                                 predictedWaste: widget.batch.predictedWaste,
                                 wastePercentage: widget.batch.wastePercentage,
                                 status: selectedStatus,

@@ -4,6 +4,7 @@ import '../../models/traceability_dashboard_model.dart';
 import '../../services/Batch/processing_report_service.dart';
 import '../../services/Batch/traceability_service.dart';
 import '../../widgets/Batch/colors.dart';
+import '../../utils/weight_formatter.dart';
 import 'batch_details_screen.dart';
 import 'edit_batch_screen.dart';
 import '../admin/admin_home_screen.dart';
@@ -37,6 +38,7 @@ class _BatchRecordsDashboardScreenState
       predictedWaste: 95.2,
       wastePercentage: 16.0,
       status: "Completed",
+      location: "Negombo",
     ),
     ProcessingReportModel(
       batchId: "BATCH-2025-054",
@@ -46,6 +48,7 @@ class _BatchRecordsDashboardScreenState
       predictedWaste: 72.8,
       wastePercentage: 14.0,
       status: "Completed",
+      location: "Mathara",
     ),
     ProcessingReportModel(
       batchId: "BATCH-2025-053",
@@ -55,6 +58,7 @@ class _BatchRecordsDashboardScreenState
       predictedWaste: 65.4,
       wastePercentage: 12.0,
       status: "Completed",
+      location: "Trincomalee",
     ),
     ProcessingReportModel(
       batchId: "BATCH-2025-052",
@@ -64,6 +68,7 @@ class _BatchRecordsDashboardScreenState
       predictedWaste: 92.1,
       wastePercentage: 16.0,
       status: "In Progress",
+      location: "Chillaw",
     ),
     ProcessingReportModel(
       batchId: "BATCH-2025-051",
@@ -73,6 +78,7 @@ class _BatchRecordsDashboardScreenState
       predictedWaste: 58.3,
       wastePercentage: 11.0,
       status: "Completed",
+      location: "Jaffna",
     ),
     ProcessingReportModel(
       batchId: "BATCH-2025-050",
@@ -82,6 +88,7 @@ class _BatchRecordsDashboardScreenState
       predictedWaste: 65.7,
       wastePercentage: 13.0,
       status: "Completed",
+      location: "Deundara",
     ),
   ];
 
@@ -582,7 +589,7 @@ class _BatchRecordsDashboardScreenState
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                "${report.predictedWaste.toStringAsFixed(1)} kg (${report.wastePercentage.toStringAsFixed(0)}%)",
+                                "${WeightFormatter.format(report.predictedWaste)} (${report.wastePercentage.toStringAsFixed(0)}%)",
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,

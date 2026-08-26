@@ -48,13 +48,12 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
 
     final double? parsedWeight = double.tryParse(weightController.text);
     if (parsedWeight == null || parsedWeight <= 0 || parsedWeight > 4.5) {
+      const msg = "Raw Fish Weight must be between 0.001 kg and 4.5 kg";
       setState(() {
-        weightError = "Weight must be greater than 0 and up to 4.5 kg (4kg 500g)";
+        weightError = msg;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Raw Fish Weight must be greater than 0 and up to 4.5 kg (4kg 500g)"),
-        ),
+        const SnackBar(content: Text(msg)),
       );
       return;
     } else {
@@ -79,7 +78,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
         body: jsonEncode({
           "batchId": generatedBatchId,
           "fishType": fish,
-          "rawWeight": double.tryParse(weightController.text) ?? 0.0,
+          "rawWeight": parsedWeight,
           "date": dateController.text,
           "time": timeController.text,
           "location": location,
@@ -96,7 +95,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
             builder: (_) => BatchCreatedSuccessScreen(
               batchId: generatedBatchId,
               fishType: fish!,
-              rawWeight: weightController.text,
+              rawWeight: "${weightController.text} kg",
               date: dateController.text,
               time: timeController.text,
               location: location!,
@@ -159,10 +158,11 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     }
   }
 
-  InputDecoration _inputDecoration(String label, IconData icon, {String? suffix, String? errorText}) {
+  InputDecoration _inputDecoration(String label, IconData icon, {Widget? suffixIcon, String? suffix, String? errorText}) {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+      suffixIcon: suffixIcon,
       suffixText: suffix,
       suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
       errorText: errorText,
@@ -501,6 +501,25 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     );
   }
 
+  void _validateWeight(String val) {
+    if (val.trim().isEmpty) {
+      setState(() {
+        weightError = null;
+      });
+      return;
+    }
+    final double? parsed = double.tryParse(val);
+    if (parsed == null || parsed <= 0 || parsed > 4.5) {
+      setState(() {
+        weightError = "Weight must be greater than 0 and up to 4.5 kg";
+      });
+    } else {
+      setState(() {
+        weightError = null;
+      });
+    }
+  }
+
   Widget buildWeight() {
     return TextField(
       controller: weightController,
@@ -508,24 +527,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}$')),
       ],
-      onChanged: (val) {
-        if (val.trim().isEmpty) {
-          setState(() {
-            weightError = null;
-          });
-          return;
-        }
-        final double? parsed = double.tryParse(val);
-        if (parsed == null || parsed <= 0 || parsed > 4.5) {
-          setState(() {
-            weightError = "Weight must be greater than 0 and up to 4.5 kg (4kg 500g)";
-          });
-        } else {
-          setState(() {
-            weightError = null;
-          });
-        }
-      },
+      onChanged: _validateWeight,
       decoration: _inputDecoration(
         "Raw Fish Weight",
         Icons.scale_outlined,

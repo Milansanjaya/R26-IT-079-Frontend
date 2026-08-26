@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/weight_formatter.dart';
 
 class CleanedWeightCard extends StatelessWidget {
   final String batchId;
@@ -64,10 +65,10 @@ class CleanedWeightCard extends StatelessWidget {
                       const SizedBox(height: 6),
 
                       Text(
-                        "${cleanedWeight.toStringAsFixed(1)} kg",
+                        WeightFormatter.format(cleanedWeight),
                         style: const TextStyle(
                           color: Colors.green,
-                          fontSize: 26,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

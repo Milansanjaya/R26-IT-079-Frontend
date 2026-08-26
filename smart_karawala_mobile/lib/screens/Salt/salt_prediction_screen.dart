@@ -10,7 +10,12 @@ import 'salting_monitoring_screen.dart';
 import '../admin/admin_home_screen.dart';
 
 class SaltPredictionScreen extends StatefulWidget {
-  const SaltPredictionScreen({super.key});
+  final String? batchId;
+
+  const SaltPredictionScreen({
+    super.key,
+    this.batchId,
+  });
 
   @override
   State<SaltPredictionScreen> createState() => _SaltPredictionScreenState();
@@ -31,7 +36,9 @@ class _SaltPredictionScreenState extends State<SaltPredictionScreen> {
 
   Future<void> loadLatestBatch() async {
     try {
-      final latest = await SaltService.getLatestBatch();
+      final latest = (widget.batchId != null && widget.batchId!.isNotEmpty)
+          ? await SaltService.getBatchById(widget.batchId!)
+          : await SaltService.getLatestBatch();
 
       setState(() {
         batch = latest;

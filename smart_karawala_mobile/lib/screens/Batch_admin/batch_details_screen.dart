@@ -8,6 +8,8 @@ import '../../core/batch_stage.dart';
 import '../../services/Drying/drying_service.dart';
 import '../admin/admin_home_screen.dart';
 import '../Drying/time_prediction_screen.dart';
+import '../../services/Salt/salt_service.dart';
+import '../../utils/weight_formatter.dart';
 
 
 class BatchDetailsScreen extends StatelessWidget {
@@ -17,6 +19,12 @@ class BatchDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cleanedWeight = (batch.rawWeight - batch.predictedWaste);
+    final validCleanedWeight = cleanedWeight > 0 ? cleanedWeight : batch.rawWeight;
+    final saltKg = validCleanedWeight * 0.18;
+    final saltDisplay = WeightFormatter.format(saltKg);
+    final saltingDurationHours = SaltService.calculateRecommendedDuration(validCleanedWeight, batch.fishType);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -191,21 +199,25 @@ class BatchDetailsScreen extends StatelessWidget {
                           child: infoTile(
                             Icons.scale_outlined,
                             "Raw Weight",
-                            "${batch.rawWeight.toStringAsFixed(1)} kg",
+                            WeightFormatter.format(batch.rawWeight),
                           ),
                         ),
                         Expanded(
                           child: infoTile(
                             Icons.location_on_outlined,
                             "Location",
-                            "Negombo",
+                            (batch.location != null && batch.location!.trim().isNotEmpty)
+                                ? batch.location!
+                                : "Negombo",
                           ),
                         ),
                         Expanded(
                           child: infoTile(
                             Icons.notes_rounded,
                             "Notes",
-                            "-",
+                            (batch.notes != null && batch.notes!.trim().isNotEmpty)
+                                ? batch.notes!
+                                : "-",
                           ),
                         ),
                       ],
@@ -243,7 +255,7 @@ class BatchDetailsScreen extends StatelessWidget {
                       child: predictionTile(
                         Icons.delete_outline_rounded,
                         "Predicted Waste",
-                        "${batch.predictedWaste.toStringAsFixed(1)} kg",
+                        WeightFormatter.format(batch.predictedWaste),
                         "${batch.wastePercentage.toStringAsFixed(1)}%",
                       ),
                     ),
@@ -252,7 +264,7 @@ class BatchDetailsScreen extends StatelessWidget {
                       child: predictionTile(
                         Icons.set_meal_outlined,
                         "Cleaned Weight",
-                        "${(batch.rawWeight - batch.predictedWaste).toStringAsFixed(1)} kg",
+                        WeightFormatter.format(validCleanedWeight),
                         "${(100 - batch.wastePercentage).toStringAsFixed(1)}%",
                       ),
                     ),
@@ -269,14 +281,14 @@ class BatchDetailsScreen extends StatelessWidget {
                       child: infoTile(
                         Icons.opacity_outlined,
                         "Salt Amount",
-                        "7.2 kg",
+                        saltDisplay,
                       ),
                     ),
                     Expanded(
                       child: infoTile(
                         Icons.hourglass_empty_outlined,
                         "Salting Duration",
-                        "12 Hours",
+                        "$saltingDurationHours Hours",
                       ),
                     ),
                   ],
@@ -294,21 +306,21 @@ class BatchDetailsScreen extends StatelessWidget {
                           child: monitoringTile(
                             Icons.scale_outlined,
                             "Initial Weight",
-                            "${batch.rawWeight.toStringAsFixed(1)} kg",
+                            WeightFormatter.format(batch.rawWeight),
                           ),
                         ),
                         Expanded(
                           child: monitoringTile(
                             Icons.monitor_weight_outlined,
                             "Current Weight",
-                            "${(batch.rawWeight - batch.predictedWaste).toStringAsFixed(1)} kg",
+                            WeightFormatter.format(validCleanedWeight),
                           ),
                         ),
                         Expanded(
                           child: monitoringTile(
                             Icons.trending_down_rounded,
                             "Weight Loss",
-                            "${batch.predictedWaste.toStringAsFixed(1)} kg",
+                            WeightFormatter.format(batch.predictedWaste),
                           ),
                         ),
                       ],
