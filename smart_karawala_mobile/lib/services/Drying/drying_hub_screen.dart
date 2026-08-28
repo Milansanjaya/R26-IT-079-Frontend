@@ -192,7 +192,7 @@ class _DryingHubScreenState extends State<DryingHubScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
+              color: Colors.white.withOpacity(0.18),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.wb_sunny_rounded, color: Colors.white, size: 24),
@@ -212,7 +212,7 @@ class _DryingHubScreenState extends State<DryingHubScreen> {
                   b.fishType.isEmpty
                       ? "In drying oven"
                       : "${b.fishType[0].toUpperCase()}${b.fishType.substring(1)} • ${b.initialWeightKg.toStringAsFixed(3)} kg",
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12),
+                  style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12),
                 ),
               ],
             ),

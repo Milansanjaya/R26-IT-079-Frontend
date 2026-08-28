@@ -280,7 +280,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: AppColors.border.withValues(alpha: 0.7),
+                color: AppColors.border.withOpacity(0.7),
               ),
             ),
             child: loading
@@ -316,7 +316,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(13),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
+            border: Border.all(color: AppColors.border.withOpacity(0.7)),
           ),
           child: Image.asset(
             'assets/images/logo.png',
@@ -334,9 +334,9 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: color.withValues(alpha: 0.28)),
+        border: Border.all(color: color.withOpacity(0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -365,9 +365,9 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.error.withValues(alpha: 0.08),
+        color: AppColors.error.withOpacity(0.08),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
+        border: Border.all(color: AppColors.error.withOpacity(0.25)),
       ),
       child: Row(
         children: [
@@ -403,7 +403,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.75)),
+        border: Border.all(color: AppColors.border.withOpacity(0.75)),
       ),
       child: Row(
         children: [
@@ -411,8 +411,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: (ready ? AppColors.success : AppColors.error).withValues(
-                alpha: 0.1,
+              color: (ready ? AppColors.success : AppColors.error).withOpacity(0.1,
               ),
               borderRadius: BorderRadius.circular(11),
             ),
@@ -489,7 +488,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: visual.gradient.last.withValues(alpha: 0.22),
+            color: visual.gradient.last.withOpacity(0.22),
             blurRadius: 22,
             offset: const Offset(0, 9),
           ),
@@ -548,7 +547,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.17),
+                color: Colors.white.withOpacity(0.17),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(visual.icon, color: Colors.white, size: 28),
@@ -570,7 +569,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
                   Text(
                     _sessionMessage(status, mode),
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.78),
+                      color: Colors.white.withOpacity(0.78),
                       fontSize: 12.5,
                       height: 1.35,
                     ),
@@ -618,7 +617,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
           label: const Text('OPEN CONTROLS'),
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.white,
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.6)),
+            side: BorderSide(color: Colors.white.withOpacity(0.6)),
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 11),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(13),
@@ -637,9 +636,9 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.13),
+        color: Colors.white.withOpacity(0.13),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -684,7 +683,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
             schedule.label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: Colors.white.withOpacity(0.8),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -695,7 +694,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
             child: LinearProgressIndicator(
               minHeight: 8,
               value: schedule.progress,
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
+              backgroundColor: Colors.white.withOpacity(0.2),
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
             ),
           ),
@@ -704,7 +703,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
             schedule.caption,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.68),
+              color: Colors.white.withOpacity(0.68),
               fontSize: 10.5,
               height: 1.3,
             ),
@@ -718,9 +717,9 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
+        color: Colors.white.withOpacity(0.14),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+        border: Border.all(color: Colors.white.withOpacity(0.18)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -747,7 +746,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.65),
+            color: Colors.white.withOpacity(0.65),
             fontSize: 9.5,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.5,
@@ -778,7 +777,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.09),
+            color: AppColors.primary.withOpacity(0.09),
             borderRadius: BorderRadius.circular(13),
           ),
           child: Icon(icon, color: AppColors.primary, size: 22),
@@ -872,7 +871,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.11),
+                  color: color.withOpacity(0.11),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 22),
@@ -1160,9 +1159,9 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.07),
+        color: color.withOpacity(0.07),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: color.withValues(alpha: 0.14)),
+        border: Border.all(color: color.withOpacity(0.14)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1254,7 +1253,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
             width: 45,
             height: 45,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -1283,7 +1282,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(30),
             ),
             child: Text(
@@ -1354,7 +1353,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
     required VoidCallback onTap,
   }) {
     return Material(
-      color: color.withValues(alpha: 0.07),
+      color: color.withOpacity(0.07),
       borderRadius: BorderRadius.circular(15),
       child: InkWell(
         onTap: onTap,
@@ -1363,7 +1362,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: color.withValues(alpha: 0.13)),
+            border: Border.all(color: color.withOpacity(0.13)),
           ),
           child: Row(
             children: [
@@ -1371,7 +1370,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
+                  color: color.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 19),
@@ -1435,10 +1434,10 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.62)),
+        border: Border.all(color: AppColors.border.withOpacity(0.62)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF153A52).withValues(alpha: 0.07),
+            color: const Color(0xFF153A52).withOpacity(0.07),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -1543,7 +1542,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
       child: ListTile(
         selected: selected,
         selectedColor: AppColors.primary,
-        selectedTileColor: AppColors.primary.withValues(alpha: 0.08),
+        selectedTileColor: AppColors.primary.withOpacity(0.08),
         leading: Icon(icon, size: 22),
         title: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
@@ -1566,7 +1565,7 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.09),
+                    color: AppColors.error.withOpacity(0.09),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(

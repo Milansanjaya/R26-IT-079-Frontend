@@ -34,7 +34,7 @@ class DryingEmptyState extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.12),
+                    color: Colors.grey.withOpacity(0.12),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),

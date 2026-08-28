@@ -18,9 +18,9 @@ class BatchStageChip extends StatelessWidget {
         vertical: compact ? 4 : 6,
       ),
       decoration: BoxDecoration(
-        color: stage.color.withValues(alpha: 0.12),
+        color: stage.color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: stage.color.withValues(alpha: 0.3)),
+        border: Border.all(color: stage.color.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

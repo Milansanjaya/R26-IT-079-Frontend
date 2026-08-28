@@ -41,12 +41,12 @@ class LiveChart extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.62)),
+        border: Border.all(color: AppColors.border.withOpacity(0.62)),
         boxShadow: [
           BoxShadow(
             blurRadius: 22,
             offset: const Offset(0, 8),
-            color: AppColors.primary.withValues(alpha: 0.07),
+            color: AppColors.primary.withOpacity(0.07),
           ),
         ],
       ),
@@ -182,7 +182,7 @@ class _ChartHeader extends StatelessWidget {
           width: 45,
           height: 45,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
+            color: color.withOpacity(0.12),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(icon ?? Icons.show_chart_rounded, color: color, size: 24),
@@ -295,7 +295,7 @@ class _RangeChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.07),
+        color: color.withOpacity(0.07),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text.rich(
@@ -397,7 +397,7 @@ class _InteractiveLineChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: yInterval,
           getDrawingHorizontalLine: (_) => FlLine(
-            color: AppColors.border.withValues(alpha: 0.45),
+            color: AppColors.border.withOpacity(0.45),
             strokeWidth: 1,
             dashArray: [5, 5],
           ),
@@ -405,8 +405,8 @@ class _InteractiveLineChart extends StatelessWidget {
         borderData: FlBorderData(
           show: true,
           border: Border(
-            bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.7)),
-            left: BorderSide(color: AppColors.border.withValues(alpha: 0.7)),
+            bottom: BorderSide(color: AppColors.border.withOpacity(0.7)),
+            left: BorderSide(color: AppColors.border.withOpacity(0.7)),
           ),
         ),
         titlesData: FlTitlesData(
@@ -498,7 +498,7 @@ class _InteractiveLineChart extends StatelessWidget {
           getTouchedSpotIndicator: (barData, indexes) => indexes
               .map(
                 (_) => TouchedSpotIndicatorData(
-                  FlLine(color: color.withValues(alpha: 0.45), strokeWidth: 1),
+                  FlLine(color: color.withOpacity(0.45), strokeWidth: 1),
                   FlDotData(
                     show: true,
                     getDotPainter: (spot, percent, bar, index) =>
@@ -540,8 +540,8 @@ class _InteractiveLineChart extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  color.withValues(alpha: 0.23),
-                  color.withValues(alpha: 0.015),
+                  color.withOpacity(0.23),
+                  color.withOpacity(0.015),
                 ],
               ),
             ),
@@ -565,9 +565,9 @@ class _EmptyChart extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.background.withValues(alpha: 0.58),
+        color: AppColors.background.withOpacity(0.58),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: AppColors.border.withOpacity(0.55)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -576,7 +576,7 @@ class _EmptyChart extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.11),
+              color: color.withOpacity(0.11),
               shape: BoxShape.circle,
             ),
             child: Icon(icon ?? Icons.show_chart_rounded, color: color),

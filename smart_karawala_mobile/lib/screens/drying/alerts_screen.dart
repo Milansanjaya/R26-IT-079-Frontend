@@ -207,13 +207,13 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: AppColors.error.withValues(alpha: 0.18),
+                          color: AppColors.error.withOpacity(0.18),
                         ),
                         boxShadow: [
                           BoxShadow(
                             color: const Color(
                               0xFF153A52,
-                            ).withValues(alpha: 0.08),
+                            ).withOpacity(0.08),
                             blurRadius: 22,
                             offset: const Offset(0, 8),
                           ),
@@ -226,7 +226,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                             width: 68,
                             height: 68,
                             decoration: BoxDecoration(
-                              color: AppColors.error.withValues(alpha: 0.1),
+                              color: AppColors.error.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -555,7 +555,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: startColor.withValues(alpha: 0.22),
+            color: startColor.withOpacity(0.22),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
@@ -570,10 +570,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.17),
+                  color: Colors.white.withOpacity(0.17),
                   borderRadius: BorderRadius.circular(17),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.22),
+                    color: Colors.white.withOpacity(0.22),
                   ),
                 ),
                 child: Icon(icon, color: Colors.white, size: 29),
@@ -595,7 +595,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.82),
+                        color: Colors.white.withOpacity(0.82),
                         fontSize: 13,
                         height: 1.35,
                       ),
@@ -609,9 +609,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
           final connection = Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.14),
+              color: Colors.white.withOpacity(0.14),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -693,9 +693,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.13),
+        color: Colors.white.withOpacity(0.13),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+        border: Border.all(color: Colors.white.withOpacity(0.16)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -723,7 +723,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
         color: const Color(0xFFFFF7E6),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: const Color(0xFFE69A2D).withValues(alpha: 0.4),
+          color: const Color(0xFFE69A2D).withOpacity(0.4),
         ),
       ),
       child: Row(
@@ -758,7 +758,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
@@ -906,10 +906,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
           padding: const EdgeInsets.all(17),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(19),
-            border: Border.all(color: visual.color.withValues(alpha: 0.22)),
+            border: Border.all(color: visual.color.withOpacity(0.22)),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF153A52).withValues(alpha: 0.06),
+                color: const Color(0xFF153A52).withOpacity(0.06),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               ),
@@ -925,7 +925,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     width: 46,
                     height: 46,
                     decoration: BoxDecoration(
-                      color: visual.color.withValues(alpha: 0.1),
+                      color: visual.color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(alert.icon, color: visual.color, size: 25),
@@ -943,7 +943,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: visual.color.withValues(alpha: 0.09),
+                                color: visual.color.withOpacity(0.09),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -1031,7 +1031,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: visual.color.withValues(alpha: 0.055),
+                      color: visual.color.withOpacity(0.055),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -1089,7 +1089,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
+        border: Border.all(color: AppColors.border.withOpacity(0.7)),
       ),
       child: Column(
         children: [
@@ -1097,7 +1097,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: AppColors.success.withValues(alpha: 0.09),
+              color: AppColors.success.withOpacity(0.09),
               shape: BoxShape.circle,
             ),
             child: const Icon(

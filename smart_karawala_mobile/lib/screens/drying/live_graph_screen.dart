@@ -374,9 +374,9 @@ class _ConnectionBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
+        border: Border.all(color: color.withOpacity(0.25)),
       ),
       child: Row(
         children: [
@@ -384,7 +384,7 @@ class _ConnectionBanner extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.14),
+              color: color.withOpacity(0.14),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
@@ -438,7 +438,7 @@ class _ConnectionBanner extends StatelessWidget {
             onPressed: refreshing ? null : onRefresh,
             style: IconButton.styleFrom(
               foregroundColor: color,
-              backgroundColor: color.withValues(alpha: 0.10),
+              backgroundColor: color.withOpacity(0.10),
             ),
             icon: refreshing
                 ? SizedBox.square(
@@ -485,19 +485,19 @@ class _MetricSelector extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: selected
-                ? metric.color.withValues(alpha: 0.09)
+                ? metric.color.withOpacity(0.09)
                 : Colors.white,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: selected
-                  ? metric.color.withValues(alpha: 0.65)
-                  : AppColors.border.withValues(alpha: 0.65),
+                  ? metric.color.withOpacity(0.65)
+                  : AppColors.border.withOpacity(0.65),
               width: selected ? 1.6 : 1,
             ),
             boxShadow: selected
                 ? [
                     BoxShadow(
-                      color: metric.color.withValues(alpha: 0.10),
+                      color: metric.color.withOpacity(0.10),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -511,7 +511,7 @@ class _MetricSelector extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: metric.color.withValues(alpha: 0.13),
+                  color: metric.color.withOpacity(0.13),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(metric.icon, color: metric.color, size: 22),
@@ -574,9 +574,9 @@ class _ReadingGuide extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.72),
+        color: Colors.white.withOpacity(0.72),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: AppColors.border.withOpacity(0.55)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -658,7 +658,7 @@ class _GraphErrorState extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: AppColors.error.withValues(alpha: 0.22),
+                color: AppColors.error.withOpacity(0.22),
               ),
             ),
             child: Column(
@@ -668,7 +668,7 @@ class _GraphErrorState extends StatelessWidget {
                   width: 58,
                   height: 58,
                   decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.10),
+                    color: AppColors.error.withOpacity(0.10),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(

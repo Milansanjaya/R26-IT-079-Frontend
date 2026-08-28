@@ -399,7 +399,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
                   Text(
                     alert.message,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: Colors.white.withOpacity(0.9),
                       fontSize: 11.5,
                       height: 1.35,
                     ),
@@ -575,9 +575,9 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -616,7 +616,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: visual.color.withValues(alpha: 0.22),
+            color: visual.color.withOpacity(0.22),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -632,7 +632,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.16),
+                  color: Colors.white.withOpacity(0.16),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Icon(visual.icon, color: Colors.white, size: 27),
@@ -654,7 +654,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
                     Text(
                       _statusDescription(),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.82),
+                        color: Colors.white.withOpacity(0.82),
                         height: 1.3,
                         fontSize: 12.5,
                       ),
@@ -670,7 +670,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
+                color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -688,7 +688,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
                         Text(
                           'OVEN SESSION',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: Colors.white.withOpacity(0.7),
                             fontSize: 9.5,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1,
@@ -715,7 +715,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
                       Text(
                         'PROFILE SOURCE',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Colors.white.withOpacity(0.7),
                           fontSize: 9.5,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1,
@@ -745,9 +745,9 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.16),
+        color: Colors.white.withOpacity(0.16),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+        border: Border.all(color: Colors.white.withOpacity(0.25)),
       ),
       child: Text(
         label,
@@ -875,7 +875,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
             width: 62,
             height: 62,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -1324,7 +1324,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFF7FAFC),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.blueGrey.withValues(alpha: 0.1)),
+        border: Border.all(color: Colors.blueGrey.withOpacity(0.1)),
       ),
       child: Row(
         children: [
@@ -1332,7 +1332,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(icon, color: color, size: 21),
@@ -1353,7 +1353,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.1),
+                color: statusColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -1430,7 +1430,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.error,
                 side: BorderSide(
-                  color: AppColors.error.withValues(alpha: 0.55),
+                  color: AppColors.error.withOpacity(0.55),
                 ),
                 minimumSize: const Size.fromHeight(50),
                 shape: RoundedRectangleBorder(
@@ -1470,7 +1470,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
     return ElevatedButton.styleFrom(
       backgroundColor: color,
       foregroundColor: Colors.white,
-      disabledBackgroundColor: color.withValues(alpha: 0.35),
+      disabledBackgroundColor: color.withOpacity(0.35),
       disabledForegroundColor: Colors.white,
       minimumSize: const Size.fromHeight(52),
       elevation: 0,
@@ -1485,10 +1485,10 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
+        border: Border.all(color: AppColors.border.withOpacity(0.7)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.055),
+            color: AppColors.primary.withOpacity(0.055),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -1510,7 +1510,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
           width: 39,
           height: 39,
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.09),
+            color: AppColors.primary.withOpacity(0.09),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: AppColors.primary, size: 21),
@@ -1571,9 +1571,9 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: metric.color.withValues(alpha: 0.07),
+        color: metric.color.withOpacity(0.07),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: metric.color.withValues(alpha: 0.14)),
+        border: Border.all(color: metric.color.withOpacity(0.14)),
       ),
       child: Row(
         children: [
@@ -1581,7 +1581,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: metric.color.withValues(alpha: 0.12),
+              color: metric.color.withOpacity(0.12),
               borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(metric.icon, color: metric.color, size: 21),
@@ -1641,9 +1641,9 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.075),
+        color: color.withOpacity(0.075),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
+        border: Border.all(color: color.withOpacity(0.22)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1666,7 +1666,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
                 Text(
                   message,
                   style: TextStyle(
-                    color: color.withValues(alpha: 0.88),
+                    color: color.withOpacity(0.88),
                     fontSize: 11.5,
                     height: 1.35,
                   ),

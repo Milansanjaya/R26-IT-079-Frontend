@@ -254,7 +254,7 @@ class PdfService {
           children: [
             pw.Text(
               title,
-              style: const pw.TextStyle(fontSize: 7.5, color: PdfColors.grey600, fontWeight: pw.FontWeight.bold),
+              style: pw.TextStyle(fontSize: 7.5, color: PdfColors.grey600, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 6),
             pw.Text(

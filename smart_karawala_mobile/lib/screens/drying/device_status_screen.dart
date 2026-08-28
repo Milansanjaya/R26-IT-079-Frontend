@@ -108,7 +108,7 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
         border: Border.all(color: const Color(0xFFD5E8F3)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryDark.withValues(alpha: 0.05),
+            color: AppColors.primaryDark.withOpacity(0.05),
             blurRadius: 14,
             offset: const Offset(0, 5),
           ),
@@ -120,7 +120,7 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
             width: 45,
             height: 45,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(13),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -150,9 +150,9 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: color.withValues(alpha: 0.18)),
+              border: Border.all(color: color.withOpacity(0.18)),
             ),
             child: Text(
               label,
@@ -240,7 +240,7 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
                                           : _loadError != null
                                           ? const Color(0xFFE99722)
                                           : AppColors.error)
-                                      .withValues(alpha: 0.28),
+                                      .withOpacity(0.28),
                             ),
                           ),
                           child: Padding(
@@ -248,11 +248,11 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
                             child: ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: liveOnline
-                                    ? AppColors.success.withValues(alpha: .12)
+                                    ? AppColors.success.withOpacity(.12)
                                     : (_loadError != null
                                               ? const Color(0xFFE99722)
                                               : AppColors.error)
-                                          .withValues(alpha: .12),
+                                          .withOpacity(.12),
                                 child: Icon(
                                   liveOnline
                                       ? Icons.developer_board_rounded
@@ -493,7 +493,7 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               disabledBackgroundColor: AppColors.primary
-                                  .withValues(alpha: 0.65),
+                                  .withOpacity(0.65),
                               disabledForegroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
@@ -573,7 +573,7 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
                           width: 78,
                           height: 78,
                           decoration: BoxDecoration(
-                            color: AppColors.error.withValues(alpha: 0.09),
+                            color: AppColors.error.withOpacity(0.09),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -682,9 +682,9 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
         final status = Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.09),
+            color: color.withOpacity(0.09),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: color.withValues(alpha: 0.25)),
+            border: Border.all(color: color.withOpacity(0.25)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -729,9 +729,9 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 10, 7, 10),
       decoration: BoxDecoration(
-        color: AppColors.error.withValues(alpha: 0.075),
+        color: AppColors.error.withOpacity(0.075),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.error.withValues(alpha: 0.22)),
+        border: Border.all(color: AppColors.error.withOpacity(0.22)),
       ),
       child: Row(
         children: [
@@ -765,9 +765,9 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: warning.withValues(alpha: 0.08),
+        color: warning.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: warning.withValues(alpha: 0.28)),
+        border: Border.all(color: warning.withOpacity(0.28)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -833,7 +833,7 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
           width: 39,
           height: 39,
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.09),
+            color: AppColors.primary.withOpacity(0.09),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: AppColors.primary, size: 21),
@@ -960,7 +960,7 @@ class _DeviceStatusScreenState extends State<DeviceStatusScreen> {
     required String invalidAlias,
   }) {
     if (_loadError != null || !data.online) return false;
-    final missingFields = [field, ?additionalField];
+    final missingFields = [field, if (additionalField != null) additionalField];
     for (final error in data.sensorErrors) {
       final normalized = error.toLowerCase();
       if (missingFields.any(

@@ -37,7 +37,7 @@ class DryingHeaderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.25),
+            color: AppColors.primary.withOpacity(0.25),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -51,7 +51,7 @@ class DryingHeaderCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
+                  color: Colors.white.withOpacity(0.18),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.wb_sunny_rounded,
@@ -77,7 +77,7 @@ class DryingHeaderCard extends StatelessWidget {
                           ? "In drying oven"
                           : "${fishType[0].toUpperCase()}${fishType.substring(1)} • In drying oven",
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: Colors.white.withOpacity(0.85),
                         fontSize: 12,
                       ),
                     ),
@@ -94,7 +94,7 @@ class DryingHeaderCard extends StatelessWidget {
               Container(
                 width: 1,
                 height: 34,
-                color: Colors.white.withValues(alpha: 0.25),
+                color: Colors.white.withOpacity(0.25),
               ),
               _stat("Elapsed", _formatElapsed(elapsedHours),
                   Icons.hourglass_bottom_rounded),
@@ -110,7 +110,7 @@ class DryingHeaderCard extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 4),
-          Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 18),
+          Icon(icon, color: Colors.white.withOpacity(0.8), size: 18),
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +118,7 @@ class DryingHeaderCard extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.75),
+                  color: Colors.white.withOpacity(0.75),
                   fontSize: 11,
                 ),
               ),

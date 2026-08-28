@@ -384,7 +384,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.04),
+            color: AppColors.primary.withOpacity(0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -532,7 +532,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
               color: const Color(0xFFEFEFEF),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.error.withValues(alpha: 0.15),
+                  color: AppColors.error.withOpacity(0.15),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -646,7 +646,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF1F0),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.4)),
+        border: Border.all(color: const Color(0xFFE53935).withOpacity(0.4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -700,7 +700,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
       decoration: BoxDecoration(
         color: s.bg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: s.color.withValues(alpha: 0.3)),
+        border: Border.all(color: s.color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -710,7 +710,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: s.color.withValues(alpha: 0.15),
+                  color: s.color.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(s.icon, color: s.color, size: 16),
@@ -757,7 +757,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: Colors.white.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
@@ -815,12 +815,12 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.timelapse_rounded,
-                        color: Colors.white.withValues(alpha: 0.9), size: 18),
+                        color: Colors.white.withOpacity(0.9), size: 18),
                     const SizedBox(width: 8),
                     Text(
                       "Estimated Time Remaining",
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withOpacity(0.9),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -845,17 +845,17 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
                     Text(
                       _time != null ? "Model: ${_time!.modelUsed}" : "",
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.75),
+                        color: Colors.white.withOpacity(0.75),
                         fontSize: 11,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Icon(Icons.chevron_right_rounded,
-                        color: Colors.white.withValues(alpha: 0.8), size: 16),
+                        color: Colors.white.withOpacity(0.8), size: 16),
                     Text(
                       "Details",
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: Colors.white.withOpacity(0.85),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -921,7 +921,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.success,
                     disabledForegroundColor: AppColors.success,
-                    side: BorderSide(color: AppColors.success.withValues(alpha: 0.5)),
+                    side: BorderSide(color: AppColors.success.withOpacity(0.5)),
                     minimumSize: const Size(0, 48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -934,7 +934,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
                   label: const Text("Pause Drying"),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,
-                    side: BorderSide(color: AppColors.error.withValues(alpha: 0.5)),
+                    side: BorderSide(color: AppColors.error.withOpacity(0.5)),
                     minimumSize: const Size(0, 48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -963,7 +963,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: AppColors.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.local_fire_department_rounded,
@@ -1001,7 +1001,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
       decoration: BoxDecoration(
         color: s.bg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: s.color.withValues(alpha: 0.3)),
+        border: Border.all(color: s.color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1011,7 +1011,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: s.color.withValues(alpha: 0.15),
+                  color: s.color.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(s.icon, color: s.color, size: 16),
@@ -1070,7 +1070,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.12),
+        color: AppColors.success.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -1113,7 +1113,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   Widget _infoNote(IconData icon, String text, {bool warn = false}) {
     final color = warn ? Colors.orange.shade700 : AppColors.primary;
     final bg =
-        warn ? const Color(0xFFFFF8E8) : AppColors.background.withValues(alpha: 0.5);
+        warn ? const Color(0xFFFFF8E8) : AppColors.background.withOpacity(0.5);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1326,7 +1326,7 @@ class _StartConfirmationSheetState extends State<_StartConfirmationSheet> {
       decoration: BoxDecoration(
         color: done ? const Color(0xFFF1FFF3) : const Color(0xFFF7F8FA),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: done ? color.withValues(alpha: 0.3) : Colors.grey.shade200),
+        border: Border.all(color: done ? color.withOpacity(0.3) : Colors.grey.shade200),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

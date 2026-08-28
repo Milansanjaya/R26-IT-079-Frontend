@@ -138,7 +138,7 @@ class _DryingTimeDetailScreenState extends State<DryingTimeDetailScreen> {
             child: Column(
               children: [
                 Text("Estimated Time Remaining",
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13)),
+                    style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13)),
                 const SizedBox(height: 10),
                 Text(
                   _formatHm(t.predictedRemainingHours),
@@ -147,7 +147,7 @@ class _DryingTimeDetailScreenState extends State<DryingTimeDetailScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text("Model: ${t.modelUsed}",
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 11)),
+                    style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 11)),
               ],
             ),
           ),

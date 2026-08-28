@@ -51,7 +51,7 @@ class SpoilageRiskCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: s.bg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: s.color.withValues(alpha: 0.30)),
+        border: Border.all(color: s.color.withOpacity(0.30)),
       ),
       child: Column(
         children: [
@@ -65,7 +65,7 @@ class SpoilageRiskCard extends StatelessWidget {
               border: Border.all(color: s.color, width: 5),
               boxShadow: [
                 BoxShadow(
-                  color: s.color.withValues(alpha: 0.25),
+                  color: s.color.withOpacity(0.25),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
