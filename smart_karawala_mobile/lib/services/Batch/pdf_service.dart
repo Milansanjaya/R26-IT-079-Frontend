@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -12,6 +13,9 @@ class PdfService {
     required String status,
   }) async {
     final pdf = pw.Document();
+
+    final logoData = await rootBundle.load('assets/images/logo.png');
+    final logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
 
     final cleanWeight = rawWeight - waste;
     final wastePercentage = (waste / rawWeight) * 100;
@@ -36,25 +40,41 @@ class PdfService {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: pw.CrossAxisAlignment.center,
                   children: [
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
                       children: [
-                        pw.Text(
-                          "SMART KARAWALA",
-                          style: pw.TextStyle(
+                        pw.Container(
+                          width: 40,
+                          height: 40,
+                          decoration: const pw.BoxDecoration(
                             color: PdfColors.white,
-                            fontSize: 20,
-                            fontWeight: pw.FontWeight.bold,
-                            letterSpacing: 1.2,
+                            borderRadius: pw.BorderRadius.all(pw.Radius.circular(8)),
                           ),
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Image(logoImage, fit: pw.BoxFit.contain),
                         ),
-                        pw.SizedBox(height: 4),
-                        pw.Text(
-                          "AI-powered Dry Fish Processing System",
-                          style: const pw.TextStyle(
-                            color: PdfColors.blue100,
-                            fontSize: 10,
-                          ),
+                        pw.SizedBox(width: 14),
+                        pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              "SMART KARAWALA",
+                              style: pw.TextStyle(
+                                color: PdfColors.white,
+                                fontSize: 20,
+                                fontWeight: pw.FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            pw.SizedBox(height: 4),
+                            pw.Text(
+                              "AI-powered Dry Fish Processing System",
+                              style: const pw.TextStyle(
+                                color: PdfColors.blue100,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

@@ -5,6 +5,7 @@ import '../../widgets/Batch/colors.dart';
 import '../../utils/weight_formatter.dart';
 import 'waste_notification_screen.dart';
 import '../admin/admin_home_screen.dart';
+import '../Salt/salt_prediction_screen.dart';
 
 class WastePredictionScreen extends StatefulWidget {
   final String? batchId;
@@ -388,94 +389,185 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Next Step Info Card
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE3F2FD), // Soft blue background
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.blue.shade100, width: 1.5),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.info_outline_rounded, color: Colors.blue.shade800, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Next Step",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade900,
-                                fontSize: 15,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "After predicting the waste amount, notify the recycling partners so they can collect the fish waste for recycling.",
-                              style: TextStyle(
-                                color: Colors.blue.shade800,
-                                fontSize: 12,
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
+                // Calculate predicted waste in kg for 1 kg threshold check
+                Builder(
+                  builder: (context) {
+                    final double rawPredictedWaste = batch!.predictedWaste;
+                    final double predictedWasteKg = rawPredictedWaste > 100 ? rawPredictedWaste / 1000.0 : rawPredictedWaste;
+                    final bool isBelowThreshold = predictedWasteKg < 1.0;
 
-                // Send Notification Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: () async {
-                      final success = await BatchService.sendNotification(
-                        batch!.batchId,
+                    if (isBelowThreshold) {
+                      return Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF3E0), // Soft warning amber background
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.orange.shade300, width: 1.5),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800, size: 24),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Collection Threshold Notice",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.orange.shade900,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Predicted waste is below the 1 kg collection threshold. No recycling notification is required.",
+                                        style: TextStyle(
+                                          color: Colors.orange.shade900,
+                                          fontSize: 12,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Next Step: Salt Prediction Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SaltPredictionScreen(
+                                      batchId: batch!.batchId,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.opacity_rounded, color: Colors.white),
+                              label: const Text(
+                                "Next Step: Salt Prediction",
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 0,
+                              ),
+                            ),
+                          ),
+                        ],
                       );
+                    }
 
-                      if (!mounted) return;
+                    return Column(
+                      children: [
+                        // Next Step Info Card
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE3F2FD), // Soft blue background
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.blue.shade100, width: 1.5),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.info_outline_rounded, color: Colors.blue.shade800, size: 24),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Next Step",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue.shade900,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "After predicting the waste amount, notify the recycling partners so they can collect the fish waste for recycling.",
+                                      style: TextStyle(
+                                        color: Colors.blue.shade800,
+                                        fontSize: 12,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
 
-                      if (success) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => WasteNotificationScreen(
-                              predictedWaste: batch!.predictedWaste,
-                              batchId: batch!.batchId,
-                              wastePercentage: wastePercentage,
+                        // Send Notification Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: () async {
+                              final result = await BatchService.sendNotificationResult(
+                                batch!.batchId,
+                              );
+
+                              if (!mounted) return;
+
+                              if (result["success"] == true) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => WasteNotificationScreen(
+                                      predictedWaste: predictedWasteKg,
+                                      batchId: batch!.batchId,
+                                      wastePercentage: wastePercentage,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: Colors.red,
+                                    content: Text(result["message"] ?? "Failed to send notification."),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.send_rounded, color: Colors.white),
+                            label: const Text(
+                              "Send Notification",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text("Failed to send notification."),
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.send_rounded, color: Colors.white),
-                    label: const Text(
-                      "Send Notification",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                  ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
 
