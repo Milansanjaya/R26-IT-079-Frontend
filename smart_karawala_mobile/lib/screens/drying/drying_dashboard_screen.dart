@@ -993,8 +993,6 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
             },
           ),
           const SizedBox(height: 20),
-          _weightEquation(initial: initial, target: target),
-          const SizedBox(height: 17),
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: LinearProgressIndicator(
@@ -1201,70 +1199,6 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _weightEquation({required double? initial, required double? target}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      decoration: BoxDecoration(
-        color: AppColors.inputFill,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 12,
-        runSpacing: 8,
-        children: [
-          _equationValue(
-            label: 'INITIAL',
-            value: initial == null
-                ? 'Captured at start'
-                : _formatWeight(initial),
-          ),
-          const Text(
-            '÷ 3  =',
-            style: TextStyle(
-              color: AppColors.primary,
-              fontSize: 19,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          _equationValue(
-            label: 'TARGET',
-            value: target == null ? 'Calculated' : _formatWeight(target),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _equationValue({required String label, required String value}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: AppColors.hint,
-            fontSize: 9,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          value,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: AppColors.text,
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ],
     );
   }
 
@@ -1921,12 +1855,6 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
 
   String _formatWeight(double value) {
     final safe = value.clamp(0.0, double.infinity).toDouble();
-    if (safe < 1) {
-      final grams = safe * 1000;
-      return grams >= 100
-          ? '${grams.toStringAsFixed(0)} g'
-          : '${grams.toStringAsFixed(1)} g';
-    }
     return '${safe.toStringAsFixed(3)} kg';
   }
 
