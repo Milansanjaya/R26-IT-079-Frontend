@@ -22,7 +22,7 @@ const double _targetHumidityPercent = 55.0;
 /// GET /api/predict/safety-limits). This is a last-resort guard so a stale
 /// or manually-entered value can never command the oven to overheat.
 /// Keep it in sync with the backend cap.
-const double _maxSafeTemperatureC = 60.0;
+const double _maxSafeTemperatureC = 150.0;
 
 class TimePredictionScreen extends StatefulWidget {
   final String batchId;
