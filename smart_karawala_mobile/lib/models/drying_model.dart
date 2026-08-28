@@ -170,6 +170,47 @@ class SpoilageRiskResult {
   }
 }
 
+/// Result of the over-drying / burn-risk check for the active batch.
+///
+/// Matches GET /api/drying/active/overdrying-risk. This is a separate risk
+/// axis from spoilage: spoilage means "too wet for too long", over-drying
+/// means "already dry and still being heated" - the two call for opposite
+/// action, so they are never merged into one field.
+class OverDryingRiskResult {
+  final String batchId;
+  final String overDryingRisk; // High | Medium | Low
+  final List<String> reasons;
+  final bool ovenStopped;
+  final String? stopReason;
+  final String? stopError;
+  final String? explanation; // plain-language LLM note, only set at High risk
+  final String? createdAt;
+
+  OverDryingRiskResult({
+    required this.batchId,
+    required this.overDryingRisk,
+    required this.reasons,
+    required this.ovenStopped,
+    required this.stopReason,
+    required this.stopError,
+    required this.explanation,
+    required this.createdAt,
+  });
+
+  factory OverDryingRiskResult.fromJson(Map<String, dynamic> json) {
+    return OverDryingRiskResult(
+      batchId: json["batch_id"]?.toString() ?? "",
+      overDryingRisk: json["over_drying_risk"]?.toString() ?? "Low",
+      reasons: (json["reasons"] as List?)?.map((e) => e.toString()).toList() ?? [],
+      ovenStopped: json["oven_stopped"] == true,
+      stopReason: json["stop_reason"]?.toString(),
+      stopError: json["stop_error"]?.toString(),
+      explanation: json["explanation"]?.toString(),
+      createdAt: json["created_at"]?.toString(),
+    );
+  }
+}
+
 double _toDouble(dynamic value) {
   if (value == null) return 0.0;
   if (value is num) return value.toDouble();

@@ -51,6 +51,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   ActiveDryingBatch? _active; // the current active batch (may be another batch)
   DryingTimeResult? _time;
   SpoilageRiskResult? _risk;
+  OverDryingRiskResult? _overDryingRisk;
 
   // --- Paused state ------------------------------------------------------
   // The oven has no real pause: STOPPED is terminal and a stopped session
@@ -79,6 +80,13 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
 
   bool get _isThisBatchDrying =>
       _active != null && _active!.batchId == widget.batchId;
+
+  /// True once the oven itself reports the batch fully dried (its target
+  /// weight was reached and cooling finished) - not when the local countdown
+  /// merely reaches zero. The countdown is only an estimate and can hit
+  /// 00:00:00 while the oven is still genuinely drying, so ovenStatus is the
+  /// ground truth here, the same way _ovenMismatchBanner() treats it.
+  bool get _isComplete => _active?.ovenStatus == "COMPLETED";
 
   @override
   void initState() {
@@ -187,6 +195,21 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = _clean(e));
+    }
+
+    // Separate call, separate failure handling: the over-drying check also
+    // performs the safety stop on the backend when risk is HIGH, so it must
+    // keep being polled on its own schedule even if the block above fails,
+    // and a failure here must never block the time/spoilage display above.
+    if (!_isThisBatchDrying) return;
+    try {
+      final risk = await DryingService.getOverDryingRisk();
+      if (!mounted) return;
+      setState(() => _overDryingRisk = risk);
+    } catch (_) {
+      // Advisory only - the safety stop itself already happened server-side
+      // if conditions warranted it; a failed poll here just means this
+      // particular refresh didn't get to check again yet.
     }
   }
 
@@ -600,8 +623,172 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     );
   }
 
+  /// True once our own over-drying check is the reason the oven isn't
+  /// running - the generic oven-mismatch banner below always shows
+  /// "operator_stop" for any stop (Milan's /stop endpoint takes no reason),
+  /// which would misrepresent a genuine safety stop as a person pausing it.
+  bool get _stoppedByOverDrying =>
+      _overDryingRisk?.ovenStopped == true &&
+      _active != null &&
+      !_active!.ovenRunning;
+
+  /// Shown once, right after the backend reports it auto-stopped the oven
+  /// for over-drying/burn risk. Takes priority over the generic
+  /// _ovenMismatchBanner() so the operator sees the real reason instead of
+  /// the misleading "operator_stop" Milan's service always records (its
+  /// /stop endpoint has no reason parameter to carry ours through).
+  Widget? _autoStopBanner() {
+    if (!_stoppedByOverDrying) return null;
+    final risk = _overDryingRisk!;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF1F0),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.local_fire_department_rounded,
+              color: Color(0xFFE53935), size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Oven stopped automatically: over-drying risk",
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF8B2F2F),
+                  ),
+                ),
+                if (risk.reasons.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    risk.reasons.first,
+                    style: const TextStyle(fontSize: 11.5, color: Color(0xFF8B2F2F)),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Over-drying / burn-risk panel: Low/Medium/High badge, why it's flagged,
+  /// and the plain-language LLM note when one exists (High risk only - see
+  /// llm_reasoning_service's cost guards on the backend).
+  Widget? _overDryingPanel() {
+    final risk = _overDryingRisk;
+    // Nothing worth a panel for: no data yet, or a clean Low reading with no
+    // reasons to show (the common case - most of a drying run).
+    if (risk == null) return null;
+    if (risk.overDryingRisk.toLowerCase() == "low" && risk.reasons.isEmpty) {
+      return null;
+    }
+
+    final s = _riskStyle(risk.overDryingRisk);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: s.bg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: s.color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: s.color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(s.icon, color: s.color, size: 16),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Over-drying / burn risk",
+                style: TextStyle(
+                    fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: s.color,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  risk.overDryingRisk.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (risk.reasons.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            ...risk.reasons.map(
+              (r) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  r,
+                  style: TextStyle(fontSize: 11.5, color: Colors.grey.shade800),
+                ),
+              ),
+            ),
+          ],
+          if (risk.explanation != null && risk.explanation!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.auto_awesome_rounded, size: 14, color: s.color),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      risk.explanation!,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: Colors.grey.shade800,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _dryingDashboard() {
-    final mismatch = _ovenMismatchBanner();
+    // The auto-stop banner already explains why the oven isn't running when
+    // over-drying was the cause, so suppress the generic mismatch banner in
+    // that case rather than show both.
+    final mismatch = _stoppedByOverDrying ? null : _ovenMismatchBanner();
     return Column(
       children: [
         if (mismatch != null) mismatch,
@@ -701,6 +888,16 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
           ),
         ),
 
+        if (_autoStopBanner() != null) ...[
+          const SizedBox(height: 14),
+          _autoStopBanner()!,
+        ],
+
+        if (_overDryingPanel() != null) ...[
+          const SizedBox(height: 14),
+          _overDryingPanel()!,
+        ],
+
         if (_error != null) ...[
           const SizedBox(height: 14),
           _infoNote(Icons.sensors_off_rounded,
@@ -711,22 +908,39 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         _liveFooter(),
 
         const SizedBox(height: 14),
-        // Cancel drying.
+        // Cancel drying, or a disabled "complete" indicator once the oven
+        // itself reports the batch fully dried - there is nothing left to
+        // pause at that point.
         SizedBox(
           width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _cancelDrying,
-            icon: const Icon(Icons.stop_circle_outlined, size: 20),
-            label: const Text("Pause Drying"),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.error,
-              side: BorderSide(color: AppColors.error.withValues(alpha: 0.5)),
-              minimumSize: const Size(0, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-          ),
+          child: _isComplete
+              ? OutlinedButton.icon(
+                  onPressed: null,
+                  icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
+                  label: const Text("Drying Complete"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.success,
+                    disabledForegroundColor: AppColors.success,
+                    side: BorderSide(color: AppColors.success.withValues(alpha: 0.5)),
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                )
+              : OutlinedButton.icon(
+                  onPressed: _cancelDrying,
+                  icon: const Icon(Icons.stop_circle_outlined, size: 20),
+                  label: const Text("Pause Drying"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                    side: BorderSide(color: AppColors.error.withValues(alpha: 0.5)),
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
         ),
       ],
     );
@@ -764,9 +978,9 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
             ],
           ),
           const SizedBox(height: 10),
-          const Text(
-            "Drying in progress",
-            style: TextStyle(
+          Text(
+            _isComplete ? "Drying complete" : "Drying in progress",
+            style: const TextStyle(
                 fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
           ),
           const SizedBox(height: 2),
