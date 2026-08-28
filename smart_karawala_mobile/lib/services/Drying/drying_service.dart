@@ -141,6 +141,22 @@ class DryingService {
     return SpoilageRiskResult.fromJson(json);
   }
 
+  /// Assess over-drying / burn risk for the active batch. At HIGH risk the
+  /// backend also stops the oven itself (see OverDryingRiskResult.ovenStopped)
+  /// - this call is what performs that check, not just reports on it, so it
+  /// must be polled while a batch is drying for the safety stop to trigger.
+  static Future<OverDryingRiskResult> getOverDryingRisk() async {
+    final response = await http
+        .get(Uri.parse("$baseUrl/active/overdrying-risk"))
+        .timeout(_timeout);
+
+    final json = _decode(response);
+    if (response.statusCode != 200) {
+      throw Exception(_errorMessage(json) ?? "Failed to check over-drying risk");
+    }
+    return OverDryingRiskResult.fromJson(json);
+  }
+
   /// Stop drying — clears the active batch pointer.
   static Future<void> stopDrying() async {
     await http.post(Uri.parse("$baseUrl/stop")).timeout(_timeout);
