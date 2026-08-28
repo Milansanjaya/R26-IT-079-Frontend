@@ -159,7 +159,8 @@ class BatchCreatedSuccessScreen extends StatelessWidget {
                     children: [
                       _buildDetailRow("Batch ID", batchId),
                       _buildDetailRow("Fish Type", fishType),
-                      _buildDetailRow("Raw Weight", "$rawWeight kg"),
+_buildDetailRow("Raw Weight", "${rawWeight.replaceAll('kg', '').trim()} kg"),
+
                       _buildDetailRow("Date", date),
                       _buildDetailRow("Time", time),
                       _buildDetailRow("Location", location),

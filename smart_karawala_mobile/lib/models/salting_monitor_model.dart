@@ -47,21 +47,39 @@ class SaltingMonitorModel {
       remaining = totalHours;
     }
 
+    final status = (json["status"] as String?) ?? "In Progress";
+    final progress = (json["progress"] as num?)?.toDouble() ?? 0.0;
+
+    double saltAmount = (json["saltAmount"] as num?)?.toDouble() ?? 0.0;
+    if (saltAmount <= 0 && cleanedWeight > 0) {
+      final ratio = SaltService.getSaltRatio(fishType);
+      saltAmount = cleanedWeight * ratio;
+    }
+
+    final addedSaltWeight = 0.75 * saltAmount;
+    final isCompleted = status.toLowerCase() == 'completed' || progress >= 100;
+    final completionRatio = isCompleted ? 1.0 : (progress / 100.0).clamp(0.0, 1.0);
+
     final weightLoss = (json["weightLoss"] as num?)?.toDouble() ?? 0.0;
     final rawCurrentWeight = (json["currentWeight"] as num?)?.toDouble();
-    double currentWeight = (rawCurrentWeight != null && rawCurrentWeight > 0 && rawCurrentWeight <= cleanedWeight)
-        ? rawCurrentWeight
-        : (cleanedWeight - weightLoss);
+
+    double currentWeight;
+    if (rawCurrentWeight != null && rawCurrentWeight > 0) {
+      currentWeight = rawCurrentWeight;
+    } else {
+      currentWeight = cleanedWeight + (completionRatio * addedSaltWeight);
+    }
+
     if (currentWeight <= 0) {
       currentWeight = cleanedWeight > 0 ? cleanedWeight : 0.1;
     }
 
     return SaltingMonitorModel(
       batchId: json["batchId"] ?? "",
-      fishType: json["fishType"] ?? "",
-      status: json["status"] ?? "In Progress",
+      fishType: fishType,
+      status: status,
       startTime: json["startTime"] ?? "",
-      progress: (json["progress"] as num?)?.toDouble() ?? 0.0,
+      progress: progress,
       cleanedWeight: cleanedWeight,
       currentWeight: currentWeight,
       weightLoss: weightLoss,

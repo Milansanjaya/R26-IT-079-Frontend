@@ -1,0 +1,22 @@
+{
+  "files.exclude": {
+    "**/_pyrefly_virtual_/**": true,
+    "**/.pyrefly_virtual/**": true
+  },
+  "files.watcherExclude": {
+    "**/_pyrefly_virtual_/**": true,
+    "**/.pyrefly_virtual/**": true
+  },
+  "pyrefly.ignore": [
+    "**/_pyrefly_virtual_/**",
+    "**/.pyrefly_virtual/**",
+    "C:/_pyrefly_virtual_/**",
+    "**/*_pyrefly_virtual_*/**"
+  ],
+  "pyrefly.diagnostics.enable": false,
+  "python.analysis.ignore": [
+    "**/_pyrefly_virtual_/**",
+    "**/.pyrefly_virtual/**",
+    "C:/_pyrefly_virtual_/**"
+  ]
+}
