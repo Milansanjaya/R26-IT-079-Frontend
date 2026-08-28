@@ -76,10 +76,26 @@ class SaltService {
     }
   }
 
+  /// Returns recommended salt ratio for fish species (defaults to 0.20)
+  static double getSaltRatio([String? fishType]) {
+    final type = fishType?.trim().toLowerCase() ?? "";
+    if (type == "balaya" || type == "hurulla" || type == "kelawalla" || type == "sprats" || type == "mackerel" || type == "sardine" || type == "anchovy") {
+      return 0.20;
+    } else if (type == "linna" || type == "paraw") {
+      return 0.22;
+    } else if (type == "thalapath" || type == "thora" || type == "mora") {
+      return 0.25;
+    } else if (type == "salaya" || type == "kumbalawa") {
+      return 0.18;
+    }
+    return 0.20;
+  }
+
   /// Predict salt and duration based on batch parameters
   static Future<SaltPredictionModel> predictSalt(BatchModel batch) async {
     final double weight = batch.cleanedWeight;
     final int fallbackDuration = calculateRecommendedDuration(weight, batch.fishType);
+    final double fallbackRatio = getSaltRatio(batch.fishType);
 
     try {
       final response = await http.post(
@@ -99,7 +115,7 @@ class SaltService {
           batchId: batch.batchId,
           fishType: batch.fishType,
           cleanedWeight: returnedWeight,
-          saltAmount: (json["saltAmount"] as num?)?.toDouble() ?? (returnedWeight * 0.18),
+          saltAmount: (json["saltAmount"] as num?)?.toDouble() ?? (returnedWeight * fallbackRatio),
           saltingDurationHours: returnedDuration,
         );
       }
@@ -111,7 +127,7 @@ class SaltService {
       batchId: batch.batchId,
       fishType: batch.fishType,
       cleanedWeight: weight,
-      saltAmount: weight * 0.18,
+      saltAmount: weight * fallbackRatio,
       saltingDurationHours: fallbackDuration,
     );
   }

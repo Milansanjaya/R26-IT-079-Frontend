@@ -33,6 +33,8 @@ class SaltingMonitorService {
     } catch (_) {}
 
     final totalHours = SaltService.calculateRecommendedDuration(cleanedWeight, fishType).toDouble();
+    final saltRatio = SaltService.getSaltRatio(fishType);
+    final saltAmount = cleanedWeight * saltRatio;
 
     return SaltingMonitorModel(
       batchId: batchId.isNotEmpty ? batchId : "BATCH-178576",
