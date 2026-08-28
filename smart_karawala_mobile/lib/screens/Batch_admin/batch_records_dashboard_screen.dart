@@ -475,28 +475,7 @@ class _BatchRecordsDashboardScreenState
 
               const SizedBox(height: 14),
 
-              // Table Headers Row
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF6F8FC),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Row(
-                  children: [
-                    Expanded(flex: 3, child: Text("Batch ID", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-                    Expanded(flex: 3, child: Text("Date & Time", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-                    Expanded(flex: 2, child: Text("Fish Type", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-                    Expanded(flex: 3, child: Text("Waste (kg) & %", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-                    Expanded(flex: 2, child: Text("Status", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-                    SizedBox(width: 60, child: Text("Action", textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Batch Records Table Rows List
+              // Batch Records Card List
               if (filteredReports.isEmpty)
                 Container(
                   width: double.infinity,
@@ -513,184 +492,169 @@ class _BatchRecordsDashboardScreenState
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: filteredReports.length,
-                  separatorBuilder: (_, __) => Divider(color: Colors.grey.shade200, height: 16),
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final report = filteredReports[index];
                     final isCompleted = report.status.toLowerCase() == "completed";
+                    final statusColor = isCompleted ? Colors.green : Colors.orange;
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                      child: Row(
+                    return Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Batch ID
-                          Expanded(
-                            flex: 3,
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEDF5FF),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(Icons.set_meal_outlined, size: 14, color: Colors.blue),
+                          // Header row: batch id + status pill
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEDF5FF),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    report.batchId,
-                                    style: const TextStyle(
-                                      color: Color(0xff103F73),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Date & Time
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  report.date.split("•")[0].trim(),
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
-                                ),
-                                Text(
-                                  report.date.contains("•") ? report.date.split("•")[1].trim() : "",
-                                  style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Fish Type
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              report.fishType,
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-
-                          // Waste (kg) & %
-                          Expanded(
-                            flex: 3,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: isCompleted ? const Color(0xFFE8F5E9) : const Color(0xFFFFF3E0),
-                                borderRadius: BorderRadius.circular(6),
+                                child: const Icon(Icons.set_meal_outlined, size: 18, color: Colors.blue),
                               ),
-                              child: Text(
-                                "${WeightFormatter.format(report.predictedWaste)} (${report.wastePercentage.toStringAsFixed(0)}%)",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: isCompleted ? Colors.green.shade800 : Colors.orange.shade800,
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  report.batchId,
+                                  style: const TextStyle(
+                                    color: Color(0xff103F73),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                            ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: statusColor.withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      report.status,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: statusColor.shade800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
 
-                          // Status Tag
-                          Expanded(
-                            flex: 2,
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: isCompleted ? Colors.green : Colors.orange,
-                                    shape: BoxShape.circle,
-                                  ),
+                          const SizedBox(height: 12),
+                          Divider(color: Colors.grey.shade200, height: 1),
+                          const SizedBox(height: 12),
+
+                          // Body: date, fish type, waste
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: _cardField(
+                                  label: "Date & Time",
+                                  value: report.date.split("•")[0].trim(),
+                                  subValue: report.date.contains("•")
+                                      ? report.date.split("•")[1].trim()
+                                      : null,
                                 ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    report.status,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: isCompleted ? Colors.green.shade800 : Colors.orange.shade800,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                              Expanded(
+                                child: _cardField(label: "Fish Type", value: report.fishType),
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 12),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: _cardField(
+                                  label: "Waste",
+                                  value:
+                                      "${WeightFormatter.format(report.predictedWaste)} (${report.wastePercentage.toStringAsFixed(0)}%)",
+                                  valueColor: isCompleted ? Colors.green.shade800 : Colors.orange.shade800,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 12),
+                          Divider(color: Colors.grey.shade200, height: 1),
+                          const SizedBox(height: 8),
 
                           // Actions (View, Edit, Delete)
-                          SizedBox(
-                            width: 75,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                // View (Eye icon)
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => BatchDetailsScreen(batch: report),
-                                      ),
-                                    );
-                                  },
-                                  child: const Icon(
-                                    Icons.remove_red_eye_outlined,
-                                    size: 18,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => BatchDetailsScreen(batch: report),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.remove_red_eye_outlined, size: 16, color: Colors.blue),
+                                label: const Text("View", style: TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.w600)),
+                                style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
+                              ),
+                              TextButton.icon(
+                                onPressed: () async {
+                                  final updatedReport = await Navigator.push<ProcessingReportModel>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => EditBatchScreen(batch: report),
+                                    ),
+                                  );
 
-                                // Edit (Pencil icon)
-                                GestureDetector(
-                                  onTap: () async {
-                                    final updatedReport = await Navigator.push<ProcessingReportModel>(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => EditBatchScreen(batch: report),
-                                      ),
-                                    );
-
-                                    if (updatedReport != null) {
-                                      setState(() {
-                                        final index = reports.indexWhere((r) => r.batchId == updatedReport.batchId);
-                                        if (index != -1) {
-                                          reports[index] = updatedReport;
-                                        }
-                                        filterReports();
-                                      });
-                                    }
-                                  },
-                                  child: const Icon(
-                                    Icons.edit_outlined,
-                                    size: 18,
-                                    color: Colors.orange,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-
-                                // Delete (Trash icon)
-                                GestureDetector(
-                                  onTap: () => deleteBatch(report.batchId),
-                                  child: const Icon(
-                                    Icons.delete_outline_rounded,
-                                    size: 18,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
+                                  if (updatedReport != null) {
+                                    setState(() {
+                                      final index = reports.indexWhere((r) => r.batchId == updatedReport.batchId);
+                                      if (index != -1) {
+                                        reports[index] = updatedReport;
+                                      }
+                                      filterReports();
+                                    });
+                                  }
+                                },
+                                icon: const Icon(Icons.edit_outlined, size: 16, color: Colors.orange),
+                                label: const Text("Edit", style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.w600)),
+                                style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
+                              ),
+                              TextButton.icon(
+                                onPressed: () => deleteBatch(report.batchId),
+                                icon: const Icon(Icons.delete_outline_rounded, size: 16, color: Colors.red),
+                                label: const Text("Delete", style: TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w600)),
+                                style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -703,6 +667,38 @@ class _BatchRecordsDashboardScreenState
           ),
         ),
       ),
+    );
+  }
+
+  Widget _cardField({
+    required String label,
+    required String value,
+    String? subValue,
+    Color? valueColor,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade500),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: valueColor ?? Colors.black87,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (subValue != null && subValue.isNotEmpty)
+          Text(
+            subValue,
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+          ),
+      ],
     );
   }
 
