@@ -44,11 +44,19 @@ class IotService {
   static Future<Map<String, dynamic>> startDryingSession({
     required String batchId,
     required String mode,
+    double? targetTemperature,
+    double? targetHumidity,
+    int? targetDurationMinutes,
   }) {
     return _request(
       "POST",
       "/api/iot/sessions/${Uri.encodeComponent(batchId)}/start",
-      body: {"mode": mode},
+      body: {
+        "mode": mode,
+        "target_temperature_c": ?targetTemperature,
+        "target_humidity_percent": ?targetHumidity,
+        "predicted_duration_minutes": ?targetDurationMinutes,
+      },
     );
   }
 
@@ -82,20 +90,12 @@ class IotService {
     return _request(
       "PUT",
       "/api/iot/sessions/${Uri.encodeComponent(batchId)}/manual-actuators",
-      body: {
-        if (heater != null) "heater": heater,
-        if (fan != null) "fan": fan,
-        if (light != null) "light": light,
-      },
+      body: {"heater": ?heater, "fan": ?fan, "light": ?light},
     );
   }
 
   static Future<Map<String, dynamic>> tareScale({String? batchId}) {
-    return _request(
-      "POST",
-      "/api/iot/tare",
-      body: {if (batchId != null) "batch_id": batchId},
-    );
+    return _request("POST", "/api/iot/tare", body: {"batch_id": ?batchId});
   }
 
   static Future<Map<String, dynamic>> _request(
