@@ -100,7 +100,12 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
           if (resolvedSession.isRunning) {
             _autoMode = resolvedSession.mode != 'MANUAL';
           }
-          _syncProfileFields(resolvedSession);
+          // A READY profile may contain values loaded by Time Prediction.
+          // Once the operator selects MANUAL, keep their edits instead of
+          // replacing them with that profile on every five-second refresh.
+          if (_autoMode || resolvedSession.isRunning) {
+            _syncProfileFields(resolvedSession);
+          }
         }
         _lightOn = data.light;
         _lastRefreshAt = DateTime.now();
@@ -171,6 +176,15 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
       final response = await IotService.startDryingSession(
         batchId: batchId,
         mode: _autoMode ? 'AUTO' : 'MANUAL',
+        targetTemperature: !_autoMode && readyBatchId != null
+            ? values.temperature
+            : null,
+        targetHumidity: !_autoMode && readyBatchId != null
+            ? values.humidity
+            : null,
+        targetDurationMinutes: !_autoMode && readyBatchId != null
+            ? values.durationMinutes
+            : null,
       );
 
       if (!mounted) return;
