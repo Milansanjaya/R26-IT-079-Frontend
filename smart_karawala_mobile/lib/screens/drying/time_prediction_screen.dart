@@ -312,7 +312,7 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _infoTile('Weight', '${widget.initialWeightKg.toStringAsFixed(1)} kg'),
+                          child: _infoTile('Weight', '${widget.initialWeightKg.toStringAsFixed(3)} kg'),
                         ),
                       ],
                     ),

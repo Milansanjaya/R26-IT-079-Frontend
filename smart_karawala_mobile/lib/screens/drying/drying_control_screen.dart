@@ -1012,10 +1012,8 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
   Widget _manualModeContent() {
     return Column(
       children: [
-        if (_session?.mode == 'MANUAL') ...[
-          _scheduleCard(),
-          const SizedBox(height: 18),
-        ],
+        _manualCountdownCard(),
+        const SizedBox(height: 18),
         _manualTargetCard(),
         const SizedBox(height: 18),
         _liveConditionsCard(),
@@ -1031,6 +1029,102 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
           color: Colors.orange.shade700,
         ),
       ],
+    );
+  }
+
+  Widget _manualCountdownCard() {
+    if (_session?.mode == 'MANUAL') return _scheduleCard();
+
+    final configuredMinutes = int.tryParse(_durationController.text.trim());
+    final validDuration = configuredMinutes != null && configuredMinutes > 0;
+    final preview = Duration(minutes: validDuration ? configuredMinutes : 0);
+
+    return _sectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle(
+            icon: Icons.timer_outlined,
+            title: 'Manual countdown',
+            subtitle: validDuration
+                ? 'Preview of the maximum manual drying time.'
+                : 'Enter a valid duration to prepare the countdown.',
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: Text(
+              validDuration ? _formatClock(preview) : '--:--:--',
+              style: const TextStyle(
+                color: AppColors.primaryDark,
+                fontSize: 40,
+                height: 1,
+                fontWeight: FontWeight.w900,
+                fontFeatures: [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Center(
+            child: Text(
+              'Countdown starts when MANUAL drying begins',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.hint,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              15,
+              30,
+              60,
+              120,
+            ].map(_manualDurationPreset).toList(growable: false),
+          ),
+          const SizedBox(height: 18),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: const LinearProgressIndicator(
+              minHeight: 9,
+              value: 0,
+              backgroundColor: AppColors.inputFill,
+              valueColor: AlwaysStoppedAnimation(AppColors.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _manualDurationPreset(int minutes) {
+    final selected = int.tryParse(_durationController.text.trim()) == minutes;
+    return ChoiceChip(
+      selected: selected,
+      label: Text(minutes < 60 ? '$minutes min' : '${minutes ~/ 60} hr'),
+      avatar: Icon(
+        Icons.schedule_rounded,
+        size: 16,
+        color: selected ? Colors.white : AppColors.primary,
+      ),
+      labelStyle: TextStyle(
+        color: selected ? Colors.white : AppColors.text,
+        fontSize: 11.5,
+        fontWeight: FontWeight.w800,
+      ),
+      backgroundColor: AppColors.inputFill,
+      selectedColor: AppColors.primary,
+      side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
+      onSelected: _dryingRunning
+          ? null
+          : (_) {
+              _durationController.text = minutes.toString();
+              setState(() {});
+            },
     );
   }
 
@@ -1063,6 +1157,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
             icon: Icons.schedule_rounded,
             enabled: editable,
             decimal: false,
+            onChanged: (_) => setState(() {}),
           ),
         ],
       ),
@@ -1076,10 +1171,12 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
     required IconData icon,
     required bool enabled,
     bool decimal = true,
+    ValueChanged<String>? onChanged,
   }) {
     return TextField(
       controller: controller,
       enabled: enabled,
+      onChanged: onChanged,
       keyboardType: TextInputType.numberWithOptions(decimal: decimal),
       decoration: InputDecoration(
         labelText: label,

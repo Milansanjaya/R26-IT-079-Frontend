@@ -90,7 +90,7 @@ class DryingHeaderCard extends StatelessWidget {
           Row(
             children: [
               _stat("Initial Weight",
-                  "${initialWeightKg.toStringAsFixed(2)} kg", Icons.scale),
+                  "${initialWeightKg.toStringAsFixed(3)} kg", Icons.scale),
               Container(
                 width: 1,
                 height: 34,
