@@ -22,14 +22,7 @@ const double _targetHumidityPercent = 55.0;
 /// GET /api/predict/safety-limits). This is a last-resort guard so a stale
 /// or manually-entered value can never command the oven to overheat.
 /// Keep it in sync with the backend cap.
-const double _maxSafeTemperatureC = 60.0;
-
-/// TEMPORARY (testing): duration sent to the oven's control profile, instead
-/// of the model's predicted drying time.
-///
-/// The predicted time (often 12h+) makes test runs impractical. Set this to
-/// null to go back to using the real predicted duration.
-const int? _testDurationMinutesOverride = 10;
+const double _maxSafeTemperatureC = 150.0;
 
 class TimePredictionScreen extends StatefulWidget {
   final String batchId;
@@ -140,7 +133,7 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
     final safeTemperature =
         _recommendedTemperature.clamp(0.0, _maxSafeTemperatureC).toDouble();
     final durationMinutes =
-        _testDurationMinutesOverride ?? (_estimatedHours * 60).round();
+        TimePredictionService.durationMinutesFromHours(_estimatedHours);
 
     Future<void> createProfile(String id) => IotService.createControlProfile(
           batchId: id,
@@ -319,7 +312,7 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _infoTile('Weight', '${widget.initialWeightKg.toStringAsFixed(1)} kg'),
+                          child: _infoTile('Weight', '${widget.initialWeightKg.toStringAsFixed(3)} kg'),
                         ),
                       ],
                     ),

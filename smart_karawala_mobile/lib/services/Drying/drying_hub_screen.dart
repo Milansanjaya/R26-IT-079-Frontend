@@ -211,7 +211,7 @@ class _DryingHubScreenState extends State<DryingHubScreen> {
                 Text(
                   b.fishType.isEmpty
                       ? "In drying oven"
-                      : "${b.fishType[0].toUpperCase()}${b.fishType.substring(1)} • ${b.initialWeightKg.toStringAsFixed(2)} kg",
+                      : "${b.fishType[0].toUpperCase()}${b.fishType.substring(1)} • ${b.initialWeightKg.toStringAsFixed(3)} kg",
                   style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12),
                 ),
               ],
