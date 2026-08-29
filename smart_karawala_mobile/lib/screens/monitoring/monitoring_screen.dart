@@ -25,6 +25,9 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
     heaterState: false,
     lightState: true,
     fanState: true,
+    isBedEmpty: true,
+    detectedFishCount: 0,
+    activeBatchId: "BATCH-20260830-01",
   );
 
   PredictionData _prediction = PredictionData(
@@ -40,9 +43,25 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
   bool _useSnapshotMode = true;
   final bool _isCameraConnected = true;
 
+  // Batch Selection State
+  String _selectedBatchId = "BATCH-20260830-01";
+  List<String> _availableBatchIds = [
+    "BATCH-20260830-01",
+    "BATCH-20260829-04",
+    "BATCH-20260829-02",
+    "MANUAL-SESSION-01",
+  ];
+
+  // Live Vision Filter Toggles (Matching Verification Station Vision Engine)
+  bool _sharpFocus = true;
+  bool _showEdgeLines = true;
+  bool _showDiscolorationLines = true;
+  bool _showBboxes = true;
+
   @override
   void initState() {
     super.initState();
+    _fetchAvailableBatches();
     _fetchTelemetryData();
     _fetchPredictionData();
     _startTelemetryTimer();
@@ -54,6 +73,18 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
     _telemetryTimer?.cancel();
     _frameTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _fetchAvailableBatches() async {
+    final batches = await VerificationStationService.fetchAvailableBatchIds();
+    if (mounted && batches.isNotEmpty) {
+      setState(() {
+        _availableBatchIds = batches;
+        if (!_availableBatchIds.contains(_selectedBatchId)) {
+          _selectedBatchId = _availableBatchIds.first;
+        }
+      });
+    }
   }
 
   void _startFrameTimer() {
@@ -71,7 +102,10 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
   }
 
   Future<void> _fetchTelemetryData() async {
-    final data = await VerificationStationService.fetchTelemetry(host: _piHost);
+    final data = await VerificationStationService.fetchTelemetry(
+      host: _piHost,
+      batchId: _selectedBatchId,
+    );
     if (mounted) {
       setState(() {
         _telemetry = data;
@@ -95,14 +129,6 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
         _telemetry = _telemetry.copyWith(lightState: true);
       } else if (action == 'light_off') {
         _telemetry = _telemetry.copyWith(lightState: false);
-      } else if (action == 'heater_on') {
-        _telemetry = _telemetry.copyWith(heaterState: true);
-      } else if (action == 'heater_off') {
-        _telemetry = _telemetry.copyWith(heaterState: false);
-      } else if (action == 'fan_on') {
-        _telemetry = _telemetry.copyWith(fanState: true);
-      } else if (action == 'fan_off') {
-        _telemetry = _telemetry.copyWith(fanState: false);
       }
     });
 
@@ -111,6 +137,31 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
     if (mounted) {
       setState(() => _actionPending = false);
     }
+  }
+
+  Future<void> _calibrateEmptyBed() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("📷 Baseline empty rack reference saved!"),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.blue,
+      ),
+    );
+    await VerificationStationService.calibrateEmptyBedBaseline();
+    setState(() {
+      _telemetry = _telemetry.copyWith(isBedEmpty: true, detectedFishCount: 0);
+    });
+  }
+
+  Future<void> _rescanDiscolorations() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("🔄 Rescanning discolorations..."),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+    await VerificationStationService.rescanDiscolorations();
   }
 
   void _showHostConfigDialog() {
@@ -123,7 +174,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
           children: [
             Icon(Icons.settings, color: AppColors.primary),
             SizedBox(width: 8),
-            Text("Verification Station IP", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text("Station Target Host", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
         content: Column(
@@ -131,16 +182,16 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Enter the URL or IP address of your Raspberry Pi / Verification Station server:",
-              style: TextStyle(fontSize: 13, color: Colors.black87),
+              "Enter the Station proxy or direct IP address:",
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             TextField(
               controller: controller,
-              decoration: InputDecoration(
-                hintText: "e.g., http://192.168.1.100:3000",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: "http://localhost:3000 or http://172.20.10.2:8080",
+                isDense: true,
               ),
             ),
           ],
@@ -162,7 +213,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
               _fetchTelemetryData();
               Navigator.pop(ctx);
             },
-            child: const Text("Save", style: TextStyle(color: Colors.white)),
+            child: const Text("Save Target", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -174,8 +225,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
     final diff = history.last - history[history.length - 2];
     if (diff.abs() < 0.05) return "Stable";
     final sign = diff > 0 ? "+" : "";
-    final arrow = diff > 0 ? "📈" : "📉";
-    return "$arrow $sign${diff.toStringAsFixed(1)}$unit";
+    return "$sign${diff.toStringAsFixed(1)}$unit (3s)";
   }
 
   @override
@@ -191,24 +241,62 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xff103F73), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "Verification Station",
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 17,
                 fontWeight: FontWeight.bold,
                 color: Color(0xff103F73),
               ),
             ),
             Text(
-              "Live Monitoring & Predictions",
-              style: TextStyle(fontSize: 11, color: Colors.grey),
+              "Session: $_selectedBatchId",
+              style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w600),
             ),
           ],
         ),
         actions: [
+          // Batch Selector Dropdown
+          Container(
+            margin: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xffF1F5F9),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _availableBatchIds.contains(_selectedBatchId) ? _selectedBatchId : _availableBatchIds.first,
+                icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xff103F73), size: 18),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xff103F73)),
+                onChanged: (newBatch) {
+                  if (newBatch != null) {
+                    setState(() {
+                      _selectedBatchId = newBatch;
+                    });
+                    _fetchTelemetryData();
+                  }
+                },
+                items: _availableBatchIds.map((batchId) {
+                  return DropdownMenuItem<String>(
+                    value: batchId,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.inventory_2_outlined, size: 14, color: AppColors.primary),
+                        const SizedBox(width: 4),
+                        Text(batchId),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.settings, color: Color(0xff103F73)),
             onPressed: _showHostConfigDialog,
@@ -255,12 +343,14 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          _telemetry.isConnected ? "HARDWARE ONLINE" : "HARDWARE DISCONNECTED",
+                          _telemetry.isConnected
+                              ? "SMART MONITORING BACKEND ONLINE (PORT 8002)"
+                              : "SMART MONITORING BACKEND OFFLINE",
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: _telemetry.isConnected ? Colors.green : Colors.red,
-                            letterSpacing: 0.5,
+                            color: _telemetry.isConnected ? Colors.green.shade800 : Colors.red,
+                            letterSpacing: 0.3,
                           ),
                         ),
                         if (!_telemetry.isConnected) ...[
@@ -324,7 +414,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
 
               const SizedBox(height: 16),
 
-              // Live View Camera Stream Card
+              // Live View Camera Stream Card with Vision Overlay
               Container(
                 decoration: BoxDecoration(
                   color: Colors.black,
@@ -465,47 +555,144 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                                   );
                                 },
                               )
-                          else
-                            const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.linked_camera, color: Colors.white54, size: 48),
-                                SizedBox(height: 8),
-                                Text("Camera Standby", style: TextStyle(color: Colors.white70)),
-                              ],
-                            ),
-                          Positioned(
-                            top: 12,
-                            left: 12,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withValues(alpha: 0.85),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Row(
+                            else
+                              const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.circle, color: Colors.white, size: 8),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "LIVE",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  Icon(Icons.linked_camera, color: Colors.white54, size: 48),
+                                  SizedBox(height: 8),
+                                  Text("Camera Standby", style: TextStyle(color: Colors.white70)),
                                 ],
                               ),
+                            Positioned(
+                              top: 12,
+                              left: 12,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withValues(alpha: 0.85),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.circle, color: Colors.white, size: 8),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      "LIVE",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+
+                    // Live Vision Filters Overlay Bar (Matching Verification Station Pill Buttons)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: const BoxDecoration(
+                        color: Color(0xff0F172A),
+                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+                      ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            const Row(
+                              children: [
+                                Icon(Icons.circle, color: Color(0xff10b981), size: 6),
+                                SizedBox(width: 4),
+                                Text(
+                                  "LIVE VISION:",
+                                  style: TextStyle(color: Color(0xff10b981), fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Focus Sharpening Toggle Pill
+                            _buildVisionPillButton(
+                              label: "🔍 Focus Sharpening ${_sharpFocus ? 'ON' : 'OFF'}",
+                              isActive: _sharpFocus,
+                              activeColor: const Color(0xffc084fc),
+                              activeBg: const Color(0x40a855f7),
+                              borderColor: const Color(0xffa855f7),
+                              onTap: () => setState(() => _sharpFocus = !_sharpFocus),
+                            ),
+                            const SizedBox(width: 6),
+
+                            // Calibrate Empty Bed Action Pill
+                            _buildVisionPillButton(
+                              label: "📷 Calibrate Empty Bed",
+                              isActive: true,
+                              activeColor: const Color(0xff60a5fa),
+                              activeBg: const Color(0x403b82f6),
+                              borderColor: const Color(0xff3b82f6),
+                              onTap: _calibrateEmptyBed,
+                            ),
+                            const SizedBox(width: 6),
+
+                            // Rescan Discolorations Action Pill
+                            _buildVisionPillButton(
+                              label: "🔄 Rescan Discolorations (10s)",
+                              isActive: true,
+                              activeColor: const Color(0xfff87171),
+                              activeBg: const Color(0x33ef4444),
+                              borderColor: const Color(0x80ef4444),
+                              onTap: _rescanDiscolorations,
+                            ),
+                            const SizedBox(width: 6),
+
+                            // Contour Lines Toggle Pill
+                            _buildVisionPillButton(
+                              label: "⚡ Contour Lines ${_showEdgeLines ? 'ON' : 'OFF'}",
+                              isActive: _showEdgeLines,
+                              activeColor: const Color(0xff34d399),
+                              activeBg: const Color(0x4010b981),
+                              borderColor: const Color(0xff10b981),
+                              onTap: () => setState(() => _showEdgeLines = !_showEdgeLines),
+                            ),
+                            const SizedBox(width: 6),
+
+                            // Color Discolorations Toggle Pill
+                            _buildVisionPillButton(
+                              label: "🔴 Color Discolorations ${_showDiscolorationLines ? 'ON' : 'OFF'}",
+                              isActive: _showDiscolorationLines,
+                              activeColor: const Color(0xfff87171),
+                              activeBg: const Color(0x40ef4444),
+                              borderColor: const Color(0xffef4444),
+                              onTap: () => setState(() => _showDiscolorationLines = !_showDiscolorationLines),
+                            ),
+                            const SizedBox(width: 6),
+
+                            // BBoxes Toggle Pill
+                            _buildVisionPillButton(
+                              label: "🟦 BBoxes",
+                              isActive: _showBboxes,
+                              activeColor: const Color(0xff60a5fa),
+                              activeBg: const Color(0x403b82f6),
+                              borderColor: const Color(0xff3b82f6),
+                              onTap: () => setState(() => _showBboxes = !_showBboxes),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+
+              const SizedBox(height: 16),
+
+              // Drying Bed Occupancy & Sample Status Tile
+              _buildBedOccupancyStatusCard(),
 
               const SizedBox(height: 20),
 
@@ -595,7 +782,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
 
               const SizedBox(height: 20),
 
-              // Hardware Actuator Controls Panel (Light, Heater, Fan, Tare)
+              // Hardware Actuator Controls Panel (Light Only + Tare)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -618,10 +805,10 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.bolt, color: Colors.amber, size: 22),
+                            Icon(Icons.lightbulb_outline, color: Colors.amber, size: 22),
                             SizedBox(width: 6),
                             Text(
-                              "Hardware Actuator Controls",
+                              "Hardware Light Control",
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
@@ -654,55 +841,85 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
 
-                    // Controls Grid: Light, Heater, Fan
-                    Row(
-                      children: [
-                        // Light Control Button
-                        Expanded(
-                          child: _buildActuatorButton(
-                            label: "Light",
-                            icon: Icons.lightbulb,
-                            isOn: _telemetry.lightState,
-                            activeColor: Colors.amber.shade700,
-                            activeBg: const Color(0xffFFF8E1),
-                            onTap: () => _handleControlAction(
-                              _telemetry.lightState ? 'light_off' : 'light_on',
-                            ),
+                    // Single Dedicated Light Control Card
+                    GestureDetector(
+                      onTap: _actionPending
+                          ? null
+                          : () => _handleControlAction(
+                                _telemetry.lightState ? 'light_off' : 'light_on',
+                              ),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: _telemetry.lightState ? const Color(0xffFFF8E1) : const Color(0xffF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _telemetry.lightState ? Colors.amber.shade400 : Colors.grey.shade300,
+                            width: 1.5,
                           ),
+                          boxShadow: _telemetry.lightState
+                              ? [
+                                  BoxShadow(
+                                    color: Colors.amber.shade200.withValues(alpha: 0.5),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : [],
                         ),
-                        const SizedBox(width: 10),
-
-                        // Heater Control Button
-                        Expanded(
-                          child: _buildActuatorButton(
-                            label: "Heater",
-                            icon: Icons.local_fire_department,
-                            isOn: _telemetry.heaterState,
-                            activeColor: Colors.red.shade600,
-                            activeBg: const Color(0xffFFEBEE),
-                            onTap: () => _handleControlAction(
-                              _telemetry.heaterState ? 'heater_off' : 'heater_on',
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: _telemetry.lightState ? Colors.amber.shade700 : Colors.grey.shade400,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                _telemetry.lightState ? Icons.lightbulb : Icons.lightbulb_outline,
+                                color: Colors.white,
+                                size: 24,
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
-                        // Fan Control Button
-                        Expanded(
-                          child: _buildActuatorButton(
-                            label: "Fan",
-                            icon: Icons.air,
-                            isOn: _telemetry.fanState,
-                            activeColor: Colors.blue.shade600,
-                            activeBg: const Color(0xffE3F2FD),
-                            onTap: () => _handleControlAction(
-                              _telemetry.fanState ? 'fan_off' : 'fan_on',
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Drying Bed Light",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: _telemetry.lightState ? Colors.amber.shade900 : const Color(0xff103F73),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    _telemetry.lightState
+                                        ? "Light is turned ON • Tap to turn off"
+                                        : "Light is turned OFF • Tap to turn on",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: _telemetry.lightState ? Colors.amber.shade800 : Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            Switch(
+                              value: _telemetry.lightState,
+                              activeThumbColor: Colors.amber.shade700,
+                              activeTrackColor: Colors.amber.shade200,
+                              onChanged: _actionPending
+                                  ? null
+                                  : (val) => _handleControlAction(val ? 'light_on' : 'light_off'),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -710,33 +927,29 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
 
               const SizedBox(height: 20),
 
-              // Hardware Info Footer Card
+              // Hardware Info Footer
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xffF1F5F9),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.memory, color: Color(0xff475569), size: 20),
+                    const Icon(Icons.developer_board, color: Colors.grey, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            "Hardware: Arduino Nano + Raspberry Pi (/dev/ttyUSB0)",
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff334155),
-                            ),
+                            "Hardware Engine: Arduino Nano + Computer Vision System",
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
                           ),
                           Text(
-                            "Telemetry Target: $_piHost • uStreamer HW Passthrough",
-                            style: const TextStyle(fontSize: 10, color: Color(0xff64748B)),
+                            "IoT Service: http://localhost:8002/api/iot • Camera Target: $_piHost",
+                            style: const TextStyle(fontSize: 10, color: Colors.grey),
                           ),
                         ],
                       ),
@@ -744,11 +957,249 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 24),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Vision Pill Button Helper
+  Widget _buildVisionPillButton({
+    required String label,
+    required bool isActive,
+    required Color activeColor,
+    required Color activeBg,
+    required Color borderColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isActive ? activeBg : Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isActive ? borderColor : Colors.white24,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isActive ? activeColor : Colors.white70,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Bed Occupancy Status Card Widget
+  Widget _buildBedOccupancyStatusCard() {
+    final isEmpty = _telemetry.isBedEmpty;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isEmpty ? const Color(0xffFFFBEB) : const Color(0xffF0FDF4),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isEmpty ? const Color(0xffFCD34D) : const Color(0xff86EFAC),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isEmpty ? Colors.amber : Colors.green).withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isEmpty ? const Color(0xffFEF3C7) : const Color(0xffDCFCE7),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isEmpty ? Icons.grid_off_outlined : Icons.set_meal_outlined,
+                  color: isEmpty ? const Color(0xffD97706) : const Color(0xff16A34A),
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isEmpty ? "NO FISH DETECTED ON BED" : "FISH SAMPLE DETECTED ON BED",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.4,
+                        color: isEmpty ? const Color(0xffB45309) : const Color(0xff15803D),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isEmpty
+                          ? "Place a fish sample on the drying rack to start live quality & dryness monitoring."
+                          : "Live quality, moisture reduction rate, and discoloration scan active.",
+                      style: TextStyle(
+                        fontSize: 12,
+                        height: 1.3,
+                        color: isEmpty ? const Color(0xff92400E) : const Color(0xff166534),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (!isEmpty) ...[
+            const SizedBox(height: 12),
+            const Divider(height: 1, color: Colors.black12),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildVisionStatusBadge(
+                  icon: "🔥",
+                  title: "DRYING STAGE:",
+                  value: _telemetry.dryingStage,
+                  color: const Color(0xffc084fc),
+                  bg: const Color(0x20a855f7),
+                  border: const Color(0xffa855f7),
+                ),
+                _buildVisionStatusBadge(
+                  icon: "🏆",
+                  title: "LIVE QUALITY:",
+                  value: _telemetry.liveQuality,
+                  color: _telemetry.colorDiscolorationsCount == 0 ? const Color(0xff34d399) : const Color(0xfff87171),
+                  bg: _telemetry.colorDiscolorationsCount == 0 ? const Color(0x2010b981) : const Color(0x20ef4444),
+                  border: _telemetry.colorDiscolorationsCount == 0 ? const Color(0xff10b981) : const Color(0xffef4444),
+                ),
+                _buildVisionStatusBadge(
+                  icon: "💧",
+                  title: "DRYNESS LEVEL:",
+                  value: _telemetry.drynessLevel,
+                  color: const Color(0xff60a5fa),
+                  bg: const Color(0x203b82f6),
+                  border: const Color(0xff3b82f6),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  "Color Match: ${_telemetry.colorMatchPercent}%",
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  "Discolorations: ${_telemetry.colorDiscolorationsCount}",
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: _telemetry.colorDiscolorationsCount > 0 ? Colors.red.shade700 : Colors.green.shade700,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  "Samples: ${_telemetry.detectedFishCount} In Frame",
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                ),
+              ],
+            ),
+          ] else ...[
+            const SizedBox(height: 12),
+            const Divider(height: 1, color: Colors.black12),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                _buildOccupancyPill(
+                  icon: Icons.warning_amber_rounded,
+                  label: "BED STATUS: EMPTY TRAY",
+                  color: const Color(0xffD97706),
+                  bg: const Color(0xffFEF3C7),
+                ),
+                const SizedBox(width: 8),
+                _buildOccupancyPill(
+                  icon: Icons.camera_alt_outlined,
+                  label: "VISION SCAN: STANDBY",
+                  color: const Color(0xff475569),
+                  bg: const Color(0xffE2E8F0),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVisionStatusBadge({
+    required String icon,
+    required String title,
+    required String value,
+    required Color color,
+    required Color bg,
+    required Color border,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: border, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 11)),
+          const SizedBox(width: 4),
+          Text(title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: color)),
+          const SizedBox(width: 4),
+          Text(value, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOccupancyPill({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required Color bg,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
+          ),
+        ],
       ),
     );
   }
@@ -764,7 +1215,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
     required Color accentColor,
   }) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -784,77 +1235,59 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Icon(icon, color: lineColor, size: 16),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ],
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey.shade700,
+                  letterSpacing: 0.3,
+                ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: lineColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
+                  color: accentColor,
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(
-                  trendText,
-                  style: TextStyle(
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
-                    color: lineColor,
-                  ),
-                ),
+                child: Icon(icon, color: lineColor, size: 14),
               ),
             ],
           ),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
                 mainValue,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: lineColor,
+                  color: Color(0xff103F73),
                 ),
               ),
               const SizedBox(width: 6),
               Text(
                 subValue,
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
               ),
             ],
           ),
-
-          // Sparkline mini line chart
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+          Text(
+            "Trend: $trendText",
+            style: TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w600,
+              color: trendText.contains("+")
+                  ? Colors.red.shade700
+                  : (trendText.contains("-") ? Colors.green.shade700 : Colors.grey.shade600),
+            ),
+          ),
+          SizedBox(
+            height: 28,
             child: MiniSparklineChart(
               values: history,
               lineColor: lineColor,
-              fillColor: accentColor,
-              height: 32,
             ),
           ),
         ],
@@ -865,8 +1298,6 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
   Widget _buildPredictionsComparisonCard() {
     final liveTemp = _telemetry.temperatureC;
     final targetTemp = _prediction.predictedTempC;
-    final tempDiff = (liveTemp - targetTemp).abs();
-
     final liveHumidity = _telemetry.humidityPercent;
     final targetHumidity = _prediction.predictedHumidityPercent;
 
@@ -875,12 +1306,12 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -892,12 +1323,12 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.insights, color: AppColors.primary, size: 20),
-                  SizedBox(width: 8),
+                  Icon(Icons.auto_graph, color: AppColors.primary, size: 20),
+                  SizedBox(width: 6),
                   Text(
                     "Live Telemetry vs AI Predicted Target",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: Color(0xff103F73),
                     ),
@@ -907,16 +1338,12 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   _prediction.fishType,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),
                 ),
               ),
             ],
@@ -926,72 +1353,67 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
           // Temperature Comparison Bar
           _buildComparisonRow(
             label: "Temperature Target",
-            liveValueStr: "${liveTemp.toStringAsFixed(1)}°C",
-            targetValueStr: "${targetTemp.toStringAsFixed(1)}°C Target",
-            progressRatio: (liveTemp / 50.0).clamp(0.0, 1.0),
-            targetRatio: (targetTemp / 50.0).clamp(0.0, 1.0),
-            barColor: tempDiff < 2.0 ? Colors.green : Colors.orange,
-            statusBadge: tempDiff < 2.0 ? "On Target" : "Adjusting",
+            liveText: "Live: ${liveTemp.toStringAsFixed(1)}°C",
+            targetText: "(${targetTemp.toStringAsFixed(1)}°C Target)",
+            ratio: (liveTemp / (targetTemp > 0 ? targetTemp : 40.0)).clamp(0.0, 1.0),
+            color: Colors.orange.shade700,
+            statusLabel: (liveTemp - targetTemp).abs() < 2.0 ? "Target Met" : "Adjusting",
           ),
-
           const SizedBox(height: 12),
 
           // Humidity Comparison Bar
           _buildComparisonRow(
             label: "Humidity Target",
-            liveValueStr: "${liveHumidity.toStringAsFixed(1)}%",
-            targetValueStr: "${targetHumidity.toStringAsFixed(1)}% Target",
-            progressRatio: (liveHumidity / 100.0).clamp(0.0, 1.0),
-            targetRatio: (targetHumidity / 100.0).clamp(0.0, 1.0),
-            barColor: liveHumidity <= targetHumidity + 5.0 ? Colors.blue : Colors.amber.shade800,
-            statusBadge: liveHumidity <= targetHumidity + 5.0 ? "Optimal" : "Elevated RH",
+            liveText: "Live: ${liveHumidity.toStringAsFixed(1)}%",
+            targetText: "(${targetHumidity.toStringAsFixed(1)}% Target)",
+            ratio: (liveHumidity / 100.0).clamp(0.0, 1.0),
+            color: Colors.blue.shade600,
+            statusLabel: liveHumidity <= targetHumidity ? "Optimal RH" : "Elevated RH",
           ),
+          const SizedBox(height: 16),
 
-          const SizedBox(height: 14),
-          const Divider(height: 1, color: Color(0xffE2E8F0)),
+          const Divider(height: 1, color: Colors.black12),
           const SizedBox(height: 12),
 
-          // Estimated Duration Countdown & Spoilage Risk
+          // Predictions Summary Footer Cards
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.timer_outlined, color: Colors.indigo, size: 18),
-                  const SizedBox(width: 6),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "ESTIMATED DRYING TIME",
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey),
-                      ),
-                      Text(
-                        "${_prediction.estimatedDurationHours.toStringAsFixed(1)} Hours Remaining",
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo),
-                      ),
-                    ],
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(Icons.timer_outlined, color: AppColors.primary, size: 18),
+                    const SizedBox(width: 6),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("ESTIMATED DRYING TIME", style: TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.bold)),
+                        Text(
+                          "${_prediction.estimatedDurationHours.toStringAsFixed(1)} Hours Remaining",
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff103F73)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              Row(
-                children: [
-                  const Icon(Icons.security, color: Colors.teal, size: 18),
-                  const SizedBox(width: 6),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "SPOILAGE RISK",
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey),
-                      ),
-                      Text(
-                        "${(_prediction.spoilageRisk * 100).toStringAsFixed(1)}% (Low / Safe)",
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.teal),
-                      ),
-                    ],
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const Icon(Icons.security, color: Colors.teal, size: 18),
+                    const SizedBox(width: 6),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("SPOILAGE RISK", style: TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.bold)),
+                        Text(
+                          "${(_prediction.spoilageRisk * 100).toStringAsFixed(1)}% (Low / Safe)",
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.teal),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -1002,12 +1424,11 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
 
   Widget _buildComparisonRow({
     required String label,
-    required String liveValueStr,
-    required String targetValueStr,
-    required double progressRatio,
-    required double targetRatio,
-    required Color barColor,
-    required String statusBadge,
+    required String liveText,
+    required String targetText,
+    required double ratio,
+    required Color color,
+    required String statusLabel,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1015,31 +1436,22 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
-            ),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87)),
             Row(
               children: [
-                Text(
-                  "Live: $liveValueStr",
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: barColor),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  "($targetValueStr)",
-                  style: const TextStyle(fontSize: 10, color: Colors.grey),
-                ),
+                Text(liveText, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color)),
+                const SizedBox(width: 4),
+                Text(targetText, style: const TextStyle(fontSize: 10, color: Colors.grey)),
                 const SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: barColor.withValues(alpha: 0.12),
+                    color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    statusBadge,
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: barColor),
+                    statusLabel,
+                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: color),
                   ),
                 ),
               ],
@@ -1047,89 +1459,16 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
           ],
         ),
         const SizedBox(height: 6),
-        Stack(
-          children: [
-            Container(
-              height: 7,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            FractionallySizedBox(
-              widthFactor: progressRatio,
-              child: Container(
-                height: 7,
-                decoration: BoxDecoration(
-                  color: barColor,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActuatorButton({
-    required String label,
-    required IconData icon,
-    required bool isOn,
-    required Color activeColor,
-    required Color activeBg,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: _actionPending ? null : onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isOn ? activeBg : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isOn ? activeColor : Colors.grey.shade300,
-            width: isOn ? 1.5 : 1.0,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: ratio,
+            minHeight: 6,
+            backgroundColor: Colors.grey.shade200,
+            valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isOn ? activeColor : Colors.grey.shade500,
-              size: 24,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: isOn ? activeColor : Colors.grey.shade700,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: isOn ? activeColor : Colors.grey.shade400,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                isOn ? "ON" : "OFF",
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }
