@@ -229,7 +229,9 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(
+                    color: _telemetry.isConnected ? Colors.grey.shade200 : Colors.red.shade200,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.03),
@@ -246,41 +248,73 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                         Container(
                           width: 10,
                           height: 10,
-                          decoration: const BoxDecoration(
-                            color: Colors.green,
+                          decoration: BoxDecoration(
+                            color: _telemetry.isConnected ? Colors.green : Colors.red,
                             shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          "HARDWARE ONLINE",
+                        Text(
+                          _telemetry.isConnected ? "HARDWARE ONLINE" : "HARDWARE DISCONNECTED",
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: Colors.green,
+                            color: _telemetry.isConnected ? Colors.green : Colors.red,
                             letterSpacing: 0.5,
                           ),
                         ),
+                        if (!_telemetry.isConnected) ...[
+                          const SizedBox(width: 8),
+                          InkWell(
+                            onTap: () {
+                              _fetchTelemetryData();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.red.shade200),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.refresh, size: 10, color: Colors.red),
+                                  SizedBox(width: 2),
+                                  Text(
+                                    "Reconnect",
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isOptimalDrying
-                            ? Colors.green.withValues(alpha: 0.12)
-                            : Colors.amber.withValues(alpha: 0.12),
+                        color: _telemetry.isConnected
+                            ? (isOptimalDrying ? Colors.green.withValues(alpha: 0.12) : Colors.amber.withValues(alpha: 0.12))
+                            : Colors.grey.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isOptimalDrying ? Colors.green : Colors.amber,
+                          color: _telemetry.isConnected
+                              ? (isOptimalDrying ? Colors.green : Colors.amber)
+                              : Colors.grey,
                           width: 0.8,
                         ),
                       ),
                       child: Text(
-                        isOptimalDrying ? "🟢 OPTIMAL DRYING" : "⚠️ HUMIDITY WARNING",
+                        _telemetry.isConnected
+                            ? (isOptimalDrying ? "🟢 OPTIMAL DRYING" : "⚠️ HUMIDITY WARNING")
+                            : "🔴 OFFLINE",
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: isOptimalDrying ? Colors.green.shade800 : Colors.amber.shade900,
+                          color: _telemetry.isConnected
+                              ? (isOptimalDrying ? Colors.green.shade800 : Colors.amber.shade900)
+                              : Colors.grey.shade700,
                         ),
                       ),
                     ),
@@ -507,9 +541,9 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                   // Air Temp (SHT30) with Sparkline
                   _buildMetricSparklineTile(
                     title: "AIR TEMP (SHT30)",
-                    mainValue: "${_telemetry.temperatureC.toStringAsFixed(1)}°C",
-                    subValue: "${_telemetry.temperatureF.toStringAsFixed(1)}°F",
-                    trendText: _calculateTrendText(_telemetry.tempHistory, "°C"),
+                    mainValue: _telemetry.isConnected ? "${_telemetry.temperatureC.toStringAsFixed(1)}°C" : "--",
+                    subValue: _telemetry.isConnected ? "${_telemetry.temperatureF.toStringAsFixed(1)}°F" : "Disconnected",
+                    trendText: _telemetry.isConnected ? _calculateTrendText(_telemetry.tempHistory, "°C") : "Offline",
                     history: _telemetry.tempHistory,
                     icon: Icons.thermostat,
                     lineColor: Colors.orange.shade700,
@@ -519,9 +553,9 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                   // Humidity (RH) with Sparkline
                   _buildMetricSparklineTile(
                     title: "HUMIDITY (RH)",
-                    mainValue: "${_telemetry.humidityPercent.toStringAsFixed(1)}%",
-                    subValue: isOptimalDrying ? "Optimal" : "Elevated",
-                    trendText: _calculateTrendText(_telemetry.humidityHistory, "%"),
+                    mainValue: _telemetry.isConnected ? "${_telemetry.humidityPercent.toStringAsFixed(1)}%" : "--",
+                    subValue: _telemetry.isConnected ? (isOptimalDrying ? "Optimal" : "Elevated") : "Disconnected",
+                    trendText: _telemetry.isConnected ? _calculateTrendText(_telemetry.humidityHistory, "%") : "Offline",
                     history: _telemetry.humidityHistory,
                     icon: Icons.water_drop,
                     lineColor: Colors.blue.shade600,
@@ -531,9 +565,9 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                   // MQ2 Gas Sensor with Sparkline
                   _buildMetricSparklineTile(
                     title: "MQ2 GAS SENSOR",
-                    mainValue: _telemetry.gasRaw.toStringAsFixed(0),
-                    subValue: "Raw Analog PPM",
-                    trendText: _calculateTrendText(_telemetry.gasHistory, ""),
+                    mainValue: _telemetry.isConnected ? _telemetry.gasRaw.toStringAsFixed(0) : "--",
+                    subValue: _telemetry.isConnected ? "Raw Analog PPM" : "Disconnected",
+                    trendText: _telemetry.isConnected ? _calculateTrendText(_telemetry.gasHistory, "") : "Offline",
                     history: _telemetry.gasHistory,
                     icon: Icons.air,
                     lineColor: Colors.teal.shade600,
@@ -543,9 +577,9 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                   // HX711 Load Cell with Sparkline
                   _buildMetricSparklineTile(
                     title: "LOAD CELL (WEIGHT)",
-                    mainValue: "${_telemetry.loadCellRaw.toStringAsFixed(0)} g",
-                    subValue: "HX711 Reading",
-                    trendText: _calculateTrendText(_telemetry.weightHistory, "g"),
+                    mainValue: _telemetry.isConnected ? "${_telemetry.loadCellRaw.toStringAsFixed(0)} g" : "--",
+                    subValue: _telemetry.isConnected ? "HX711 Reading" : "Disconnected",
+                    trendText: _telemetry.isConnected ? _calculateTrendText(_telemetry.weightHistory, "g") : "Offline",
                     history: _telemetry.weightHistory,
                     icon: Icons.scale,
                     lineColor: Colors.purple.shade600,

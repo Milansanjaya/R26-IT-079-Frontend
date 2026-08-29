@@ -7,6 +7,7 @@ class TelemetryData {
   final bool heaterState;
   final bool lightState;
   final bool fanState;
+  final bool isConnected;
   final DateTime timestamp;
 
   // Time-series history buffers for charts
@@ -24,6 +25,7 @@ class TelemetryData {
     required this.heaterState,
     required this.lightState,
     required this.fanState,
+    this.isConnected = true,
     DateTime? timestamp,
     List<double>? tempHistory,
     List<double>? humidityHistory,
@@ -35,11 +37,32 @@ class TelemetryData {
         gasHistory = gasHistory ?? [],
         weightHistory = weightHistory ?? [];
 
+  /// Disconnected offline data state (no fake/simulated values)
+  factory TelemetryData.offline() {
+    return TelemetryData(
+      temperatureC: 0.0,
+      temperatureF: 0.0,
+      humidityPercent: 0.0,
+      gasRaw: 0.0,
+      loadCellRaw: 0.0,
+      heaterState: false,
+      lightState: false,
+      fanState: false,
+      isConnected: false,
+      tempHistory: [],
+      humidityHistory: [],
+      gasHistory: [],
+      weightHistory: [],
+    );
+  }
+
   factory TelemetryData.fromJson(Map<String, dynamic> json) {
     final tempC = _toDouble(json['temperature_c'] ?? json['temp_c'] ?? json['sht_temp'] ?? 0.0);
     final tempF = json['temperature_f'] != null
         ? _toDouble(json['temperature_f'])
         : (tempC * 9 / 5) + 32;
+
+    final nanoConnected = json['nano_connected'] ?? json['connected'] ?? true;
 
     return TelemetryData(
       temperatureC: tempC,
@@ -50,6 +73,7 @@ class TelemetryData {
       heaterState: json['heater_state'] ?? json['heaterState'] ?? json['heater'] ?? false,
       lightState: json['light_state'] ?? json['lightState'] ?? json['light'] ?? false,
       fanState: json['fan_state'] ?? json['fanState'] ?? json['fan'] ?? false,
+      isConnected: nanoConnected is bool ? nanoConnected : true,
     );
   }
 
@@ -68,6 +92,7 @@ class TelemetryData {
     bool? heaterState,
     bool? lightState,
     bool? fanState,
+    bool? isConnected,
     List<double>? tempHistory,
     List<double>? humidityHistory,
     List<double>? gasHistory,
@@ -82,6 +107,7 @@ class TelemetryData {
       heaterState: heaterState ?? this.heaterState,
       lightState: lightState ?? this.lightState,
       fanState: fanState ?? this.fanState,
+      isConnected: isConnected ?? this.isConnected,
       tempHistory: tempHistory ?? this.tempHistory,
       humidityHistory: humidityHistory ?? this.humidityHistory,
       gasHistory: gasHistory ?? this.gasHistory,
