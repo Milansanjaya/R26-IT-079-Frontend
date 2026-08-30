@@ -213,24 +213,33 @@ class VerificationStationService {
   /// Fetch AI Predicted Parameters (Target Temp, Target Humidity, Duration, Spoilage Risk)
   static Future<PredictionData> fetchPredictions() async {
     try {
-      final response = await http
-          .get(Uri.parse("$predictApiUrl/active"))
-          .timeout(const Duration(seconds: 2));
+      final activeRes = await http
+          .get(Uri.parse("http://127.0.0.1:8003/api/drying/active"))
+          .timeout(const Duration(seconds: 3));
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      if (activeRes.statusCode == 200) {
+        final data = jsonDecode(activeRes.body);
         return PredictionData.fromJson(Map<String, dynamic>.from(data));
       }
-    } catch (_) {
-      // Server offline fallback
-    }
+    } catch (_) {}
+
+    try {
+      final liveRes = await http
+          .get(Uri.parse("$smartDryingBackendUrl/live"))
+          .timeout(const Duration(seconds: 3));
+
+      if (liveRes.statusCode == 200) {
+        final data = jsonDecode(liveRes.body);
+        return PredictionData.fromJson(Map<String, dynamic>.from(data));
+      }
+    } catch (_) {}
 
     return PredictionData(
-      predictedTempC: 36.0,
-      predictedHumidityPercent: 42.0,
-      estimatedDurationHours: 4.5,
+      predictedTempC: 100.0,
+      predictedHumidityPercent: 45.0,
+      estimatedDurationHours: 2.0,
       spoilageRisk: 0.04,
-      fishType: "Katta / Sailfish",
+      fishType: "Linna",
     );
   }
 

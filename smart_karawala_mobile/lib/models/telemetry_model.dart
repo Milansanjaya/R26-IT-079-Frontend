@@ -215,12 +215,32 @@ class PredictionData {
   });
 
   factory PredictionData.fromJson(Map<String, dynamic> json) {
+    final tempVal = json['initialTemperatureC'] ??
+        json['initial_temperature_c'] ??
+        json['target_temperature'] ??
+        json['target_temperature_c'] ??
+        json['predicted_temp_c'] ??
+        json['recommended_temp'] ??
+        100.0;
+
+    final hoursVal = json['initialTotalHours'] ??
+        json['initial_total_hours'] ??
+        json['estimated_duration_hours'] ??
+        json['estimated_hours'] ??
+        (json['predicted_duration_minutes'] != null
+            ? (json['predicted_duration_minutes'] as num) / 60.0
+            : null) ??
+        2.0;
+
+    final fishVal = json['fishType'] ?? json['fish_type'] ?? "Linna";
+
     return PredictionData(
-      predictedTempC: TelemetryData.toDouble(json['predicted_temp_c'] ?? json['recommended_temp'] ?? 36.0),
-      predictedHumidityPercent: TelemetryData.toDouble(json['predicted_humidity'] ?? json['target_humidity'] ?? 45.0),
-      estimatedDurationHours: TelemetryData.toDouble(json['estimated_duration_hours'] ?? json['estimated_hours'] ?? 4.5),
-      spoilageRisk: TelemetryData.toDouble(json['spoilage_risk'] ?? 0.05),
-      fishType: json['fish_type']?.toString() ?? "Katta",
+      predictedTempC: TelemetryData.toDouble(tempVal),
+      predictedHumidityPercent: TelemetryData.toDouble(
+          json['predicted_humidity'] ?? json['target_humidity'] ?? 45.0),
+      estimatedDurationHours: TelemetryData.toDouble(hoursVal),
+      spoilageRisk: TelemetryData.toDouble(json['spoilage_risk'] ?? 0.04),
+      fishType: fishVal.toString(),
     );
   }
 }

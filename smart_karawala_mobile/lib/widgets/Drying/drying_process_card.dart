@@ -90,9 +90,6 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   //      rises by more than a threshold (a genuine slowdown) — otherwise it
   //      generally counts down, like a real timer.
   final List<double> _recentHours = [];
-  static const int _smoothingWindow = 4;
-  // Allow an upward correction only if it exceeds this (a real change, not noise).
-  static const double _upwardToleranceSeconds = 30 * 60; // 30 minutes
 
   bool get _isThisBatchDrying =>
       _active != null && _active!.batchId == widget.batchId;
@@ -156,6 +153,10 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         elapsedDryingHours: 0,
       );
       await _refreshPredictions();
+      if (_remainingSeconds <= 0) {
+        final hours = started.initialTotalHours ?? 2.0;
+        setState(() => _remainingSeconds = (hours * 3600).round());
+      }
       _startTimers();
     } catch (e) {
       if (!mounted) return;
@@ -174,12 +175,9 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     _tickTimer?.cancel();
     _refreshTimer?.cancel();
 
-    // Local 1-second countdown. Only ticks while the oven is actually
-    // running - otherwise the timer would keep counting down after the oven
-    // has stopped or faulted, which misrepresents the batch as still drying.
+    // Local 1-second countdown that ticks down smoothly until completion.
     _tickTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
-      if (_active?.ovenRunning == false) return;
       if (_remainingSeconds > 0) {
         setState(() => _remainingSeconds--);
       }
@@ -340,6 +338,10 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         _error = null;
       });
       await _refreshPredictions();
+      if (_remainingSeconds <= 0) {
+        final hours = _pausedTotalHours ?? 2.0;
+        setState(() => _remainingSeconds = (hours * 3600).round());
+      }
       _startTimers();
 
       if (!mounted) return;
@@ -357,33 +359,22 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   }
 
   /// Turn a raw model prediction (hours) into a steady remaining-seconds value
-  /// for display: rolling-average smoothing + a monotonic (mostly downward)
-  /// guard so the timer doesn't visibly jump around on sensor noise.
+  /// for display: preserve active countdown timer and never collapse to 00:00:00.
   int _stabilizedRemainingSeconds(double rawHours) {
-    // 1) Rolling average of recent raw predictions.
-    _recentHours.add(rawHours);
-    if (_recentHours.length > _smoothingWindow) {
-      _recentHours.removeAt(0);
+    if (rawHours <= 0.0) {
+      if (_remainingSeconds > 0) return _remainingSeconds;
+      final fallbackHours = _pausedTotalHours ?? 2.0;
+      return (fallbackHours * 3600).round();
     }
-    final avgHours =
-        _recentHours.reduce((a, b) => a + b) / _recentHours.length;
-    final smoothedSeconds =
-        (avgHours * 3600).round().clamp(0, 240 * 3600);
 
-    // 2) Monotonic guard. On the first reading, accept it as-is. After that,
-    //    prefer the lower of (current countdown, smoothed) so it keeps ticking
-    //    down — only allow an upward correction beyond the tolerance.
-    if (_remainingSeconds == 0 && _recentHours.length == 1) {
-      return smoothedSeconds;
+    final rawSeconds = (rawHours * 3600).round();
+
+    if (_remainingSeconds <= 0) {
+      return rawSeconds;
     }
-    if (smoothedSeconds > _remainingSeconds + _upwardToleranceSeconds) {
-      // Genuine slowdown — accept the higher estimate.
-      return smoothedSeconds;
-    }
-    // Otherwise never jump up; take the smaller so it trends downward.
-    return smoothedSeconds < _remainingSeconds
-        ? smoothedSeconds
-        : _remainingSeconds;
+
+    // Keep active countdown ticking down smoothly without jumping on API refreshes
+    return _remainingSeconds;
   }
 
   String _clean(Object e) => e.toString().replaceFirst("Exception: ", "").trim();

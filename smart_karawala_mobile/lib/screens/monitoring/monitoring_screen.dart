@@ -430,7 +430,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                           style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xff103F73)),
                         ),
                         const SizedBox(height: 10),
-                        _buildInspectionRow("Fish Species", "Katta / Sailfish (Verified)"),
+                        _buildInspectionRow("Fish Species", "${_prediction.fishType.isNotEmpty ? _prediction.fishType : 'Linna'} (Verified)"),
                         _buildInspectionRow("Drying Stage", stageStr),
                         _buildInspectionRow("Surface Color Match", "$colorMatch% (High Uniformity)"),
                         _buildInspectionRow("Discoloration Spots", "$discolorations Detected"),
@@ -607,55 +607,34 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: _telemetry.isConnected ? Colors.green : Colors.red,
-                            shape: BoxShape.circle,
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: _telemetry.isConnected ? Colors.green : Colors.red,
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _telemetry.isConnected
-                              ? "SMART MONITORING BACKEND ONLINE (PORT 8002)"
-                              : "SMART MONITORING BACKEND OFFLINE",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: _telemetry.isConnected ? Colors.green.shade800 : Colors.red,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        if (!_telemetry.isConnected) ...[
-                          const SizedBox(width: 8),
-                          InkWell(
-                            onTap: () {
-                              _fetchTelemetryData();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: Colors.red.shade200),
-                              ),
-                              child: const Row(
-                                children: [
-                                  Icon(Icons.refresh, size: 10, color: Colors.red),
-                                  SizedBox(width: 2),
-                                  Text(
-                                    "Reconnect",
-                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red),
-                                  ),
-                                ],
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              _telemetry.isConnected
+                                  ? "SMART MONITORING ONLINE"
+                                  : "MONITORING OFFLINE",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w700,
+                                color: _telemetry.isConnected ? Colors.green.shade800 : Colors.red,
+                                letterSpacing: 0.2,
                               ),
                             ),
                           ),
                         ],
-                      ],
+                      ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
