@@ -90,10 +90,18 @@ class TelemetryData {
         ? toDouble(json['temperature_f'])
         : (tempC * 9 / 5) + 32;
 
-    final weightKgVal = toDouble(json['weight'] ?? json['weight_kg'] ?? 0.0);
-    final rawWeightVal = json['raw_weight'] != null
+    final double rawVal = json['raw_weight'] != null
         ? toDouble(json['raw_weight'])
-        : (weightKgVal > 0 ? weightKgVal * 1000 : toDouble(json['load_cell_raw'] ?? json['load_cell'] ?? 0.0));
+        : toDouble(json['load_cell_raw'] ?? json['load_cell'] ?? 0.0);
+
+    double convertedKg = toDouble(json['weight'] ?? json['weight_kg'] ?? 0.0);
+    double convertedGrams = convertedKg * 1000.0;
+
+    // Convert raw HX711 ADC counts into converted grams if raw > 500 and weight is not provided
+    if (convertedKg <= 0.0 && rawVal > 500) {
+      convertedGrams = ((rawVal - 12000).abs() / 415.0).clamp(0.0, 5000.0);
+      convertedKg = convertedGrams / 1000.0;
+    }
 
     final isOnline = json['online'] ?? json['nano_connected'] ?? json['connected'] ?? true;
 
@@ -117,8 +125,8 @@ class TelemetryData {
       temperatureF: tempF,
       humidityPercent: toDouble(json['humidity'] ?? json['humidity_percent'] ?? 0.0),
       gasRaw: toDouble(json['gas'] ?? json['air_quality'] ?? json['gas_raw'] ?? json['gas_value'] ?? 0.0),
-      loadCellRaw: rawWeightVal,
-      weightKg: weightKgVal,
+      loadCellRaw: convertedGrams,
+      weightKg: convertedKg,
       heaterState: json['heater'] ?? json['heater_state'] ?? json['heaterState'] ?? false,
       lightState: json['light'] ?? json['light_state'] ?? json['lightState'] ?? false,
       fanState: json['fan'] ?? json['fan_state'] ?? json['fanState'] ?? false,

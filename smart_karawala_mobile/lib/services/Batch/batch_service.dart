@@ -38,23 +38,24 @@ class BatchService {
   }
 
   static Future<void> predictWaste(String batchId) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/$batchId/predict-waste"),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception("Prediction failed");
-    }
+    try {
+      await http
+          .post(Uri.parse("$baseUrl/$batchId/predict-waste"))
+          .timeout(const Duration(seconds: 3));
+    } catch (_) {}
   }
 
   static Future<bool> sendNotification(String batchId) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/$batchId/send-waste-notification"),
-    );
+    try {
+      final response = await http
+          .post(Uri.parse("$baseUrl/$batchId/send-waste-notification"))
+          .timeout(const Duration(seconds: 3));
 
-    return response.statusCode == 200;
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
   }
-
 }
 
 
