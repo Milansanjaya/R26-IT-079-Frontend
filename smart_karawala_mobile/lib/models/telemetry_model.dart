@@ -38,11 +38,11 @@ class TelemetryData {
     this.isConnected = true,
     this.isBedEmpty = false,
     this.detectedFishCount = 2,
-    this.colorDiscolorationsCount = 4,
-    this.colorMatchPercent = 77,
-    this.dryingStage = "PHASE 2 (CORE FLESH CURING)",
-    this.liveQuality = "GRADE C (DEFECTIVE)",
-    this.drynessLevel = "PROPER (~18% Moisture)",
+    this.colorDiscolorationsCount = 2,
+    this.colorMatchPercent = 68,
+    this.dryingStage = "PHASE 1 (SURFACE MOISTURE)",
+    this.liveQuality = "GRADE B (MEDIUM QUALITY)",
+    this.drynessLevel = "UNDER DRIED (~32% Moisture)",
     this.activeBatchId = "BATCH-20260830-01",
     DateTime? timestamp,
     List<double>? tempHistory,
@@ -112,12 +112,12 @@ class TelemetryData {
       bedEmptyState = false;
     }
 
-    final fishCount = json['detected_fish_count'] ?? (bedEmptyState ? 0 : 2);
-    final discolorations = json['color_discolorations'] ?? json['discolorations_count'] ?? (bedEmptyState ? 0 : 4);
-    final colorMatch = json['color_match_percent'] ?? (bedEmptyState ? 0 : 77);
-    final stageStr = json['drying_stage']?.toString() ?? "PHASE 2 (CORE FLESH CURING)";
-    final qualityStr = json['live_quality']?.toString() ?? "GRADE C (DEFECTIVE)";
-    final drynessStr = json['dryness_level']?.toString() ?? "PROPER (~18% Moisture)";
+    final fishCount = json['detected_fish_count'] ?? (bedEmptyState ? 0 : 1);
+    final discolorations = json['color_discolorations'] ?? json['discolorations_count'] ?? (bedEmptyState ? 0 : 2);
+    final colorMatch = json['color_match_percent'] ?? (bedEmptyState ? 0 : 68);
+    final stageStr = json['drying_stage']?.toString() ?? "PHASE 1 (SURFACE MOISTURE)";
+    final qualityStr = json['live_quality']?.toString() ?? "GRADE B (MEDIUM QUALITY)";
+    final drynessStr = json['dryness_level']?.toString() ?? "UNDER DRIED (~32% Moisture)";
     final batchIdStr = json['batch_id']?.toString() ?? json['session']?['batch_id']?.toString() ?? "BATCH-20260830-01";
 
     return TelemetryData(

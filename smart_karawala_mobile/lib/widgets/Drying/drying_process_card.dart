@@ -9,6 +9,7 @@ import '../../services/Drying/drying_time_detail_screen.dart';
 import '../../services/iot_service.dart';
 import '../../services/verification_station_service.dart';
 import '../../screens/monitoring/monitoring_screen.dart';
+import '../../screens/drying/drying_dashboard_screen.dart';
 
 /// How often the drying card re-fetches live IoT sensor data and re-predicts
 /// drying time / spoilage risk. Change this single value to adjust the
@@ -1036,10 +1037,10 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
             ),
           ),
           const SizedBox(
-            height: 600,
+            height: 750,
             child: ClipRRect(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-              child: MonitoringScreen(),
+              child: DryingDashboardScreen(),
             ),
           ),
         ],
