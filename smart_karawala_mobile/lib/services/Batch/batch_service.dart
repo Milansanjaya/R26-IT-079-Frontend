@@ -45,16 +45,32 @@ class BatchService {
     } catch (_) {}
   }
 
-  static Future<bool> sendNotification(String batchId) async {
-    try {
-      final response = await http
-          .post(Uri.parse("$baseUrl/$batchId/send-waste-notification"))
-          .timeout(const Duration(seconds: 3));
 
-      return response.statusCode == 200;
-    } catch (_) {
-      return false;
+  static Future<Map<String, dynamic>> sendNotificationResult(String batchId) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/$batchId/send-waste-notification"),
+      );
+
+      if (response.statusCode == 200) {
+        return {"success": true, "message": "Notification sent successfully"};
+      } else {
+        try {
+          final body = jsonDecode(response.body);
+          final msg = body["detail"] ?? "Failed to send notification.";
+          return {"success": false, "message": msg};
+        } catch (_) {
+          return {"success": false, "message": "Failed to send notification."};
+        }
+      }
+    } catch (e) {
+      return {"success": false, "message": e.toString()};
     }
+  }
+
+  static Future<bool> sendNotification(String batchId) async {
+    final res = await sendNotificationResult(batchId);
+    return res["success"] == true;
   }
 }
 

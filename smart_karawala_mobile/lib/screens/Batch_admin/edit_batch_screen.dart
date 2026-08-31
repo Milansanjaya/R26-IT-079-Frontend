@@ -165,8 +165,8 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                             return "Raw weight is required";
                           }
                           final parsed = double.tryParse(value);
-                          if (parsed == null || parsed <= 0 || parsed > 4.5) {
-                            return "Raw weight must be greater than 0 and up to 4.5 kg";
+                          if (parsed == null || parsed <= 0 || parsed > 5) {
+                            return "Raw weight must be between 1 g and 5 kg";
                           }
                           return null;
                         },

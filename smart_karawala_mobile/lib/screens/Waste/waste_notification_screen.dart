@@ -149,9 +149,16 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
     final now = DateTime.now();
     collectionDateController.text = "${now.day}/${now.month}/${now.year}";
     
-    double predKg = widget.predictedWaste > 0 ? widget.predictedWaste : 21.75;
+    double predKg = widget.predictedWaste > 100 ? widget.predictedWaste / 1000.0 : widget.predictedWaste;
+    if (predKg <= 0) predKg = 21.75;
     quantityController.text = predKg.toStringAsFixed(1);
     messageController.text = "Please come waste collected";
+
+    quantityController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -585,40 +592,92 @@ class _WasteNotificationScreenState extends State<WasteNotificationScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Send Notification Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      isNotificationSent = true;
-                    });
+              // Send Notification Button or Threshold Notice
+              Builder(
+                builder: (context) {
+                  final double? parsedVal = double.tryParse(quantityController.text);
+                  final double qtyKg = (parsedVal != null && parsedVal > 100)
+                      ? parsedVal / 1000.0
+                      : (parsedVal ?? 0.0);
+                  final bool isBelowThreshold = qtyKg < 1.0;
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Notification sent successfully!"),
-                        backgroundColor: Colors.green,
+                  if (isBelowThreshold) {
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3E0),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.orange.shade300, width: 1.5),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Collection Threshold Notice",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange.shade900,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Predicted waste is below the 1 kg collection threshold. No recycling notification is required.",
+                                  style: TextStyle(
+                                    color: Colors.orange.shade900,
+                                    fontSize: 12,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     );
-                  },
-                  icon: Icon(
-                    isNotificationSent ? Icons.check_circle_rounded : Icons.send_rounded,
-                    color: Colors.white,
-                  ),
-                  label: Text(
-                    isNotificationSent ? "Notification Sent" : "Send Notification",
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isNotificationSent ? Colors.green.shade700 : AppColors.button,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  }
+
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          isNotificationSent = true;
+                        });
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Notification sent successfully!"),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        isNotificationSent ? Icons.check_circle_rounded : Icons.send_rounded,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        isNotificationSent ? "Notification Sent" : "Send Notification",
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isNotificationSent ? Colors.green.shade700 : AppColors.button,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
                     ),
-                    elevation: 0,
-                  ),
-                ),
+                  );
+                },
               ),
 
               if (isNotificationSent) ...[

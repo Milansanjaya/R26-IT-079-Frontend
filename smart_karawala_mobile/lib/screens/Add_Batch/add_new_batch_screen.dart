@@ -47,8 +47,8 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     }
 
     final double? parsedWeight = double.tryParse(weightController.text);
-    if (parsedWeight == null || parsedWeight <= 0 || parsedWeight > 4.5) {
-      const msg = "Raw Fish Weight must be between 0.001 kg and 4.5 kg";
+    if (parsedWeight == null || parsedWeight <= 0 || parsedWeight > 5) {
+      const msg = "Weight must be between 1 g and 5 kg";
       setState(() {
         weightError = msg;
       });
@@ -509,9 +509,9 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
       return;
     }
     final double? parsed = double.tryParse(val);
-    if (parsed == null || parsed <= 0 || parsed > 4.5) {
+    if (parsed == null || parsed <= 0 || parsed > 5) {
       setState(() {
-        weightError = "Weight must be greater than 0 and up to 4.5 kg";
+        weightError = "Weight must be between 1 g and 5 kg";
       });
     } else {
       setState(() {
