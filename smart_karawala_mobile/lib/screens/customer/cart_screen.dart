@@ -4,6 +4,8 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/cart_provider.dart';
 import 'checkout_screen.dart';
 
+typedef CartScreen = MyCartScreen;
+
 class MyCartScreen extends StatelessWidget {
   const MyCartScreen({super.key});
 

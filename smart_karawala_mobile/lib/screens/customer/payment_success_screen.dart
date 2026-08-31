@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/cart_provider.dart';
+import 'customer_home.dart';
 import 'order_tracking_screen.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
@@ -183,7 +184,11 @@ class PaymentSuccessScreen extends StatelessWidget {
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CustomerHome()),
+                    (route) => false,
+                  );
                 },
                 child: const Text(
                   "Continue Shopping",

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_karawala_mobile/screens/customer/more_screen.dart';
 import 'package:smart_karawala_mobile/screens/customer/profile_screen.dart';
+import '../../providers/cart_provider.dart';
+import 'cart_screen.dart';
 import 'categories_screen.dart';
+import 'product_details_screen.dart';
 
 
 class CustomerHome extends StatefulWidget {
@@ -42,6 +46,9 @@ class _CustomerHomeState extends State<CustomerHome> {
 
   @override
   Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context);
+    final int cartCount = cartProvider.cartCount;
+
     return Scaffold(
       backgroundColor: Colors.white,
       endDrawer: const MoreScreen(),
@@ -87,9 +94,41 @@ class _CustomerHomeState extends State<CustomerHome> {
                           ),
                         ],
                       ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.shopping_cart_outlined),
+                      Stack(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const MyCartScreen()),
+                              );
+                            },
+                            icon: const Icon(Icons.shopping_cart_outlined),
+                          ),
+                          if (cartCount > 0)
+                            Positioned(
+                              right: 6,
+                              top: 6,
+                              child: Container(
+                                height: 16,
+                                width: 16,
+                                decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "$cartCount",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       Builder(
                         builder: (context) {
@@ -341,9 +380,19 @@ class _CustomerHomeState extends State<CustomerHome> {
   Widget productCard(Map<String, dynamic> product) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ProductDetailsScreen(product: product),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Expanded(
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(
@@ -380,6 +429,7 @@ class _CustomerHomeState extends State<CustomerHome> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

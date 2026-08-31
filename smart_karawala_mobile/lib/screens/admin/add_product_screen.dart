@@ -338,7 +338,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         TextFormField(
                           controller: priceController,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          decoration: _inputDecoration("\$ 0.00"),
+                          decoration: _inputDecoration("LKR 0.00"),
                           validator: (value) => value == null || value.trim().isEmpty ? "Price is required" : null,
                         ),
                       ],

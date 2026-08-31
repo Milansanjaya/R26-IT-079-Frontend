@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import 'product_details_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -179,89 +180,181 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   physics: const BouncingScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: 0.85,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.78,
                   ),
                   itemBuilder: (context, index) {
                     final cat = filteredCategories[index];
                     final List<Color> gradient = cat["gradient"] as List<Color>;
+                    final Color primaryColor = gradient[0];
 
-                    return Card(
-                      elevation: 0,
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        side: BorderSide(color: Colors.grey.shade100, width: 1.5),
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryColor.withOpacity(0.10),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                            offset: const Offset(0, 6),
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: primaryColor.withOpacity(0.14),
+                          width: 1.2,
+                        ),
                       ),
-                      child: InkWell(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Selected category: ${cat["name"]}"),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(18),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-  width: 70,
-  height: 70,
-  decoration: BoxDecoration(
-    gradient: LinearGradient(
-      colors: gradient,
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    shape: BoxShape.circle,
-    boxShadow: [
-      BoxShadow(
-        color: gradient[0].withOpacity(0.3),
-        blurRadius: 8,
-        offset: const Offset(0, 4),
-      ),
-    ],
-  ),
-  child: Padding(
-    padding: const EdgeInsets.all(10),
-    child: ClipOval(
-      child: Image.asset(
-        cat["image"] as String,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return const Icon(
-            Icons.set_meal,
-            color: Colors.white,
-            size: 26,
-          );
-        },
-      ),
-    ),
-  ),
-),
-                              const SizedBox(height: 14),
-                              Text(
-                                cat["name"] as String,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: AppColors.text,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(22),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProductDetailsScreen(
+                                  product: {
+                                    "name": cat["name"],
+                                    "image": cat["image"],
+                                  },
                                 ),
                               ),
-                              const SizedBox(height: 6),
-                              Text(
-                                cat["desc"] as String,
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.hint,
+                            );
+                          },
+                          splashColor: primaryColor.withOpacity(0.1),
+                          highlightColor: primaryColor.withOpacity(0.05),
+                          child: Stack(
+                            children: [
+                              // Top-right subtle glow accent background bubble
+                              Positioned(
+                                top: -20,
+                                right: -20,
+                                child: Container(
+                                  width: 85,
+                                  height: 85,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: RadialGradient(
+                                      colors: [
+                                        primaryColor.withOpacity(0.18),
+                                        primaryColor.withOpacity(0.0),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const SizedBox(height: 2),
+                                    // Avatar Container with gradient border ring & dynamic shadow
+                                    Container(
+                                      width: 76,
+                                      height: 76,
+                                      padding: const EdgeInsets.all(3.5),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: LinearGradient(
+                                          colors: gradient,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: primaryColor.withOpacity(0.35),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 5),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white,
+                                        ),
+                                        padding: const EdgeInsets.all(3),
+                                        child: ClipOval(
+                                          child: Image.asset(
+                                            cat["image"] as String,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                color: primaryColor.withOpacity(0.1),
+                                                child: Icon(
+                                                  Icons.set_meal,
+                                                  color: primaryColor,
+                                                  size: 30,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          cat["name"] as String,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: AppColors.text,
+                                            letterSpacing: -0.2,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          cat["desc"] as String,
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            height: 1.2,
+                                            color: AppColors.hint.withOpacity(0.9),
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    // Professional bottom "Explore" button pill
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: primaryColor.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Explore",
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              color: primaryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            Icons.arrow_forward_ios_rounded,
+                                            size: 10,
+                                            color: primaryColor,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
