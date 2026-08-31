@@ -7,6 +7,9 @@ import '../../services/Drying/drying_service.dart';
 import '../../services/Drying/spoilage_detail_screen.dart';
 import '../../services/Drying/drying_time_detail_screen.dart';
 import '../../services/iot_service.dart';
+import '../../services/verification_station_service.dart';
+import '../../screens/monitoring/monitoring_screen.dart';
+import '../../screens/drying/drying_dashboard_screen.dart';
 
 /// How often the drying card re-fetches live IoT sensor data and re-predicts
 /// drying time / spoilage risk. Change this single value to adjust the
@@ -44,6 +47,20 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   Timer? _tickTimer; // per-second countdown
   Timer? _refreshTimer; // periodic sensor re-check
 
+  // 0: Drying Process, 1: Verification Station (Middle highlighted default), 2: Drying Dashboard
+  int _activeTab = 1;
+
+  void _switchTab(int tabIndex) {
+    setState(() {
+      _activeTab = tabIndex;
+    });
+
+    if (tabIndex == 1 || tabIndex == 2) {
+      // Automatically turn ON the drying bed light
+      VerificationStationService.sendControlAction('light_on');
+    }
+  }
+
   bool _loading = true;
   bool _starting = false;
   String? _error; // sensor/service error (non-fatal, shown inline)
@@ -74,9 +91,6 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   //      rises by more than a threshold (a genuine slowdown) — otherwise it
   //      generally counts down, like a real timer.
   final List<double> _recentHours = [];
-  static const int _smoothingWindow = 4;
-  // Allow an upward correction only if it exceeds this (a real change, not noise).
-  static const double _upwardToleranceSeconds = 30 * 60; // 30 minutes
 
   bool get _isThisBatchDrying =>
       _active != null && _active!.batchId == widget.batchId;
@@ -140,6 +154,10 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         elapsedDryingHours: 0,
       );
       await _refreshPredictions();
+      if (_remainingSeconds <= 0) {
+        final hours = started.initialTotalHours ?? 2.0;
+        setState(() => _remainingSeconds = (hours * 3600).round());
+      }
       _startTimers();
     } catch (e) {
       if (!mounted) return;
@@ -158,12 +176,9 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     _tickTimer?.cancel();
     _refreshTimer?.cancel();
 
-    // Local 1-second countdown. Only ticks while the oven is actually
-    // running - otherwise the timer would keep counting down after the oven
-    // has stopped or faulted, which misrepresents the batch as still drying.
+    // Local 1-second countdown that ticks down smoothly until completion.
     _tickTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
-      if (_active?.ovenRunning == false) return;
       if (_remainingSeconds > 0) {
         setState(() => _remainingSeconds--);
       }
@@ -324,6 +339,10 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         _error = null;
       });
       await _refreshPredictions();
+      if (_remainingSeconds <= 0) {
+        final hours = _pausedTotalHours ?? 2.0;
+        setState(() => _remainingSeconds = (hours * 3600).round());
+      }
       _startTimers();
 
       if (!mounted) return;
@@ -341,33 +360,22 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   }
 
   /// Turn a raw model prediction (hours) into a steady remaining-seconds value
-  /// for display: rolling-average smoothing + a monotonic (mostly downward)
-  /// guard so the timer doesn't visibly jump around on sensor noise.
+  /// for display: preserve active countdown timer and never collapse to 00:00:00.
   int _stabilizedRemainingSeconds(double rawHours) {
-    // 1) Rolling average of recent raw predictions.
-    _recentHours.add(rawHours);
-    if (_recentHours.length > _smoothingWindow) {
-      _recentHours.removeAt(0);
+    if (rawHours <= 0.0) {
+      if (_remainingSeconds > 0) return _remainingSeconds;
+      final fallbackHours = _pausedTotalHours ?? 2.0;
+      return (fallbackHours * 3600).round();
     }
-    final avgHours =
-        _recentHours.reduce((a, b) => a + b) / _recentHours.length;
-    final smoothedSeconds =
-        (avgHours * 3600).round().clamp(0, 240 * 3600);
 
-    // 2) Monotonic guard. On the first reading, accept it as-is. After that,
-    //    prefer the lower of (current countdown, smoothed) so it keeps ticking
-    //    down — only allow an upward correction beyond the tolerance.
-    if (_remainingSeconds == 0 && _recentHours.length == 1) {
-      return smoothedSeconds;
+    final rawSeconds = (rawHours * 3600).round();
+
+    if (_remainingSeconds <= 0) {
+      return rawSeconds;
     }
-    if (smoothedSeconds > _remainingSeconds + _upwardToleranceSeconds) {
-      // Genuine slowdown — accept the higher estimate.
-      return smoothedSeconds;
-    }
-    // Otherwise never jump up; take the smaller so it trends downward.
-    return smoothedSeconds < _remainingSeconds
-        ? smoothedSeconds
-        : _remainingSeconds;
+
+    // Keep active countdown ticking down smoothly without jumping on API refreshes
+    return _remainingSeconds;
   }
 
   String _clean(Object e) => e.toString().replaceFirst("Exception: ", "").trim();
@@ -433,8 +441,8 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
       );
     }
 
-    // This batch is drying -> the live dashboard.
-    if (_isThisBatchDrying) return _dryingDashboard();
+    // This batch is drying -> 3-Tab Segmented Navigation View.
+    if (_isThisBatchDrying) return _buildDryingWithTabs();
 
     // Paused -> offer Resume.
     if (_paused) return _pausedSection();
@@ -784,6 +792,262 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     );
   }
 
+  Widget _buildDryingWithTabs() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Top 3-Tab Segmented Navigation Bar
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: const Color(0xffF1F5F9),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Row(
+            children: [
+              // Tab 0: Drying Process
+              Expanded(
+                child: _buildSegmentedTab(
+                  index: 0,
+                  label: "⏱️ Process",
+                  isHighlighted: false,
+                ),
+              ),
+              const SizedBox(width: 4),
+
+              // Tab 1: Verification Station (Middle Highlighted Default)
+              Expanded(
+                child: _buildSegmentedTab(
+                  index: 1,
+                  label: "📹 Verification",
+                  isHighlighted: true,
+                ),
+              ),
+              const SizedBox(width: 4),
+
+              // Tab 2: Drying Dashboard
+              Expanded(
+                child: _buildSegmentedTab(
+                  index: 2,
+                  label: "📊 Dashboard",
+                  isHighlighted: false,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Active Tab Content View
+        if (_activeTab == 0) _dryingDashboardWithActions(),
+        if (_activeTab == 1) _buildEmbeddedVerificationView(),
+        if (_activeTab == 2) _buildEmbeddedDashboardView(),
+      ],
+    );
+  }
+
+  Widget _buildSegmentedTab({
+    required int index,
+    required String label,
+    required bool isHighlighted,
+  }) {
+    final isSelected = _activeTab == index;
+
+    return GestureDetector(
+      onTap: () => _switchTab(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (isHighlighted ? const Color(0xff103F73) : AppColors.primary)
+              : (isHighlighted ? const Color(0x18103F73) : Colors.transparent),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? (isHighlighted ? Colors.cyanAccent : AppColors.primary)
+                : (isHighlighted ? const Color(0xff103F73).withValues(alpha: 0.4) : Colors.transparent),
+            width: isHighlighted ? 1.5 : 1.0,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: (isHighlighted ? Colors.cyan : AppColors.primary).withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  )
+                ]
+              : [],
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: isHighlighted ? 11.5 : 11.0,
+            fontWeight: isSelected || isHighlighted ? FontWeight.w800 : FontWeight.w600,
+            color: isSelected
+                ? (isHighlighted ? Colors.cyanAccent : Colors.white)
+                : (isHighlighted ? const Color(0xff103F73) : Colors.grey.shade700),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _dryingDashboardWithActions() {
+    return Column(
+      children: [
+        _dryingDashboard(),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff103F73),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 2,
+                ),
+                onPressed: () => _switchTab(1),
+                icon: const Icon(Icons.videocam_outlined, color: Colors.cyanAccent, size: 18),
+                label: const Text("📹 Verification", style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 2,
+                ),
+                onPressed: () => _switchTab(2),
+                icon: const Icon(Icons.analytics_outlined, color: Colors.white, size: 18),
+                label: const Text("📊 Dashboard", style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmbeddedVerificationView() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: Color(0xff0F172A),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.videocam, color: Colors.redAccent, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      "VERIFICATION STATION (${widget.batchId})",
+                      style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.green),
+                  ),
+                  child: const Text(
+                    "💡 LIGHT ON",
+                    style: TextStyle(color: Colors.greenAccent, fontSize: 9.5, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 600,
+            child: ClipRRect(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+              child: MonitoringScreen(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmbeddedDashboardView() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: Color(0xff103F73),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.analytics_outlined, color: Colors.cyanAccent, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      "DRYING MONITORING DASHBOARD (${widget.batchId})",
+                      style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.green),
+                  ),
+                  child: const Text(
+                    "💡 LIGHT ON",
+                    style: TextStyle(color: Colors.greenAccent, fontSize: 9.5, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 750,
+            child: ClipRRect(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+              child: DryingDashboardScreen(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _dryingDashboard() {
     // The auto-stop banner already explains why the oven isn't running when
     // over-drying was the cause, so suppress the generic mismatch banner in
@@ -791,7 +1055,7 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     final mismatch = _stoppedByOverDrying ? null : _ovenMismatchBanner();
     return Column(
       children: [
-        if (mismatch != null) mismatch,
+        ?mismatch,
         // Countdown timer (tap -> drying-time detail).
         GestureDetector(
           onTap: () => Navigator.push(

@@ -11,6 +11,7 @@ import '../Salt/salt_prediction_screen.dart';
 import '../Salt/salting_monitoring_screen.dart';
 import '../Drying/drying_dashboard_screen.dart';
 import '../Batch_admin/batch_records_dashboard_screen.dart';
+import '../monitoring/monitoring_screen.dart';
 import '../admin_dashboard_screen.dart';
 import 'admin_profile_screen.dart';
 
@@ -45,6 +46,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   final List<String> _categories = [
     'All',
     'Admin',
+    'Monitoring',
     'Batch',
     'Waste',
     'Salt',
@@ -156,6 +158,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ctx,
             MaterialPageRoute(
               builder: (_) => const BatchRecordsDashboardScreen(),
+            ),
+          );
+        },
+      ),
+      DashboardItem(
+        title: 'Verification Station',
+        category: 'Monitoring',
+        icon: Icons.sensors,
+        iconColor: Colors.teal,
+        onTap: (ctx) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => const MonitoringScreen(),
             ),
           );
         },

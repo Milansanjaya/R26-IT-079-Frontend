@@ -201,7 +201,7 @@ class DryingSystemScreen
             CircleAvatar(
               radius: 35,
               backgroundColor:
-                  color.withOpacity(.12),
+                  color.withValues(alpha: 0.12),
               child: Icon(
                 icon,
                 color: color,
