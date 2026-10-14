@@ -1,3 +1,4 @@
+import '../../services/Batch/batch_workflow_service.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -35,6 +36,9 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
   @override
   void initState() {
     super.initState();
+    BatchWorkflowService.updateStage('drying_dashboard');
+    _sensor = IotService.lastCachedSensor;
+    _loading = _sensor == null;
     _loadSensor();
     _sensorTimer = Timer.periodic(_sensorRefreshInterval, (_) => _loadSensor());
     _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -251,6 +255,32 @@ class _DryingDashboardScreenState extends State<DryingDashboardScreen> {
             _onlinePill(sensor),
             const SizedBox(width: 10),
             refreshButton,
+            const SizedBox(width: 10),
+            InkWell(
+              onTap: () async {
+                final active = await BatchWorkflowService.getActiveBatch();
+                final bId = active?['batchId'] ?? sensor.session?.batchId ?? 'Active';
+                if (context.mounted) {
+                  BatchWorkflowService.showEndProcessDialog(context, bId);
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.stop_circle_outlined, size: 16, color: Colors.red.shade700),
+                    const SizedBox(width: 4),
+                    Text('End Process', style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(width: 10),
             _brandButton(),
           ],

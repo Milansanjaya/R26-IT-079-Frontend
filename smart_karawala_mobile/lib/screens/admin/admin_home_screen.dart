@@ -1,3 +1,4 @@
+import '../../services/Batch/batch_workflow_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,6 +41,116 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   int _currentIndex = 0;
+  Map<String, dynamic>? _activeBatch;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadActiveBatch();
+  }
+
+  Future<void> _loadActiveBatch() async {
+    final active = await BatchWorkflowService.getActiveBatch();
+    if (mounted) {
+      setState(() {
+        _activeBatch = active;
+      });
+    }
+  }
+
+  void _showActiveBatchRunningDialog(BuildContext ctx, Map<String, dynamic> active) {
+    final batchId = active['batchId'] ?? '';
+    final fishType = active['fishType'] ?? 'Fish';
+    final stage = active['stage'] ?? 'waste_prediction';
+    final stageName = BatchWorkflowService.getStageDisplayName(stage);
+
+    showDialog(
+      context: ctx,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.sync_alt, color: Colors.orange.shade800, size: 24),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Batch In Progress',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Batch $batchId ($fishType) is currently running.',
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.shade100),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.directions_run, size: 18, color: Colors.blue.shade700),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      stageName,
+                      style: TextStyle(
+                        color: Colors.blue.shade900,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'A batch is currently in progress. You can jump directly to its current running stage, or end the process to begin a new batch.',
+              style: TextStyle(fontSize: 12, color: Colors.grey, height: 1.4),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogCtx);
+              BatchWorkflowService.showEndProcessDialog(context, batchId)
+                  .then((_) => _loadActiveBatch());
+            },
+            child: const Text('End Process', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.arrow_forward, size: 16, color: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            ),
+            onPressed: () {
+              Navigator.pop(dialogCtx);
+              BatchWorkflowService.navigateToActiveStage(context, active);
+            },
+            label: const Text('Go to Running Stage', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
   final TextEditingController _searchController = TextEditingController();
   String _selectedCategory = 'All';
 
@@ -66,13 +177,18 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         category: 'Batch',
         icon: Icons.add_circle_outline,
         iconColor: Colors.blue,
-        onTap: (ctx) {
-          Navigator.push(
-            ctx,
-            MaterialPageRoute(
-              builder: (_) => const AddNewBatchScreen(),
-            ),
-          );
+        onTap: (ctx) async {
+          final active = await BatchWorkflowService.getActiveBatch();
+          if (active != null && active['isActive'] == true) {
+            _showActiveBatchRunningDialog(ctx, active);
+          } else {
+            Navigator.push(
+              ctx,
+              MaterialPageRoute(
+                builder: (_) => const AddNewBatchScreen(),
+              ),
+            ).then((_) => _loadActiveBatch());
+          }
         },
       ),
       DashboardItem(
@@ -362,6 +478,140 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ),
               ],
             ),
+            if (_activeBatch != null && _activeBatch!['isActive'] == true) ...[
+              const SizedBox(height: 18),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xff0A5B8E), Color(0xff1872A6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xff0A5B8E).withValues(alpha: 0.25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: const BoxDecoration(
+                                color: Colors.greenAccent,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'CURRENTLY PROCESSING BATCH',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _activeBatch!['batchId'] ?? '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "${_activeBatch!['fishType']} (${_activeBatch!['rawWeight']} kg)",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      BatchWorkflowService.getStageDisplayName(_activeBatch!['stage'] ?? ''),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.play_arrow, size: 18, color: Color(0xff0A5B8E)),
+                            label: const Text(
+                              'Resume Stage',
+                              style: TextStyle(
+                                color: Color(0xff0A5B8E),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            onPressed: () {
+                              BatchWorkflowService.navigateToActiveStage(context, _activeBatch!);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.stop_circle_outlined, size: 18, color: Colors.white),
+                          label: const Text(
+                            'End Process',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white70),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          ),
+                          onPressed: () {
+                            BatchWorkflowService.showEndProcessDialog(context, _activeBatch!['batchId'] ?? '')
+                                .then((_) => _loadActiveBatch());
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             Row(
               children: [

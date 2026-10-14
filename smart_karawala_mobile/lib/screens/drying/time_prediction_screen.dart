@@ -1,3 +1,4 @@
+import '../../services/Batch/batch_workflow_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -223,6 +224,8 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
 
       if (!mounted) return;
 
+      await BatchWorkflowService.updateStage('drying_dashboard');
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const DryingHubScreen()),
@@ -266,6 +269,34 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: InkWell(
+              onTap: () {
+                BatchWorkflowService.showEndProcessDialog(context, widget.batchId);
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.stop_circle_outlined, size: 16, color: Colors.red.shade700),
+                    const SizedBox(width: 4),
+                    Text('End Process', style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

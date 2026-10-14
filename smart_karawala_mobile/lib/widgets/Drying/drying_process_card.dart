@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -19,7 +21,7 @@ const Duration kDryingSensorRefreshInterval = Duration(seconds: 10);
 /// TEMPORARY (testing): duration used when resuming a paused batch, matching
 /// the override on the Time Prediction screen. Set to null to fall back to the
 /// batch's remaining predicted time.
-const int _resumeDurationMinutes = 10;
+// Overridden dynamically from remaining drying time
 
 /// Self-contained drying dashboard for a single batch, shown inside the
 /// Batch Details page.
@@ -78,6 +80,8 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   bool _resuming = false;
   double? _pausedTemperatureC;
   double? _pausedTotalHours;
+  int? _pausedRemainingSeconds;
+  double? _pausedRemainingHours;
 
   // Remaining seconds for the live countdown, re-synced on each refresh.
   int _remainingSeconds = 0;
@@ -191,26 +195,57 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   }
 
   Future<void> _refreshPredictions() async {
+    if (!mounted) return;
+
     try {
-      final results = await Future.wait([
-        DryingService.getActiveBatch(),
-        DryingService.getDryingTime(),
-        DryingService.getSpoilageRisk(),
-      ]);
+      final active = await DryingService.getActiveBatch();
       if (!mounted) return;
-      setState(() {
-        _active = results[0] as ActiveDryingBatch?;
-        _time = results[1] as DryingTimeResult;
-        _risk = results[2] as SpoilageRiskResult;
+      setState(() => _active = active);
+    } catch (_) {
+      // Keep previous active pointer if transient network hiccup
+    }
+
+    if (!_isThisBatchDrying) {
+      if (mounted) setState(() => _error = null);
+      return;
+    }
+
+    DryingTimeResult? newTime;
+    SpoilageRiskResult? newRisk;
+    String? fetchError;
+
+    try {
+      newTime = await DryingService.getDryingTime();
+    } catch (e) {
+      fetchError = _clean(e);
+      debugPrint("Drying time fetch notice: ");
+    }
+
+    try {
+      newRisk = await DryingService.getSpoilageRisk();
+    } catch (e) {
+      fetchError ??= _clean(e);
+      debugPrint("Spoilage risk fetch notice: ");
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      if (newTime != null) {
+        _time = newTime;
         _remainingSeconds = _stabilizedRemainingSeconds(
           _time!.predictedRemainingHours,
         );
+      }
+      if (newRisk != null) {
+        _risk = newRisk;
+      }
+      if (_time != null) {
         _error = null;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _error = _clean(e));
-    }
+      } else {
+        _error = fetchError;
+      }
+    });
 
     // Separate call, separate failure handling: the over-drying check also
     // performs the safety stop on the backend when risk is HIGH, so it must
@@ -259,6 +294,8 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
     // Remember the settings so Resume can recreate an equivalent session.
     final pausedTemp = _active?.initialTemperatureC;
     final pausedHours = _active?.initialTotalHours;
+    final remainingSecs = _remainingSeconds;
+    final remainingHours = _time?.predictedRemainingHours ?? (remainingSecs > 0 ? remainingSecs / 3600.0 : null);
 
     try {
       // Stop the physical oven first so the heater/fan are actually switched
@@ -275,6 +312,23 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         debugPrint("Oven stop failed (continuing to clear active batch): $e");
       }
 
+      // Universal stop to ensure port 8002 marks any running session stopped
+      try {
+        await http.post(
+          Uri.parse("http://127.0.0.1:8002/api/iot/stop"),
+          headers: {"Content-Type": "application/json"},
+        ).timeout(const Duration(seconds: 2));
+      } catch (_) {}
+
+      // Command hardware actuators off directly on Raspberry Pi bridge
+      try {
+        await http.post(
+          Uri.parse("http://172.20.10.2:8081/api/actuators"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({"heater": false, "fan": false}),
+        ).timeout(const Duration(seconds: 2));
+      } catch (_) {}
+
       await DryingService.stopDrying();
       if (!mounted) return;
       _tickTimer?.cancel();
@@ -289,6 +343,8 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         _paused = true;
         _pausedTemperatureC = pausedTemp;
         _pausedTotalHours = pausedHours;
+        _pausedRemainingSeconds = remainingSecs > 0 ? remainingSecs : null;
+        _pausedRemainingHours = remainingHours;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Drying paused")),
@@ -307,6 +363,11 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
   /// using the settings captured when the batch was paused. Elapsed drying
   /// time from the previous run is not carried over.
   Future<void> _resumeDrying() async {
+    final resumeHours = _pausedRemainingHours ?? _pausedTotalHours ?? 0.5;
+    final resumeMinutes = _pausedRemainingSeconds != null && _pausedRemainingSeconds! > 0
+        ? (_pausedRemainingSeconds! / 60.0).ceil()
+        : (resumeHours * 60.0).round();
+    final effectiveDurationMinutes = resumeMinutes > 0 ? resumeMinutes : 1;
     setState(() => _resuming = true);
     try {
       // A stopped session still occupies the batch id, so creating a new
@@ -314,9 +375,9 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
       try {
         await IotService.createControlProfile(
           batchId: widget.batchId,
-          targetTemperature: _pausedTemperatureC ?? 50.0,
+          targetTemperature: _pausedTemperatureC ?? 138.5,
           targetHumidity: 55.0,
-          targetDurationMinutes: _resumeDurationMinutes,
+          targetDurationMinutes: effectiveDurationMinutes,
         );
       } catch (e) {
         debugPrint("Resume: profile not recreated (likely exists): $e");
@@ -330,17 +391,20 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
       await DryingService.startDrying(
         widget.batchId,
         initialTemperatureC: _pausedTemperatureC,
-        initialTotalHours: _pausedTotalHours,
+        initialTotalHours: resumeHours,
       );
 
       if (!mounted) return;
       setState(() {
         _paused = false;
         _error = null;
+        if (_pausedRemainingSeconds != null && _pausedRemainingSeconds! > 0) {
+          _remainingSeconds = _pausedRemainingSeconds!;
+        }
       });
       await _refreshPredictions();
       if (_remainingSeconds <= 0) {
-        final hours = _pausedTotalHours ?? 2.0;
+        final hours = resumeHours;
         setState(() => _remainingSeconds = (hours * 3600).round());
       }
       _startTimers();

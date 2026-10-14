@@ -18,16 +18,38 @@ class MiniSparklineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (values.isEmpty) {
-      return SizedBox(height: height);
+      return SizedBox(
+        height: height,
+        child: Center(
+          child: Container(
+            height: 1.5,
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              color: lineColor.withValues(alpha: 0.25),
+              borderRadius: BorderRadius.circular(1),
+            ),
+          ),
+        ),
+      );
     }
 
-    final dataPoints = values.asMap().entries.map((entry) {
+    List<FlSpot> dataPoints = values.asMap().entries.map((entry) {
       return FlSpot(entry.key.toDouble(), entry.value);
     }).toList();
 
+    // LineChart requires at least 2 points to draw a visible stroke
+    if (dataPoints.length == 1) {
+      dataPoints = [
+        FlSpot(0.0, values.first),
+        FlSpot(1.0, values.first),
+      ];
+    }
+
     final minY = values.reduce((a, b) => a < b ? a : b);
     final maxY = values.reduce((a, b) => a > b ? a : b);
-    final padding = (maxY - minY) == 0 ? 1.0 : (maxY - minY) * 0.15;
+    final diff = maxY - minY;
+    final padding = diff == 0 ? (minY == 0 ? 1.0 : minY.abs() * 0.1) : diff * 0.15;
 
     return SizedBox(
       height: height,
@@ -46,12 +68,12 @@ class MiniSparklineChart extends StatelessWidget {
               isCurved: true,
               curveSmoothness: 0.35,
               color: lineColor,
-              barWidth: 2.0,
+              barWidth: 2.2,
               isStrokeCapRound: true,
               dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
-                color: (fillColor ?? lineColor).withValues(alpha: 0.15),
+                color: (fillColor ?? lineColor).withValues(alpha: 0.18),
               ),
             ),
           ],

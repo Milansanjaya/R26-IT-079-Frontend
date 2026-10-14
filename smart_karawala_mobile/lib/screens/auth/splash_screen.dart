@@ -1,3 +1,4 @@
+import '../../services/Batch/batch_workflow_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -41,12 +42,18 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       );
     } else if (role == 'admin') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const AdminHomeScreen(),
-        ),
-      );
+      final activeBatch = await BatchWorkflowService.getActiveBatch();
+      if (!mounted) return;
+      if (activeBatch != null && activeBatch['isActive'] == true) {
+        BatchWorkflowService.navigateToActiveStage(context, activeBatch);
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AdminHomeScreen(),
+          ),
+        );
+      }
     } else {
       Navigator.pushReplacement(
         context,
@@ -117,4 +124,4 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-}
+}

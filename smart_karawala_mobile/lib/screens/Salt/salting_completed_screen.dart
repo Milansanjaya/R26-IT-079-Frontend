@@ -1,3 +1,4 @@
+import '../../services/Batch/batch_workflow_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/Batch/colors.dart';
@@ -79,7 +80,9 @@ class SaltingCompletedScreen extends StatelessWidget {
               SizedBox(
                 height: 56,
                 child: ElevatedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
+                    await BatchWorkflowService.updateStage('drying_prediction');
+                    if (!context.mounted) return;
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -109,9 +112,22 @@ class SaltingCompletedScreen extends StatelessWidget {
               const SizedBox(height: 12),
               SizedBox(
                 height: 48,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Back to Dashboard'),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Back to Dashboard'),
+                    ),
+                    const SizedBox(width: 12),
+                    TextButton.icon(
+                      icon: const Icon(Icons.stop_circle_outlined, size: 18, color: Colors.red),
+                      label: const Text('End Process', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                      onPressed: () {
+                        BatchWorkflowService.showEndProcessDialog(context, batchId);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],

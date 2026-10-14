@@ -1,3 +1,4 @@
+import '../../services/Batch/batch_workflow_service.dart';
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -16,6 +17,22 @@ class AddNewBatchScreen extends StatefulWidget {
 
 class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
   final weightController = TextEditingController();
+  Map<String, dynamic>? _existingActiveBatch;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkExistingActiveBatch();
+  }
+
+  Future<void> _checkExistingActiveBatch() async {
+    final active = await BatchWorkflowService.getActiveBatch();
+    if (mounted && active != null && active['isActive'] == true) {
+      setState(() {
+        _existingActiveBatch = active;
+      });
+    }
+  }
   final notesController = TextEditingController();
   final dateController = TextEditingController();
   final timeController = TextEditingController();
@@ -88,6 +105,13 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (!mounted) return;
+
+        await BatchWorkflowService.saveActiveBatch(
+          batchId: generatedBatchId,
+          fishType: fish!,
+          rawWeight: parsedWeight,
+          stage: "waste_prediction",
+        );
 
         Navigator.pushReplacement(
           context,

@@ -1,3 +1,4 @@
+import '../../services/Batch/batch_workflow_service.dart';
 import 'package:flutter/material.dart';
 import '../../models/batch_model.dart';
 import '../../services/Batch/batch_service.dart';
@@ -42,6 +43,14 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
         batch = latest;
         loading = false;
       });
+      if (latest != null) {
+        BatchWorkflowService.saveActiveBatch(
+          batchId: latest.batchId,
+          fishType: latest.fishType,
+          rawWeight: latest.rawWeight,
+          stage: 'waste_prediction',
+        );
+      }
     } catch (e) {
       debugPrint(e.toString());
 
@@ -140,16 +149,44 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AdminHomeScreen(),
+                  Row(
+                    children: [
+                      if (batch != null)
+                        InkWell(
+                          onTap: () {
+                            BatchWorkflowService.showEndProcessDialog(context, batch!.batchId);
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            margin: const EdgeInsets.only(right: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.stop_circle_outlined, size: 16, color: Colors.red.shade700),
+                                const SizedBox(width: 4),
+                                Text('End Process', style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                              ],
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                    child: Image.asset('assets/images/logo.png', height: 70),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AdminHomeScreen(),
+                            ),
+                          );
+                        },
+                        child: Image.asset('assets/images/logo.png', height: 70),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -445,7 +482,9 @@ class _WastePredictionScreenState extends State<WastePredictionScreen> {
                             width: double.infinity,
                             height: 56,
                             child: ElevatedButton.icon(
-                              onPressed: () {
+                              onPressed: () async {
+                                await BatchWorkflowService.updateStage('salt_prediction');
+                                if (!mounted) return;
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

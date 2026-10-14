@@ -6,18 +6,30 @@ import '../models/sensor_model.dart';
 
 class IotService {
   static const String baseUrl = "http://127.0.0.1:8002";
+  static SensorModel? lastCachedSensor;
 
   static Future<SensorModel> getLiveData() async {
-    final response = await http.get(Uri.parse("$baseUrl/api/iot/live"));
-    if (response.statusCode != 200) {
-      throw Exception(_errorMessage(response));
-    }
+    try {
+      final response = await http
+          .get(Uri.parse("$baseUrl/api/iot/live"))
+          .timeout(const Duration(seconds: 3));
+      if (response.statusCode != 200) {
+        if (lastCachedSensor != null) return lastCachedSensor!;
+        throw Exception(_errorMessage(response));
+      }
 
-    final decoded = jsonDecode(response.body);
-    if (decoded is! Map<String, dynamic>) {
-      throw Exception("Invalid sensor response");
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) {
+        if (lastCachedSensor != null) return lastCachedSensor!;
+        throw Exception("Invalid sensor response");
+      }
+      final model = SensorModel.fromJson(decoded);
+      lastCachedSensor = model;
+      return model;
+    } catch (e) {
+      if (lastCachedSensor != null) return lastCachedSensor!;
+      rethrow;
     }
-    return SensorModel.fromJson(decoded);
   }
 
   static Future<Map<String, dynamic>> createControlProfile({
