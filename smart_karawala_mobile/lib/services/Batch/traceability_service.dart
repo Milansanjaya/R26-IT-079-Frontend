@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import '../../models/traceability_dashboard_model.dart';
+import '../../core/config/app_config.dart';
 
 class TraceabilityService {
-  static const String baseUrl = "http://localhost:8001/api/batches";
+  static String get baseUrl => AppConfig.batchesBaseUrl;
 
   static Future<TraceabilityDashboardModel> getDashboard() async {
     final response = await http.get(

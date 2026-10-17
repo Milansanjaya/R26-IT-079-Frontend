@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import '../../models/processing_report_model.dart';
+import '../../core/config/app_config.dart';
 
 class ProcessingReportService {
-  static const String baseUrl =
-      "http://localhost:8001/api/batches";
+  static String get baseUrl => AppConfig.batchesBaseUrl;
 
   static Future<List<ProcessingReportModel>> getReports() async {
     final response = await http.get(

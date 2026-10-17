@@ -2,16 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/telemetry_model.dart';
+import '../core/config/app_config.dart';
 
 class VerificationStationService {
-  // SmartDryingEnvironmentMonitoring backend runs on port 8002
-  static String smartDryingBackendUrl = "http://localhost:8002/api/iot";
+  // SmartDryingEnvironmentMonitoring backend runs on port 8002 / api.smartkarawala.me
+  static String get smartDryingBackendUrl => "${AppConfig.iotBaseUrl}/api/iot";
 
-  // TimeAndSpoilagePredictionService runs on port 8003
-  static String predictApiUrl = "http://localhost:8003/api/predict";
+  // TimeAndSpoilagePredictionService runs on port 8003 / api.smartkarawala.me
+  static String get predictApiUrl => AppConfig.predictBaseUrl;
 
-  // Raspberry Pi Live Camera View stream runs on port 3000 / Raspberry Pi
-  static String cameraHost = "http://localhost:3000";
+  // Raspberry Pi Live Camera View stream runs on port 3000 / vs.smartkarawala.me
+  static String get cameraHost => AppConfig.verificationStationUrl;
 
   static TelemetryData? _lastTelemetryCache;
   static TelemetryData? get lastCachedTelemetry => _lastTelemetryCache;

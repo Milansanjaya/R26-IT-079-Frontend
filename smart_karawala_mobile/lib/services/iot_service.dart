@@ -1,11 +1,10 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
-
 import '../models/sensor_model.dart';
+import '../core/config/app_config.dart';
 
 class IotService {
-  static const String baseUrl = "http://127.0.0.1:8002";
+  static String get baseUrl => AppConfig.iotBaseUrl;
   static SensorModel? lastCachedSensor;
 
   static Future<SensorModel> getLiveData() async {

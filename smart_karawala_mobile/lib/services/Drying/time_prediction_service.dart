@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../core/config/app_config.dart';
 
 class TimePredictionService {
-  static const String baseUrl = 'http://localhost:8003/api/predict';
+  static String get baseUrl => AppConfig.predictBaseUrl;
 
   /// Converts the model's hour-based estimate into the whole minutes expected
   /// by the IoT control profile. Keeping this conversion in one place prevents

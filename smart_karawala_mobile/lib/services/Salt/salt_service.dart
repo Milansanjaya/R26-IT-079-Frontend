@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import '../../models/batch_model.dart';
 import '../../models/salt_prediction_model.dart';
+import '../../core/config/app_config.dart';
 
 class SaltService {
-  static const String baseUrl = "http://localhost:8001/api/batches";
+  static String get baseUrl => AppConfig.batchesBaseUrl;
 
   /// Get latest batch
   static Future<BatchModel> getLatestBatch() async {

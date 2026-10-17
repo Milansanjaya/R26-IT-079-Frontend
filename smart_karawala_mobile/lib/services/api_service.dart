@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../core/config/app_config.dart';
 
 class ApiService {
   // AuthService is configured to run on port 8000 in Backend/src/AuthService/.env.
-  // ApiService is used exclusively for /auth/* calls.
-  static const String baseUrl = "http://127.0.0.1:8000";
-  static const String wasteBaseUrl = "http://localhost:8001";
+  // In production, it routes via api.smartkarawala.me/auth
+  static String get baseUrl => AppConfig.authBaseUrl;
+  static String get wasteBaseUrl => AppConfig.wasteBaseUrl;
 
   static Future<Map<String, dynamic>> post(
   String endpoint,

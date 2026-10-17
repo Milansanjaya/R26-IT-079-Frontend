@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../core/config/app_config.dart';
 
 class SaltingService {
-  static const String baseUrl =
-      "http://localhost:8001/api/batches";
+  static String get baseUrl => AppConfig.batchesBaseUrl;
 
   static Future<bool> startSalting(String batchId) async {
     final response = await http.post(

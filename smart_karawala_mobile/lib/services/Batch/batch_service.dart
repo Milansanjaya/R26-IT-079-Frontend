@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../models/batch_model.dart';
+import '../../core/config/app_config.dart';
 
 class BatchService {
-  static const String baseUrl = "http://localhost:8001/api/batches";
+  static String get baseUrl => AppConfig.batchesBaseUrl;
 
   static Future<List<BatchModel>> getBatches() async {
     final response = await http.get(Uri.parse(baseUrl));
