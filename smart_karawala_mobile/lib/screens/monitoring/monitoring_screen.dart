@@ -247,13 +247,15 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
       ),
     );
 
-    final result = await VerificationStationService.triggerAiVerification();
+    final result = await VerificationStationService.triggerAiVerification(host: _piHost);
 
     if (mounted) {
       Navigator.pop(context); // Close loading dialog
 
       final data = result['data'] ?? {};
-      final isEmpty = _telemetry.isBedEmpty;
+      final bool isEmpty = data['is_bed_empty'] == true ||
+          (data['detected_fish_count'] != null && data['detected_fish_count'] == 0) ||
+          _telemetry.isBedEmpty;
 
       final double drynessVal;
       final String qualityGrade;
@@ -263,6 +265,8 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
       final double moistureVal;
       final double spoilageRiskVal;
       final int shelfLifeVal;
+      final String summaryText = data['summary']?.toString() ??
+          (isEmpty ? "The drying bed is empty. No fish sample detected." : "AI verification completed successfully.");
 
       if (isEmpty) {
         drynessVal = 0.0;
@@ -274,19 +278,31 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
         spoilageRiskVal = 0.0;
         shelfLifeVal = 0;
       } else {
-        colorMatch = data['color_match'] ?? _telemetry.colorMatchPercent;
-        discolorations = data['discolorations'] ?? _telemetry.colorDiscolorationsCount;
+        colorMatch = data['color_match'] ?? data['color_match_percent'] ?? _telemetry.colorMatchPercent;
+        discolorations = data['discolorations'] ?? data['discolorations_count'] ?? _telemetry.colorDiscolorationsCount;
         qualityGrade = data['quality_grade']?.toString() ?? _telemetry.liveQuality;
         stageStr = data['drying_stage']?.toString() ?? _telemetry.dryingStage;
 
-        // Dynamic real dryness index computed from surface color match % and sensor humidity %
-        final dynamicCalc = (colorMatch * 0.45 + (100.0 - _telemetry.humidityPercent) * 0.45 + 10.0).clamp(15.0, 98.0);
-        drynessVal = data['dryness_index'] != null ? TelemetryData.toDouble(data['dryness_index']) : dynamicCalc;
+        drynessVal = data['dryness_index'] != null
+            ? TelemetryData.toDouble(data['dryness_index'])
+            : (colorMatch * 0.45 + (100.0 - _telemetry.humidityPercent) * 0.45 + 10.0).clamp(15.0, 98.0);
 
         moistureVal = TelemetryData.toDouble(data['estimated_moisture'] ?? (100.0 - drynessVal).clamp(12.0, 45.0));
         spoilageRiskVal = TelemetryData.toDouble(data['spoilage_risk'] ?? 4.0);
         shelfLifeVal = data['shelf_life_months'] ?? 6;
       }
+
+      // Immediately synchronize screen state with verified results
+      setState(() {
+        _telemetry = _telemetry.copyWith(
+          isBedEmpty: isEmpty,
+          detectedFishCount: isEmpty ? 0 : (data['detected_fish_count'] ?? 1),
+          dryingStage: stageStr,
+          liveQuality: qualityGrade,
+          colorMatchPercent: colorMatch,
+          colorDiscolorationsCount: discolorations,
+        );
+      });
 
       showModalBottomSheet(
         context: context,
@@ -350,14 +366,38 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: const Color(0xffFCD34D)),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(Icons.warning_amber_rounded, color: Color(0xffD97706), size: 18),
-                          SizedBox(width: 8),
+                          const Icon(Icons.warning_amber_rounded, color: Color(0xffD97706), size: 18),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              "NO FISH DETECTED ON BED. Place a fish sample on the drying rack to run inspection.",
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xff92400E)),
+                              summaryText.isNotEmpty
+                                  ? summaryText
+                                  : "NO FISH DETECTED ON BED. Place a fish sample on the drying rack to run inspection.",
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xff92400E)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else if (summaryText.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffF0FDF4),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xff86EFAC)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle_outline, color: Color(0xff16A34A), size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              summaryText,
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xff166534)),
                             ),
                           ),
                         ],
