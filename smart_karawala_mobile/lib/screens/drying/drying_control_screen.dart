@@ -1,3 +1,5 @@
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -242,6 +244,19 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
 
     setState(() => _stopSending = true);
     try {
+      try {
+        await http.post(
+          Uri.parse("http://127.0.0.1:8002/api/iot/stop"),
+          headers: {"Content-Type": "application/json"},
+        ).timeout(const Duration(seconds: 2));
+      } catch (_) {}
+      try {
+        await http.post(
+          Uri.parse("http://172.20.10.2:8081/api/actuators"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({"heater": false, "fan": false}),
+        ).timeout(const Duration(seconds: 2));
+      } catch (_) {}
       final response = await IotService.stopDryingSession(session.batchId);
 
       if (!mounted) return;

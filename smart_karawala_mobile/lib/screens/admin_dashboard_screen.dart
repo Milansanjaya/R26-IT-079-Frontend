@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../core/constants/app_colors.dart';
 import '../providers/auth_provider.dart';
-import '../services/storage_service.dart';
 import '../widgets/Batch/dashboard_menu_card.dart';
 
-import 'auth/login_screen.dart';
-import 'Waste/waste_traceability_screen.dart';
 import 'admin/admin_home_screen.dart';
 import 'admin/sales_dashboard_screen.dart';
 import 'Batch_admin/batch_records_dashboard_screen.dart';
+import 'monitoring/monitoring_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -168,16 +165,17 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
 
               DashboardMenuCard(
-                icon: Icons.pie_chart_outline_rounded,
+                icon: Icons.sensors,
                 iconColor: Colors.orange,
                 backgroundColor: const Color(0xffFFF6EC),
-                title: "Verification Dashboard",
+                title: "Verification Station Monitoring",
                 subtitle:
-                    "Review verification status and ensure quality compliance.",
+                    "Live camera stream, light control, and real-time temp, humidity, weight & gas telemetry.",
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Verification Dashboard coming soon"),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MonitoringScreen(),
                     ),
                   );
                 },
