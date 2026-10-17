@@ -6,6 +6,7 @@ import '../../services/Drying/drying_service.dart';
 import '../../services/Drying/drying_hub_screen.dart';
 import '../../services/Drying/time_prediction_service.dart';
 import '../../services/iot_service.dart';
+import '../../services/verification_station_service.dart';
 
 /// Fallback readings used when the IoT device can't be reached or is offline.
 const double _fallbackHumidityPercent = 60.0;
@@ -82,7 +83,15 @@ class _TimePredictionScreenState extends State<TimePredictionScreen> {
         iotWarning = 'IoT device is offline. Using default initial readings instead of live sensor data.';
       }
     } catch (_) {
-      iotWarning = 'Could not reach the IoT device. Using default initial readings instead of live sensor data.';
+      if (VerificationStationService.lastCachedTelemetry != null &&
+          VerificationStationService.lastCachedTelemetry!.isConnected) {
+        final cached = VerificationStationService.lastCachedTelemetry!;
+        humidityPercent = cached.humidityPercent;
+        mq136Value = cached.gasRaw;
+        usedLiveReadings = true;
+      } else {
+        iotWarning = 'Could not reach the IoT device. Using default initial readings instead of live sensor data.';
+      }
     }
 
     if (mounted && iotWarning != null) {

@@ -11,7 +11,7 @@ class IotService {
     try {
       final response = await http
           .get(Uri.parse("$baseUrl/api/iot/live"))
-          .timeout(const Duration(seconds: 3));
+          .timeout(const Duration(seconds: 6));
       if (response.statusCode != 200) {
         if (lastCachedSensor != null) return lastCachedSensor!;
         throw Exception(_errorMessage(response));
