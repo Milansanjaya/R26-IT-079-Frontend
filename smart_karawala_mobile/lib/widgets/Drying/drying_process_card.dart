@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/drying_model.dart';
 import '../../services/Drying/drying_service.dart';
@@ -312,20 +313,20 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         debugPrint("Oven stop failed (continuing to clear active batch): $e");
       }
 
-      // Universal stop to ensure port 8002 marks any running session stopped
+      // Universal stop to ensure backend marks any running session stopped
       try {
         await http.post(
-          Uri.parse("http://127.0.0.1:8002/api/iot/stop"),
+          Uri.parse("${AppConfig.iotBaseUrl}/api/iot/stop"),
           headers: {"Content-Type": "application/json"},
         ).timeout(const Duration(seconds: 2));
       } catch (_) {}
 
-      // Command hardware actuators off directly on Raspberry Pi bridge
+      // Command hardware actuators off
       try {
         await http.post(
-          Uri.parse("http://172.20.10.2:8081/api/actuators"),
+          Uri.parse("${AppConfig.iotBaseUrl}/api/iot/command"),
           headers: {"Content-Type": "application/json"},
-          body: jsonEncode({"heater": false, "fan": false}),
+          body: jsonEncode({"command": "heater_off"}),
         ).timeout(const Duration(seconds: 2));
       } catch (_) {}
 
@@ -387,6 +388,15 @@ class _DryingProcessCardState extends State<DryingProcessCard> {
         batchId: widget.batchId,
         mode: 'AUTO',
       );
+
+      // Explicitly command hardware heater ON
+      try {
+        await http.post(
+          Uri.parse("${AppConfig.iotBaseUrl}/api/iot/command"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({"command": "heater_on"}),
+        ).timeout(const Duration(seconds: 2));
+      } catch (_) {}
 
       await DryingService.startDrying(
         widget.batchId,
