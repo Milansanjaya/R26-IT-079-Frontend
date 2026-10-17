@@ -383,32 +383,46 @@ class VerificationStationService {
               "Content-Type": "application/json",
               "x-api-key": "rpi-dryfish-key-2025",
             },
-            body: jsonEncode({"useAi": true, "host": baseUrl}),
+            body: jsonEncode({
+              "useAi": true,
+              if (host != null && !host.contains('3000') && !host.contains('smartkarawala')) "host": host,
+            }),
           )
           .timeout(const Duration(seconds: 25));
 
       if (verifyRes.statusCode == 200) {
         final resData = jsonDecode(verifyRes.body);
         if (resData['success'] == true && resData['data'] != null) {
-          final d = Map<String, dynamic>.from(resData['data']);
-          final bool isBedEmpty = d['is_bed_empty'] == true;
+          final raw = resData['data'];
+          final Map<String, dynamic> d = raw is Map ? Map<String, dynamic>.from(raw) : {};
+          final Map<String, dynamic> insp = d['inspection'] is Map
+              ? Map<String, dynamic>.from(d['inspection'])
+              : d;
+
+          final bool isBedEmpty = insp['is_bed_empty'] == true ||
+              (insp['detected_fish_count'] != null && insp['detected_fish_count'] == 0) ||
+              d['is_bed_empty'] == true ||
+              (d['detected_fish_count'] != null && d['detected_fish_count'] == 0);
 
           // Update cached telemetry immediately
           if (_lastTelemetryCache != null) {
             _lastTelemetryCache = _lastTelemetryCache!.copyWith(
               isBedEmpty: isBedEmpty,
-              detectedFishCount: isBedEmpty ? 0 : (d['detected_fish_count'] ?? 1),
-              dryingStage: d['drying_stage']?.toString() ?? _lastTelemetryCache!.dryingStage,
-              liveQuality: d['quality_grade']?.toString() ?? _lastTelemetryCache!.liveQuality,
-              colorMatchPercent: d['color_match_percent'] ?? d['color_match'] ?? (isBedEmpty ? 0 : 85),
-              colorDiscolorationsCount: d['discolorations_count'] ?? d['discolorations'] ?? 0,
+              detectedFishCount: isBedEmpty ? 0 : (insp['detected_fish_count'] ?? d['detected_fish_count'] ?? 1),
+              dryingStage: (insp['drying_stage'] ?? d['drying_stage'])?.toString() ?? _lastTelemetryCache!.dryingStage,
+              liveQuality: (insp['quality_grade'] ?? d['quality_grade'])?.toString() ?? _lastTelemetryCache!.liveQuality,
+              colorMatchPercent: insp['color_match_percent'] ?? d['color_match_percent'] ?? (isBedEmpty ? 0 : 85),
+              colorDiscolorationsCount: insp['discolorations_count'] ?? d['discolorations_count'] ?? 0,
             );
           }
+
+          // Combine inspection directly into return map
+          final combinedData = {...d, ...insp, "is_bed_empty": isBedEmpty};
 
           return {
             "success": true,
             "message": resData['message'] ?? (isBedEmpty ? "Rack verified empty." : "AI verification complete!"),
-            "data": d,
+            "data": combinedData,
           };
         }
       }

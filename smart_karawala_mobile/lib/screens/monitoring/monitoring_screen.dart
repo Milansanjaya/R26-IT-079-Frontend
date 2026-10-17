@@ -252,10 +252,15 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
     if (mounted) {
       Navigator.pop(context); // Close loading dialog
 
-      final data = result['data'] ?? {};
+      final Map<String, dynamic> rawData = result['data'] is Map ? Map<String, dynamic>.from(result['data']) : {};
+      final Map<String, dynamic> data = rawData['inspection'] is Map
+          ? Map<String, dynamic>.from(rawData['inspection'])
+          : rawData;
+
       final bool isEmpty = data['is_bed_empty'] == true ||
           (data['detected_fish_count'] != null && data['detected_fish_count'] == 0) ||
-          _telemetry.isBedEmpty;
+          rawData['is_bed_empty'] == true ||
+          (rawData['detected_fish_count'] != null && rawData['detected_fish_count'] == 0);
 
       final double drynessVal;
       final String qualityGrade;
