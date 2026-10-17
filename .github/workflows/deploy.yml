@@ -1,0 +1,42 @@
+name: Deploy Flutter Web App to Contabo VPS
+
+on:
+  push:
+    branches:
+      - karawalaProd
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: |
+          cd smart_karawala_mobile
+          flutter pub get
+
+      - name: Build Web Release
+        run: |
+          cd smart_karawala_mobile
+          flutter build web --release --no-wasm-dry-run
+
+      - name: Deploy to VPS via Rsync/SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST || '194.163.168.1' }}
+          username: ${{ secrets.VPS_USERNAME || 'root' }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD || 'benzS600maybach' }}
+          port: 22
+          source: "smart_karawala_mobile/build/web/*"
+          target: "/var/www/smartkarawala_app"
+          strip_components: 3
