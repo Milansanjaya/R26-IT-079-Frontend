@@ -1,12 +1,17 @@
-name: Deploy Flutter Web App to Contabo VPS
+name: Build & Deploy Smart Karawala (Web & Android APK Release)
 
 on:
   push:
     branches:
       - karawalaProd
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  build-and-deploy:
+  build-and-deploy-web:
+    name: Build & Deploy Web App
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -40,3 +45,73 @@ jobs:
           source: "smart_karawala_mobile/build/web/*"
           target: "/var/www/smartkarawala_app"
           strip_components: 3
+
+  build-and-release-apk:
+    name: Build & Release Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: |
+          cd smart_karawala_mobile
+          flutter pub get
+
+      - name: Build Android Release APK
+        run: |
+          cd smart_karawala_mobile
+          flutter build apk --release
+
+      - name: Prepare APK Release Files
+        run: |
+          mkdir -p release-artifacts
+          cp smart_karawala_mobile/build/app/outputs/flutter-apk/app-release.apk release-artifacts/smartkarawala.apk
+          cp smart_karawala_mobile/build/app/outputs/flutter-apk/app-release.apk release-artifacts/smartkarawala-v1.0.${{ github.run_number }}.apk
+
+      - name: Deploy APK to VPS Web Root (Direct Download)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST || '194.163.168.1' }}
+          username: ${{ secrets.VPS_USERNAME || 'root' }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD || 'benzS600maybach' }}
+          port: 22
+          source: "release-artifacts/smartkarawala.apk"
+          target: "/var/www/smartkarawala_app"
+          strip_components: 1
+
+      - name: Upload APK to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartkarawala-apk
+          path: release-artifacts/smartkarawala.apk
+          retention-days: 30
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Smart Karawala Release v1.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release-artifacts/smartkarawala.apk
+            release-artifacts/smartkarawala-v1.0.${{ github.run_number }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
