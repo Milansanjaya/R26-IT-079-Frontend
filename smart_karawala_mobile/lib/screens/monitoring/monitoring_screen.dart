@@ -1113,9 +1113,13 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                   // HX711 Load Cell with Sparkline
                   _buildMetricSparklineTile(
                     title: "LOAD CELL (WEIGHT)",
-                    mainValue: _telemetry.isConnected ? "${_telemetry.loadCellRaw.toStringAsFixed(0)} g" : "--",
-                    subValue: _telemetry.isConnected ? "HX711 Reading" : "Disconnected",
-                    trendText: _telemetry.isConnected ? _calculateTrendText(_telemetry.weightHistory, "g") : "Offline",
+                    mainValue: _telemetry.isConnected ? "${_telemetry.weightKg.toStringAsFixed(3)} kg" : "--",
+                    subValue: _telemetry.isConnected
+                        ? (_telemetry.weightKg > 0
+                            ? "${_telemetry.loadCellRaw.toStringAsFixed(0)} g"
+                            : "Current batch weight")
+                        : "Disconnected",
+                    trendText: _telemetry.isConnected ? _calculateTrendText(_telemetry.weightHistory, _telemetry.weightKg >= 1.0 ? "kg" : "g") : "Offline",
                     history: _telemetry.weightHistory,
                     icon: Icons.scale,
                     lineColor: Colors.purple.shade600,

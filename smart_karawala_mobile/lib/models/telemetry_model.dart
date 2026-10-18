@@ -94,16 +94,7 @@ class TelemetryData {
         ? toDouble(json['raw_weight'])
         : toDouble(json['load_cell_raw'] ?? json['load_cell'] ?? 0.0);
 
-    double convertedKg = toDouble(json['weight'] ?? json['weight_kg'] ?? 0.0);
-    double convertedGrams = convertedKg * 1000.0;
-
-    // Convert raw HX711 ADC counts into converted grams if raw > 500 and weight is not provided
-    if (convertedKg <= 0.0 && rawVal > 500) {
-      convertedGrams = ((rawVal - 12000).abs() / 415.0).clamp(0.0, 5000.0);
-      convertedKg = convertedGrams / 1000.0;
-    }
-
-    final isOnline = json['online'] ?? json['nano_connected'] ?? json['connected'] ?? true;
+    final bool hasExplicitWeight = json['weight'] != null || json['weight_kg'] != null;
 
     final bool bedEmptyState;
     if (json['is_bed_empty'] != null) {
@@ -111,6 +102,30 @@ class TelemetryData {
     } else {
       bedEmptyState = false;
     }
+
+    double convertedKg = 0.0;
+    if (hasExplicitWeight) {
+      convertedKg = toDouble(json['weight'] ?? json['weight_kg']).clamp(0.0, 50.0);
+    } else if (rawVal > 0) {
+      // Calibrated from hardware settings: RAW_ZERO = 78959, COUNTS_PER_KG = 381866.0
+      const double rawZero = 78959.0;
+      const double countsPerKg = 381866.0;
+      final double diff = rawVal - rawZero;
+      if (diff > 0) {
+        convertedKg = (diff / countsPerKg).clamp(0.0, 50.0);
+      } else {
+        convertedKg = 0.0;
+      }
+    }
+
+    // When empty bed is detected or weight is within empty tray tolerance (< 5g), clamp to 0.0
+    if (bedEmptyState || convertedKg < 0.005) {
+      convertedKg = 0.0;
+    }
+
+    final double convertedGrams = convertedKg * 1000.0;
+
+    final isOnline = json['online'] ?? json['nano_connected'] ?? json['connected'] ?? true;
 
     final fishCount = json['detected_fish_count'] ?? (bedEmptyState ? 0 : 1);
     final discolorations = json['color_discolorations'] ?? json['discolorations_count'] ?? (bedEmptyState ? 0 : 2);

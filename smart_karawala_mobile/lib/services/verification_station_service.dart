@@ -174,7 +174,7 @@ class VerificationStationService {
         temperatureF: 83.7,
         humidityPercent: 88.6,
         gasRaw: 920.0,
-        loadCellRaw: 72000.0,
+        loadCellRaw: 0.0,
         weightKg: 0.0,
         heaterState: false,
         lightState: false,
@@ -216,7 +216,7 @@ class VerificationStationService {
               temps.add(TelemetryData.toDouble(item['temperature'] ?? item['temperature_c']));
               hums.add(TelemetryData.toDouble(item['humidity'] ?? item['humidity_percent']));
               gases.add(TelemetryData.toDouble(item['gas'] ?? item['air_quality']));
-              weights.add(TelemetryData.toDouble(item['weight'] ?? item['raw_weight']));
+              weights.add(TelemetryData.toDouble(item['weight'] ?? item['weight_kg'] ?? 0.0));
             }
           }
 
@@ -251,7 +251,7 @@ class VerificationStationService {
                 temps.add(TelemetryData.toDouble(item['temperature'] ?? item['temperature_c']));
                 hums.add(TelemetryData.toDouble(item['humidity'] ?? item['humidity_percent']));
                 gases.add(TelemetryData.toDouble(item['gas'] ?? item['air_quality']));
-                weights.add(TelemetryData.toDouble(item['weight'] ?? item['raw_weight']));
+                weights.add(TelemetryData.toDouble(item['weight'] ?? item['weight_kg'] ?? 0.0));
               }
             }
 
@@ -270,7 +270,7 @@ class VerificationStationService {
     _appendToHistory(_tempHistory, activeData.temperatureC);
     _appendToHistory(_humidityHistory, activeData.humidityPercent);
     _appendToHistory(_gasHistory, activeData.gasRaw);
-    _appendToHistory(_weightHistory, activeData.loadCellRaw);
+    _appendToHistory(_weightHistory, activeData.weightKg);
 
     if (_tempHistory.length == 1) {
       _tempHistory.insert(0, _tempHistory.first);
