@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/sensor_model.dart';
 import '../../services/iot_service.dart';
-import '../../widgets/drying/live_chart.dart';
+import '../../widgets/Drying/live_chart.dart';
 
 class LiveGraphScreen extends StatefulWidget {
   const LiveGraphScreen({super.key});

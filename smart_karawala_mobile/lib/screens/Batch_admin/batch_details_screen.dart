@@ -7,7 +7,7 @@ import '../../widgets/Drying/drying_process_card.dart';
 import '../../core/batch_stage.dart';
 import '../../services/Drying/drying_service.dart';
 import '../admin/admin_home_screen.dart';
-import '../Drying/time_prediction_screen.dart';
+import '../drying/time_prediction_screen.dart';
 import '../../services/Salt/salt_service.dart';
 import '../../utils/weight_formatter.dart';
 
