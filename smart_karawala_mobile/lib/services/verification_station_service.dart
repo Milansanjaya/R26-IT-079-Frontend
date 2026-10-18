@@ -156,6 +156,8 @@ class VerificationStationService {
         final bool bedEmpty = visionMap['is_bed_empty'] == true;
         newData = newData.copyWith(
           isBedEmpty: bedEmpty,
+          loadCellRaw: bedEmpty ? 0.0 : newData.loadCellRaw,
+          weightKg: bedEmpty ? 0.0 : newData.weightKg,
           colorMatchPercent: visionMap['color_match_percent'] ?? newData.colorMatchPercent,
           colorDiscolorationsCount: visionMap['discolorations_count'] ?? newData.colorDiscolorationsCount,
           detectedFishCount: visionMap['detected_fish_count'] ?? (bedEmpty ? 0 : newData.detectedFishCount),
@@ -293,7 +295,7 @@ class VerificationStationService {
   static Future<PredictionData> fetchPredictions() async {
     try {
       final activeRes = await http
-          .get(Uri.parse("http://127.0.0.1:8003/api/drying/active"))
+          .get(Uri.parse("${AppConfig.dryingBaseUrl}/active"))
           .timeout(const Duration(seconds: 3));
 
       if (activeRes.statusCode == 200) {

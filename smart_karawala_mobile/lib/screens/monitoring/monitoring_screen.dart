@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/telemetry_model.dart';
 import '../../services/verification_station_service.dart';
+import '../../core/config/app_config.dart';
 import '../../widgets/monitoring/mini_sparkline_chart.dart';
 import '../../widgets/monitoring/speedometer_gauge.dart';
 
@@ -41,7 +42,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
   );
 
   bool _actionPending = false;
-  String _piHost = "http://localhost:3000";
+  String _piHost = AppConfig.verificationStationUrl;
   bool _useSnapshotMode = true;
   final bool _isCameraConnected = true;
 
@@ -63,6 +64,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
   @override
   void initState() {
     super.initState();
+    _piHost = AppConfig.verificationStationUrl;
     BatchWorkflowService.updateStage('verification');
     if (VerificationStationService.lastCachedTelemetry != null) {
       _telemetry = VerificationStationService.lastCachedTelemetry!;
@@ -194,9 +196,9 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
             const SizedBox(height: 10),
             TextField(
               controller: controller,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "http://localhost:3000 or http://172.20.10.2:8080",
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: "${AppConfig.verificationStationUrl} or http://172.20.10.2:8080",
                 isDense: true,
               ),
             ),
@@ -1301,7 +1303,7 @@ class _MonitoringScreenState extends State<MonitoringScreen> {
                             style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
                           ),
                           Text(
-                            "IoT Service: http://localhost:8002/api/iot • Camera Target: $_piHost",
+                            "IoT Service: ${AppConfig.iotBaseUrl}/api/iot • Camera Target: $_piHost",
                             style: const TextStyle(fontSize: 10, color: Colors.grey),
                           ),
                         ],
