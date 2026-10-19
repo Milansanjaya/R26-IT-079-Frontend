@@ -15,6 +15,7 @@ import 'screens/auth/otp_verification_screen.dart';
 import 'screens/auth/account_verified_screen.dart';
 import 'screens/drying/drying_dashboard_screen.dart';
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

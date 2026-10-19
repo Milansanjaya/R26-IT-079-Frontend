@@ -25,42 +25,67 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkLogin() async {
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      await Future.delayed(const Duration(seconds: 2));
 
-    final token = await StorageService.getToken();
-    final role = await StorageService.getRole();
+      final token = await StorageService.getToken();
+      final role = await StorageService.getRole();
 
-    if (!mounted) return;
-
-    await Provider.of<AuthProvider>(context, listen: false).loadUserFromStorage();
-
-    if (token == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const WelcomeScreen(),
-        ),
-      );
-    } else if (role == 'admin') {
-      final activeBatch = await BatchWorkflowService.getActiveBatch();
       if (!mounted) return;
-      if (activeBatch != null && activeBatch['isActive'] == true) {
-        BatchWorkflowService.navigateToActiveStage(context, activeBatch);
+
+      try {
+        await Provider.of<AuthProvider>(context, listen: false).loadUserFromStorage();
+      } catch (e) {
+        debugPrint("Could not load user from storage: $e");
+      }
+
+      if (!mounted) return;
+
+      if (token == null || token.isEmpty) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const WelcomeScreen(),
+          ),
+        );
+      } else if (role == 'admin') {
+        Map<String, dynamic>? activeBatch;
+        try {
+          activeBatch = await BatchWorkflowService.getActiveBatch().timeout(
+            const Duration(seconds: 3),
+            onTimeout: () => null,
+          );
+        } catch (_) {}
+
+        if (!mounted) return;
+        if (activeBatch != null && activeBatch['isActive'] == true) {
+          BatchWorkflowService.navigateToActiveStage(context, activeBatch);
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AdminHomeScreen(),
+            ),
+          );
+        }
       } else {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => const AdminHomeScreen(),
+            builder: (_) => const CustomerHome(),
           ),
         );
       }
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const CustomerHome(),
-        ),
-      );
+    } catch (e, stack) {
+      debugPrint("Error in checkLogin: $e\n$stack");
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const WelcomeScreen(),
+          ),
+        );
+      }
     }
   }
 
