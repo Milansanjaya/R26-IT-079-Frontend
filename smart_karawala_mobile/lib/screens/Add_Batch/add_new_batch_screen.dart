@@ -27,11 +27,15 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
   }
 
   Future<void> _checkExistingActiveBatch() async {
-    final active = await BatchWorkflowService.getActiveBatch();
-    if (mounted && active != null && active['isActive'] == true) {
-      setState(() {
-        _existingActiveBatch = active;
-      });
+    try {
+      final active = await BatchWorkflowService.getActiveBatch();
+      if (mounted && active != null && active['isActive'] == true) {
+        setState(() {
+          _existingActiveBatch = active;
+        });
+      }
+    } catch (e) {
+      debugPrint('[AddNewBatchScreen] _checkExistingActiveBatch error: $e');
     }
   }
   final notesController = TextEditingController();

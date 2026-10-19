@@ -24,6 +24,8 @@ class BatchWorkflowService {
   static String get batchApiUrl => AppConfig.batchesBaseUrl;
   static String get dryingApiUrl => AppConfig.dryingBaseUrl;
 
+  static final Map<String, dynamic> _fallbackMemory = {};
+
   /// Save newly created batch and set workflow active
   static Future<void> saveActiveBatch({
     required String batchId,
@@ -32,46 +34,84 @@ class BatchWorkflowService {
     required String stage,
     Map<String, dynamic>? extraData,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyBatchId, batchId);
-    await prefs.setString(_keyFishType, fishType);
-    await prefs.setDouble(_keyRawWeight, rawWeight);
-    await prefs.setString(_keyStage, stage);
-    await prefs.setBool(_keyIsActive, true);
+    _fallbackMemory[_keyBatchId] = batchId;
+    _fallbackMemory[_keyFishType] = fishType;
+    _fallbackMemory[_keyRawWeight] = rawWeight;
+    _fallbackMemory[_keyStage] = stage;
+    _fallbackMemory[_keyIsActive] = true;
     if (extraData != null) {
-      await prefs.setString(_keyExtraData, jsonEncode(extraData));
+      _fallbackMemory[_keyExtraData] = jsonEncode(extraData);
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_keyBatchId, batchId);
+      await prefs.setString(_keyFishType, fishType);
+      await prefs.setDouble(_keyRawWeight, rawWeight);
+      await prefs.setString(_keyStage, stage);
+      await prefs.setBool(_keyIsActive, true);
+      if (extraData != null) {
+        await prefs.setString(_keyExtraData, jsonEncode(extraData));
+      }
+    } catch (e) {
+      debugPrint('[Workflow] saveActiveBatch prefs error: $e');
     }
   }
 
   /// Update the stage of the currently running batch
   static Future<void> updateStage(String stage, {Map<String, dynamic>? extraData}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final isActive = prefs.getBool(_keyIsActive) ?? false;
-    if (isActive) {
-      await prefs.setString(_keyStage, stage);
-      if (extraData != null) {
-        await prefs.setString(_keyExtraData, jsonEncode(extraData));
+    _fallbackMemory[_keyStage] = stage;
+    if (extraData != null) {
+      _fallbackMemory[_keyExtraData] = jsonEncode(extraData);
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final isActive = prefs.getBool(_keyIsActive) ?? (_fallbackMemory[_keyIsActive] == true);
+      if (isActive) {
+        await prefs.setString(_keyStage, stage);
+        if (extraData != null) {
+          await prefs.setString(_keyExtraData, jsonEncode(extraData));
+        }
       }
+    } catch (e) {
+      debugPrint('[Workflow] updateStage prefs error: $e');
     }
   }
 
   /// Get the active batch from SharedPreferences or Backend
   static Future<Map<String, dynamic>?> getActiveBatch() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isActive = prefs.getBool(_keyIsActive) ?? false;
-    final localBatchId = prefs.getString(_keyBatchId);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final isActive = prefs.getBool(_keyIsActive) ?? false;
+      final localBatchId = prefs.getString(_keyBatchId);
 
-    if (isActive && localBatchId != null && localBatchId.isNotEmpty) {
-      return {
-        'batchId': localBatchId,
-        'fishType': prefs.getString(_keyFishType) ?? 'Fish',
-        'rawWeight': prefs.getDouble(_keyRawWeight) ?? 1.0,
-        'stage': prefs.getString(_keyStage) ?? 'waste_prediction',
-        'isActive': true,
-        'extraData': prefs.getString(_keyExtraData) != null
-            ? jsonDecode(prefs.getString(_keyExtraData)!)
-            : null,
-      };
+      if (isActive && localBatchId != null && localBatchId.isNotEmpty) {
+        return {
+          'batchId': localBatchId,
+          'fishType': prefs.getString(_keyFishType) ?? 'Fish',
+          'rawWeight': prefs.getDouble(_keyRawWeight) ?? 1.0,
+          'stage': prefs.getString(_keyStage) ?? 'waste_prediction',
+          'isActive': true,
+          'extraData': prefs.getString(_keyExtraData) != null
+              ? jsonDecode(prefs.getString(_keyExtraData)!)
+              : null,
+        };
+      }
+    } catch (e) {
+      debugPrint('[Workflow] Local getActiveBatch error: $e');
+      if (_fallbackMemory[_keyIsActive] == true && _fallbackMemory[_keyBatchId] != null) {
+        return {
+          'batchId': _fallbackMemory[_keyBatchId],
+          'fishType': _fallbackMemory[_keyFishType] ?? 'Fish',
+          'rawWeight': _fallbackMemory[_keyRawWeight] ?? 1.0,
+          'stage': _fallbackMemory[_keyStage] ?? 'waste_prediction',
+          'isActive': true,
+          'extraData': _fallbackMemory[_keyExtraData] != null
+              ? jsonDecode(_fallbackMemory[_keyExtraData]!)
+              : null,
+        };
+      }
     }
 
     // Fall back to checking backend active batch
@@ -79,7 +119,7 @@ class BatchWorkflowService {
       debugPrint('[Workflow] Checking backend active batch at $batchApiUrl/active...');
       final res = await http
           .get(Uri.parse("$batchApiUrl/active"))
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(seconds: 4));
 
       debugPrint('[Workflow] Backend response: ${res.statusCode}: ${res.body}');
       if (res.statusCode == 200) {
@@ -118,13 +158,18 @@ class BatchWorkflowService {
 
   /// Clear active batch from persistent local storage
   static Future<void> clearActiveBatch() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyBatchId);
-    await prefs.remove(_keyFishType);
-    await prefs.remove(_keyRawWeight);
-    await prefs.remove(_keyStage);
-    await prefs.setBool(_keyIsActive, false);
-    await prefs.remove(_keyExtraData);
+    _fallbackMemory.clear();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_keyBatchId);
+      await prefs.remove(_keyFishType);
+      await prefs.remove(_keyRawWeight);
+      await prefs.remove(_keyStage);
+      await prefs.setBool(_keyIsActive, false);
+      await prefs.remove(_keyExtraData);
+    } catch (e) {
+      debugPrint('[Workflow] clearActiveBatch prefs error: $e');
+    }
   }
 
   /// End batch process completely (Backend and local)

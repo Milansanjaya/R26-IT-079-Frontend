@@ -50,11 +50,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Future<void> _loadActiveBatch() async {
-    final active = await BatchWorkflowService.getActiveBatch();
-    if (mounted) {
-      setState(() {
-        _activeBatch = active;
-      });
+    try {
+      final active = await BatchWorkflowService.getActiveBatch();
+      if (mounted) {
+        setState(() {
+          _activeBatch = active;
+        });
+      }
+    } catch (e) {
+      debugPrint('[AdminHome] _loadActiveBatch error: $e');
     }
   }
 
@@ -178,10 +182,18 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         icon: Icons.add_circle_outline,
         iconColor: Colors.blue,
         onTap: (ctx) async {
-          final active = await BatchWorkflowService.getActiveBatch();
-          if (active != null && active['isActive'] == true) {
-            _showActiveBatchRunningDialog(ctx, active);
-          } else {
+          try {
+            final active = await BatchWorkflowService.getActiveBatch();
+            if (active != null && active['isActive'] == true) {
+              if (ctx.mounted) {
+                _showActiveBatchRunningDialog(ctx, active);
+              }
+              return;
+            }
+          } catch (e) {
+            debugPrint('[AdminHome] Error checking active batch: $e');
+          }
+          if (ctx.mounted) {
             Navigator.push(
               ctx,
               MaterialPageRoute(
