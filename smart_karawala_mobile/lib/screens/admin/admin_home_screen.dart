@@ -181,19 +181,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         category: 'Batch',
         icon: Icons.add_circle_outline,
         iconColor: Colors.blue,
-        onTap: (ctx) async {
-          try {
-            final active = await BatchWorkflowService.getActiveBatch();
-            if (active != null && active['isActive'] == true) {
-              if (ctx.mounted) {
-                _showActiveBatchRunningDialog(ctx, active);
-              }
-              return;
-            }
-          } catch (e) {
-            debugPrint('[AdminHome] Error checking active batch: $e');
-          }
-          if (ctx.mounted) {
+        onTap: (ctx) {
+          if (_activeBatch != null && _activeBatch!['isActive'] == true) {
+            _showActiveBatchRunningDialog(ctx, _activeBatch!);
+          } else {
             Navigator.push(
               ctx,
               MaterialPageRoute(
@@ -389,37 +380,41 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _dashboardTile(DashboardItem item, BuildContext context) {
-    return GestureDetector(
-      onTap: () => item.onTap(context),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(item.icon, size: 30, color: item.iconColor),
-            const SizedBox(height: 10),
-            Text(
-              item.title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => item.onTap(context),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.border),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                offset: Offset(0, 2),
               ),
-            ),
-          ],
+            ],
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(item.icon, size: 30, color: item.iconColor),
+              const SizedBox(height: 10),
+              Text(
+                item.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
