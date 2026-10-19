@@ -109,7 +109,7 @@ class VerificationStationService {
   static Future<TelemetryData> fetchTelemetry({String? host, String? batchId}) async {
     final List<String> iotEndpoints = [
       "$smartDryingBackendUrl/live",
-      "http://127.0.0.1:8002/api/iot/live",
+      if (AppConfig.isLocalWeb) "http://127.0.0.1:8002/api/iot/live",
     ];
 
     TelemetryData? newData;
@@ -345,7 +345,7 @@ class VerificationStationService {
 
     final List<String> targets = [
       "$smartDryingBackendUrl/command",
-      "http://127.0.0.1:8002/api/iot/command",
+      if (AppConfig.isLocalWeb) "http://127.0.0.1:8002/api/iot/command",
       "http://172.20.10.2:8081/api/control?action=$action",
     ];
 

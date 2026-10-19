@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/config/app_config.dart';
 
 import '../../screens/Waste/waste_prediction_screen.dart';
 import '../../screens/Salt/salt_prediction_screen.dart';
@@ -20,8 +21,8 @@ class BatchWorkflowService {
   static const String _keyIsActive = "active_workflow_is_active";
   static const String _keyExtraData = "active_workflow_extra_data";
 
-  static const String batchApiUrl = "http://localhost:8001/api/batches";
-  static const String dryingApiUrl = "http://localhost:8003/api/drying";
+  static String get batchApiUrl => AppConfig.batchesBaseUrl;
+  static String get dryingApiUrl => AppConfig.dryingBaseUrl;
 
   /// Save newly created batch and set workflow active
   static Future<void> saveActiveBatch({
@@ -138,21 +139,21 @@ class BatchWorkflowService {
           .timeout(const Duration(seconds: 3));
     } catch (_) {}
 
-    // 2. Stop oven session on SmartDrying (port 8002) - turns off heater and fan
+    // 2. Stop oven session on SmartDrying (cloud or local) - turns off heater and fan
     try {
       await http
           .post(
-            Uri.parse("http://127.0.0.1:8002/api/iot/sessions/${Uri.encodeComponent(batchId)}/stop"),
+            Uri.parse("${AppConfig.iotBaseUrl}/api/iot/sessions/${Uri.encodeComponent(batchId)}/stop"),
             headers: {"Content-Type": "application/json"},
           )
           .timeout(const Duration(seconds: 2));
     } catch (_) {}
 
-    // 3. Universal stop on port 8002 to guarantee hardware actuators off
+    // 3. Universal stop to guarantee hardware actuators off
     try {
       await http
           .post(
-            Uri.parse("http://127.0.0.1:8002/api/iot/stop"),
+            Uri.parse("${AppConfig.iotBaseUrl}/api/iot/stop"),
             headers: {"Content-Type": "application/json"},
           )
           .timeout(const Duration(seconds: 2));

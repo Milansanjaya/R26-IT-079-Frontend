@@ -1,4 +1,5 @@
 import '../../services/Batch/batch_workflow_service.dart';
+import '../../core/config/app_config.dart';
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -86,7 +87,7 @@ class _AddNewBatchScreenState extends State<AddNewBatchScreen> {
     // Auto-generate a batchId since there is no input field for it in the UI
     final generatedBatchId =
         "B${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
-    final url = Uri.parse("http://localhost:8001/api/batches");
+    final url = Uri.parse(AppConfig.batchesBaseUrl);
 
     try {
       final response = await http.post(

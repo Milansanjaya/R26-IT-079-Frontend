@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/config/app_config.dart';
 import '../../models/sensor_model.dart';
 import '../../services/iot_service.dart';
 import '../admin/admin_home_screen.dart';
@@ -246,7 +247,7 @@ class _DryingControlScreenState extends State<DryingControlScreen> {
     try {
       try {
         await http.post(
-          Uri.parse("http://127.0.0.1:8002/api/iot/stop"),
+          Uri.parse("${AppConfig.iotBaseUrl}/api/iot/stop"),
           headers: {"Content-Type": "application/json"},
         ).timeout(const Duration(seconds: 2));
       } catch (_) {}
