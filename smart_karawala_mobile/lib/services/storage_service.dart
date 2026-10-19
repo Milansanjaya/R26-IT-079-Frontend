@@ -9,26 +9,42 @@ class StorageService {
 
   /// Save JWT Token
   static Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(tokenKey, token);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(tokenKey, token);
+    } catch (e) {
+      // safe fallback
+    }
   }
 
   /// Read JWT Token
   static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(tokenKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(tokenKey);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Save User Role ('admin' or 'customer')
   static Future<void> saveRole(String role) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(roleKey, role);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(roleKey, role);
+    } catch (e) {
+      // safe fallback
+    }
   }
 
   /// Read User Role
   static Future<String?> getRole() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(roleKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(roleKey);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Save User Profile Info
@@ -38,37 +54,57 @@ class StorageService {
     required String role,
     String? phone,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(nameKey, name);
-    await prefs.setString(emailKey, email);
-    await prefs.setString(roleKey, role);
-    if (phone != null && phone.isNotEmpty) {
-      await prefs.setString(phoneKey, phone);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(nameKey, name);
+      await prefs.setString(emailKey, email);
+      await prefs.setString(roleKey, role);
+      if (phone != null && phone.isNotEmpty) {
+        await prefs.setString(phoneKey, phone);
+      }
+    } catch (e) {
+      // safe fallback
     }
   }
 
   static Future<String?> getUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(nameKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(nameKey);
+    } catch (e) {
+      return null;
+    }
   }
 
   static Future<String?> getUserEmail() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(emailKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(emailKey);
+    } catch (e) {
+      return null;
+    }
   }
 
   static Future<String?> getUserPhone() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(phoneKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(phoneKey);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Delete JWT Token & User Data
   static Future<void> clearToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(tokenKey);
-    await prefs.remove(roleKey);
-    await prefs.remove(nameKey);
-    await prefs.remove(emailKey);
-    await prefs.remove(phoneKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(tokenKey);
+      await prefs.remove(roleKey);
+      await prefs.remove(nameKey);
+      await prefs.remove(emailKey);
+      await prefs.remove(phoneKey);
+    } catch (e) {
+      // safe fallback
+    }
   }
 }
